@@ -113,7 +113,8 @@ $updateManifest = [ordered]@{
     releaseNotes = $releaseNotes
 }
 $updateJsonPath = Join-Path $OutputDir 'update.json'
-$updateManifest | ConvertTo-Json | Set-Content -Path $updateJsonPath -Encoding UTF8
+$utf8NoBom = New-Object System.Text.UTF8Encoding $false
+[System.IO.File]::WriteAllText($updateJsonPath, ($updateManifest | ConvertTo-Json), $utf8NoBom)
 
 $sizeMb = [math]::Round((Get-Item $msiFile).Length / 1MB, 1)
 Write-Host ''

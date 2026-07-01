@@ -36,7 +36,16 @@ public static class DependencyInjection
         services.AddSingleton<IExportImportService, ExportImportService>();
         services.AddSingleton<IAutoStartService, AutoStartService>();
         services.AddSingleton<ISshTunnelTestService, SshTunnelTestService>();
-        services.AddSingleton<HttpClient>();
+        services.AddSingleton(_ =>
+        {
+            var client = new HttpClient
+            {
+                Timeout = TimeSpan.FromMinutes(30)
+            };
+            client.DefaultRequestHeaders.UserAgent.ParseAdd("SecureTunnelManager-Updater/1.0");
+            client.DefaultRequestHeaders.Accept.ParseAdd("*/*");
+            return client;
+        });
         services.AddSingleton<IUpdateService, UpdateService>();
 
         services.AddHostedService<TunnelAutoStartHostedService>();

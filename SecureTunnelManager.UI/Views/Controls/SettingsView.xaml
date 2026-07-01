@@ -4,99 +4,168 @@
              xmlns:loc="clr-namespace:SecureTunnelManager.UI.Localization"
              Background="Transparent">
 
-    <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="24">
-        <StackPanel MaxWidth="720">
-            <StackPanel Margin="0,0,0,12">
+    <UserControl.Resources>
+        <Style x:Key="StmSettingsCardTitle" TargetType="TextBlock" BasedOn="{StaticResource StmCardTitle}">
+            <Setter Property="Margin" Value="0,0,0,12"/>
+        </Style>
+
+        <Style x:Key="StmSettingsNumericInput" TargetType="TextBox" BasedOn="{StaticResource StmInput}">
+            <Setter Property="Width" Value="80"/>
+            <Setter Property="Margin" Value="0"/>
+            <Setter Property="HorizontalAlignment" Value="Left"/>
+        </Style>
+
+        <Style x:Key="StmSettingsUnit" TargetType="TextBlock" BasedOn="{StaticResource StmBody}">
+            <Setter Property="Foreground" Value="{StaticResource StmTextSecondaryBrush}"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="8,0,0,0"/>
+        </Style>
+
+        <Style x:Key="StmSettingsVersionValue" TargetType="TextBlock" BasedOn="{StaticResource StmBody}">
+            <Setter Property="Foreground" Value="{StaticResource StmTextSecondaryBrush}"/>
+            <Setter Property="Margin" Value="0,2,0,0"/>
+        </Style>
+
+        <Style x:Key="StmSettingsCheckBox" TargetType="CheckBox" BasedOn="{StaticResource StmCheckBox}">
+            <Setter Property="Margin" Value="0"/>
+        </Style>
+    </UserControl.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="32">
+        <Grid MaxWidth="1200" HorizontalAlignment="Left">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <StackPanel Grid.Row="0" Margin="0,0,0,24">
                 <TextBlock Text="{loc:Loc Settings.Title}" Style="{StaticResource StmPageTitle}"/>
                 <TextBlock Text="{loc:Loc Settings.Subtitle}" Style="{StaticResource StmPageSubtitle}"/>
             </StackPanel>
 
-            <Border Style="{StaticResource StmCard}">
-                <StackPanel>
-                    <TextBlock Text="{loc:Loc Settings.Appearance}" Style="{StaticResource StmCardTitle}"/>
-                    <TextBlock Text="{loc:Loc Settings.Language}" Style="{StaticResource StmLabel}"/>
-                    <ComboBox SelectedValue="{Binding Settings.UiLanguage}"
-                              SelectedValuePath="Tag"
-                              Style="{StaticResource StmInputCombo}"
-                              MaxWidth="280"
-                              HorizontalAlignment="Left">
-                        <ComboBoxItem Content="{loc:Loc Settings.LanguageEnglish}" Tag="en"/>
-                        <ComboBoxItem Content="{loc:Loc Settings.LanguageRussian}" Tag="ru"/>
-                    </ComboBox>
-                </StackPanel>
-            </Border>
+            <Grid Grid.Row="1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="24"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
 
-            <Border Style="{StaticResource StmCard}">
-                <StackPanel>
-                    <TextBlock Text="{loc:Loc Settings.Security}" Style="{StaticResource StmCardTitle}"/>
-                    <CheckBox Content="{loc:Loc Settings.VaultAutoLockEnabled}"
-                              IsChecked="{Binding Settings.VaultAutoLockEnabled}"
-                              Style="{StaticResource StmCheckBox}"/>
-                    <TextBlock Text="{loc:Loc Settings.VaultAutoLock}" Style="{StaticResource StmLabel}" Margin="0,12,0,0"/>
-                    <TextBox Text="{Binding Settings.VaultAutoLockMinutes, UpdateSourceTrigger=PropertyChanged}"
-                             Style="{StaticResource StmInput}"
-                             MaxWidth="120"
-                             HorizontalAlignment="Left"
-                             IsEnabled="{Binding Settings.VaultAutoLockEnabled}"/>
-                </StackPanel>
-            </Border>
+                <!-- Left column: Appearance, Startup, Security -->
+                <StackPanel Grid.Column="0">
+                    <Border Style="{StaticResource StmCard}" Padding="16" Margin="0,0,0,24">
+                        <StackPanel>
+                            <TextBlock Text="{loc:Loc Settings.Appearance}" Style="{StaticResource StmSettingsCardTitle}"/>
+                            <TextBlock Text="{loc:Loc Settings.Language}" Style="{StaticResource StmLabel}" Margin="0,0,0,8"/>
+                            <ComboBox SelectedValue="{Binding Settings.UiLanguage}"
+                                      SelectedValuePath="Tag"
+                                      Style="{StaticResource StmInputCombo}"
+                                      Width="240"
+                                      Margin="0"
+                                      HorizontalAlignment="Left">
+                                <ComboBoxItem Content="{loc:Loc Settings.LanguageEnglish}" Tag="en"/>
+                                <ComboBoxItem Content="{loc:Loc Settings.LanguageRussian}" Tag="ru"/>
+                            </ComboBox>
+                        </StackPanel>
+                    </Border>
 
-            <Border Style="{StaticResource StmCard}">
-                <StackPanel>
-                    <TextBlock Text="{loc:Loc Settings.Tunnels}" Style="{StaticResource StmCardTitle}"/>
-                    <TextBlock Text="{loc:Loc Settings.ReconnectInterval}" Style="{StaticResource StmLabel}"/>
-                    <TextBox Text="{Binding Settings.ReconnectIntervalSeconds, UpdateSourceTrigger=PropertyChanged}"
-                             Style="{StaticResource StmInput}"
-                             MaxWidth="120"
-                             HorizontalAlignment="Left"/>
-                    <TextBlock Text="{loc:Loc Settings.CircuitBreakerPause}" Style="{StaticResource StmLabel}" Margin="0,12,0,0"/>
-                    <TextBox Text="{Binding Settings.CircuitBreakerBreakSeconds, UpdateSourceTrigger=PropertyChanged}"
-                             Style="{StaticResource StmInput}"
-                             MaxWidth="120"
-                             HorizontalAlignment="Left"/>
-                </StackPanel>
-            </Border>
+                    <Border Style="{StaticResource StmCard}" Padding="16" Margin="0,0,0,24">
+                        <StackPanel>
+                            <TextBlock Text="{loc:Loc Settings.Startup}" Style="{StaticResource StmSettingsCardTitle}"/>
+                            <CheckBox Content="{loc:Loc Settings.StartWithWindows}"
+                                      IsChecked="{Binding Settings.StartWithWindows}"
+                                      Style="{StaticResource StmSettingsCheckBox}"/>
+                            <CheckBox Content="{loc:Loc Settings.StartAllTunnelsOnStart}"
+                                      IsChecked="{Binding Settings.StartAllTunnelsOnAppStart}"
+                                      Style="{StaticResource StmSettingsCheckBox}"
+                                      Margin="0,12,0,0"/>
+                            <CheckBox Content="{loc:Loc Settings.CloseToTray}"
+                                      IsChecked="{Binding Settings.CloseToTray}"
+                                      Style="{StaticResource StmSettingsCheckBox}"
+                                      Margin="0,12,0,0"/>
+                        </StackPanel>
+                    </Border>
 
-            <Border Style="{StaticResource StmCard}">
-                <StackPanel>
-                    <TextBlock Text="{loc:Loc Settings.Startup}" Style="{StaticResource StmCardTitle}"/>
-                    <CheckBox Content="{loc:Loc Settings.StartWithWindows}"
-                              IsChecked="{Binding Settings.StartWithWindows}"
-                              Style="{StaticResource StmCheckBox}"/>
-                    <CheckBox Content="{loc:Loc Settings.StartAllTunnelsOnStart}"
-                              IsChecked="{Binding Settings.StartAllTunnelsOnAppStart}"
-                              Style="{StaticResource StmCheckBox}" Margin="0,8,0,0"/>
-                    <CheckBox Content="{loc:Loc Settings.CloseToTray}"
-                              IsChecked="{Binding Settings.CloseToTray}"
-                              Style="{StaticResource StmCheckBox}" Margin="0,8,0,0"/>
+                    <Border Style="{StaticResource StmCard}" Padding="16" Margin="0">
+                        <StackPanel>
+                            <TextBlock Text="{loc:Loc Settings.Security}" Style="{StaticResource StmSettingsCardTitle}"/>
+                            <CheckBox Content="{loc:Loc Settings.VaultAutoLockEnabled}"
+                                      IsChecked="{Binding Settings.VaultAutoLockEnabled}"
+                                      Style="{StaticResource StmSettingsCheckBox}"/>
+                            <StackPanel Orientation="Horizontal"
+                                        Margin="0,12,0,0"
+                                        IsEnabled="{Binding Settings.VaultAutoLockEnabled}">
+                                <TextBlock Text="{loc:Loc Settings.After}"
+                                           Style="{StaticResource StmBody}"
+                                           VerticalAlignment="Center"/>
+                                <TextBox Text="{Binding Settings.VaultAutoLockMinutes, UpdateSourceTrigger=PropertyChanged}"
+                                         Style="{StaticResource StmSettingsNumericInput}"
+                                         Margin="8,0,0,0"
+                                         IsEnabled="{Binding Settings.VaultAutoLockEnabled}"/>
+                                <TextBlock Text="{loc:Loc Settings.UnitMinutes}"
+                                           Style="{StaticResource StmSettingsUnit}"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
                 </StackPanel>
-            </Border>
 
-            <Border Style="{StaticResource StmCard}">
-                <StackPanel>
-                    <TextBlock Text="{loc:Loc Settings.Updates}" Style="{StaticResource StmCardTitle}"/>
-                    <TextBlock Style="{StaticResource StmLabel}">
-                        <Run Text="{loc:Loc Settings.CurrentVersion}"/>
-                        <Run Text="{Binding Settings.AppVersion}"/>
-                    </TextBlock>
-                    <CheckBox Content="{loc:Loc Settings.CheckForUpdatesOnStartup}"
-                              IsChecked="{Binding Settings.CheckForUpdatesOnStartup}"
-                              IsEnabled="{Binding Settings.CanCheckForUpdates}"
-                              Style="{StaticResource StmCheckBox}"
-                              Margin="0,12,0,0"/>
-                    <Button Content="{loc:Loc Settings.CheckForUpdatesNow}"
-                            Command="{Binding Settings.CheckForUpdatesCommand}"
-                            Style="{StaticResource StmSecondaryButton}"
-                            Margin="0,12,0,0"
-                            HorizontalAlignment="Left"
-                            MinWidth="180"/>
-                    <TextBlock Text="{loc:Loc Settings.UpdatesPortableHint}"
-                               Style="{StaticResource StmPageSubtitle}"
-                               TextWrapping="Wrap"
-                               Margin="0,8,0,0"
-                               Visibility="{Binding Settings.CanCheckForUpdates, Converter={StaticResource InverseBooleanToVisibilityConverter}}"/>
+                <!-- Right column: Tunnel settings, Updates -->
+                <StackPanel Grid.Column="2">
+                    <Border Style="{StaticResource StmCard}" Padding="16" Margin="0,0,0,24">
+                        <StackPanel>
+                            <TextBlock Text="{loc:Loc Settings.Tunnels}" Style="{StaticResource StmSettingsCardTitle}"/>
+
+                            <TextBlock Text="{loc:Loc Settings.ReconnectInterval}"
+                                       Style="{StaticResource StmLabel}"
+                                       Margin="0,0,0,8"/>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBox Text="{Binding Settings.ReconnectIntervalSeconds, UpdateSourceTrigger=PropertyChanged}"
+                                         Style="{StaticResource StmSettingsNumericInput}"/>
+                                <TextBlock Text="{loc:Loc Settings.UnitSeconds}"
+                                           Style="{StaticResource StmSettingsUnit}"/>
+                            </StackPanel>
+
+                            <TextBlock Text="{loc:Loc Settings.CircuitBreakerPause}"
+                                       Style="{StaticResource StmLabel}"
+                                       Margin="0,12,0,8"/>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBox Text="{Binding Settings.CircuitBreakerBreakSeconds, UpdateSourceTrigger=PropertyChanged}"
+                                         Style="{StaticResource StmSettingsNumericInput}"/>
+                                <TextBlock Text="{loc:Loc Settings.UnitSeconds}"
+                                           Style="{StaticResource StmSettingsUnit}"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Style="{StaticResource StmCard}" Padding="16" Margin="0">
+                        <StackPanel>
+                            <TextBlock Text="{loc:Loc Settings.Updates}" Style="{StaticResource StmSettingsCardTitle}"/>
+
+                            <TextBlock Text="{loc:Loc Settings.CurrentVersion}" Style="{StaticResource StmLabel}" Margin="0,0,0,0"/>
+                            <TextBlock Text="{Binding Settings.AppVersion}"
+                                       Style="{StaticResource StmSettingsVersionValue}"
+                                       Margin="0,2,0,12"/>
+
+                            <CheckBox Content="{loc:Loc Settings.CheckForUpdatesOnStartup}"
+                                      IsChecked="{Binding Settings.CheckForUpdatesOnStartup}"
+                                      IsEnabled="{Binding Settings.CanCheckForUpdates}"
+                                      Style="{StaticResource StmSettingsCheckBox}"/>
+
+                            <Button Content="{loc:Loc Settings.CheckForUpdatesNow}"
+                                    Command="{Binding Settings.CheckForUpdatesCommand}"
+                                    Style="{StaticResource StmSecondaryButton}"
+                                    Margin="0,12,0,0"
+                                    HorizontalAlignment="Left"
+                                    MinWidth="180"/>
+
+                            <TextBlock Text="{loc:Loc Settings.UpdatesPortableHint}"
+                                       Style="{StaticResource StmPageSubtitle}"
+                                       TextWrapping="Wrap"
+                                       Margin="0,12,0,0"
+                                       Visibility="{Binding Settings.CanCheckForUpdates, Converter={StaticResource InverseBooleanToVisibilityConverter}}"/>
+                        </StackPanel>
+                    </Border>
                 </StackPanel>
-            </Border>
-        </StackPanel>
+            </Grid>
+        </Grid>
     </ScrollViewer>
 </UserControl>

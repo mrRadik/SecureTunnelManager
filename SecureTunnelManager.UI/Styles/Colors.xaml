@@ -21,6 +21,9 @@
     <Color x:Key="StmDisabledTextColor">#6D6D6D</Color>
     <Color x:Key="StmDisabledBackgroundColor">#2A2A2A</Color>
     <Color x:Key="StmWarningColor">#CA5010</Color>
+    <Color x:Key="StmScrollbarThumbColor">#55FFFFFF</Color>
+    <Color x:Key="StmScrollbarThumbHoverColor">#80FFFFFF</Color>
+    <Color x:Key="StmScrollbarThumbPressedColor">#0078D4</Color>
 
     <SolidColorBrush x:Key="StmBackgroundBrush" Color="{StaticResource StmBackgroundColor}"/>
     <SolidColorBrush x:Key="StmSurfaceBrush" Color="{StaticResource StmSurfaceColor}"/>
@@ -42,5 +45,8 @@
     <SolidColorBrush x:Key="StmDisabledTextBrush" Color="{StaticResource StmDisabledTextColor}"/>
     <SolidColorBrush x:Key="StmDisabledBackgroundBrush" Color="{StaticResource StmDisabledBackgroundColor}"/>
     <SolidColorBrush x:Key="StmWarningBrush" Color="{StaticResource StmWarningColor}"/>
+    <SolidColorBrush x:Key="StmScrollbarThumbBrush" Color="{StaticResource StmScrollbarThumbColor}"/>
+    <SolidColorBrush x:Key="StmScrollbarThumbHoverBrush" Color="{StaticResource StmScrollbarThumbHoverColor}"/>
+    <SolidColorBrush x:Key="StmScrollbarThumbPressedBrush" Color="{StaticResource StmScrollbarThumbPressedColor}"/>
 
 </ResourceDictionary>

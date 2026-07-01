@@ -61,8 +61,11 @@
   <data name="Settings.VaultAutoLockEnabled" xml:space="preserve"><value>Lock vault after inactivity</value></data>
   <data name="Settings.VaultAutoLock" xml:space="preserve"><value>Vault auto-lock (minutes)</value></data>
   <data name="Settings.Tunnels" xml:space="preserve"><value>Tunnels</value></data>
-  <data name="Settings.ReconnectInterval" xml:space="preserve"><value>Reconnect interval (seconds)</value></data>
-  <data name="Settings.CircuitBreakerPause" xml:space="preserve"><value>Circuit breaker pause (seconds)</value></data>
+  <data name="Settings.ReconnectInterval" xml:space="preserve"><value>Reconnect interval</value></data>
+  <data name="Settings.CircuitBreakerPause" xml:space="preserve"><value>Circuit breaker timeout</value></data>
+  <data name="Settings.After" xml:space="preserve"><value>After</value></data>
+  <data name="Settings.UnitSeconds" xml:space="preserve"><value>sec</value></data>
+  <data name="Settings.UnitMinutes" xml:space="preserve"><value>minutes</value></data>
   <data name="Settings.Startup" xml:space="preserve"><value>Startup</value></data>
   <data name="Settings.StartWithWindows" xml:space="preserve"><value>Start with Windows</value></data>
   <data name="Settings.StartAllTunnelsOnStart" xml:space="preserve"><value>Start all tunnels when application starts</value></data>
@@ -72,7 +75,7 @@
   <data name="Settings.LanguageRussian" xml:space="preserve"><value>Russian</value></data>
   <data name="Settings.Appearance" xml:space="preserve"><value>Appearance</value></data>
   <data name="Settings.Updates" xml:space="preserve"><value>Updates</value></data>
-  <data name="Settings.CurrentVersion" xml:space="preserve"><value>Current version: </value></data>
+  <data name="Settings.CurrentVersion" xml:space="preserve"><value>Current version</value></data>
   <data name="Settings.CheckForUpdatesOnStartup" xml:space="preserve"><value>Check for updates on startup</value></data>
   <data name="Settings.CheckForUpdatesNow" xml:space="preserve"><value>Check for updates</value></data>
   <data name="Settings.UpdatesPortableHint" xml:space="preserve"><value>Auto-update is available only for the MSI-installed version in Program Files.</value></data>
@@ -88,7 +91,7 @@ Install the update now?</value></data>
 {2}
 
 Install the update now?</value></data>
-  <data name="Updates.InstallConfirm" xml:space="preserve"><value>Active tunnels will be stopped and the application will close while the installer runs. Continue?</value></data>
+  <data name="Updates.InstallConfirm" xml:space="preserve"><value>Active tunnels will be stopped. The application will close and restart automatically after installation.</value></data>
   <data name="Updates.DownloadFailed" xml:space="preserve"><value>Failed to download the update. Please try again later.</value></data>
   <data name="Updates.InstallFailed" xml:space="preserve"><value>Failed to start the installer.</value></data>
   <data name="WhatsNew.Title" xml:space="preserve"><value>What's New</value></data>

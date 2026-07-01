@@ -8,4 +8,7 @@ public static class UpdateDefaults
     /// </summary>
     public const string ManifestUrl =
         "https://github.com/mrRadik/SecureTunnelManager/releases/latest/download/update.json";
+
+    public static string GetVersionManifestUrl(string versionLabel) =>
+        $"https://github.com/mrRadik/SecureTunnelManager/releases/download/v{versionLabel}/update.json";
 }

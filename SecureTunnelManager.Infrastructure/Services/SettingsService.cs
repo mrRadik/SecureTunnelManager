@@ -75,6 +75,15 @@ public class SettingsService : ISettingsService
         await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
     }
 
+    public async Task SetLastAcknowledgedVersionAsync(string versionLabel, CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(versionLabel);
+
+        await using var db = await _dbFactory.CreateDbContextAsync(cancellationToken).ConfigureAwait(false);
+        await UpsertAsync(db, LastAcknowledgedVersionKey, versionLabel.Trim(), cancellationToken).ConfigureAwait(false);
+        await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+    }
+
     private static async Task UpsertAsync(AppDbContext db, string key, string value, CancellationToken cancellationToken)
     {
         var entity = await db.Settings.FirstOrDefaultAsync(s => s.Key == key, cancellationToken).ConfigureAwait(false);

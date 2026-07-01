@@ -1,3 +1,4 @@
+using SecureTunnelManager.Core;
 using SecureTunnelManager.Core.Services;
 
 namespace SecureTunnelManager.UI.Services;
@@ -24,7 +25,7 @@ public sealed class WhatsNewService
     public async Task TryShowWhatsNewAsync(CancellationToken cancellationToken = default)
     {
         var currentVersion = _updateService.GetCurrentVersion();
-        var versionLabel = currentVersion.ToString(3);
+        var versionLabel = AppVersion.ToLabel(currentVersion);
         var settings = await _settingsService.GetSettingsAsync(cancellationToken).ConfigureAwait(true);
 
         if (string.IsNullOrWhiteSpace(settings.LastAcknowledgedVersion))
@@ -33,8 +34,8 @@ public sealed class WhatsNewService
             return;
         }
 
-        if (!Version.TryParse(settings.LastAcknowledgedVersion, out var lastAcknowledged)
-            || currentVersion <= lastAcknowledged)
+        if (!AppVersion.TryParseLabel(settings.LastAcknowledgedVersion, out var lastAcknowledged)
+            || !AppVersion.IsNewerThan(currentVersion, lastAcknowledged))
         {
             return;
         }
@@ -57,13 +58,13 @@ public sealed class WhatsNewService
         if (!string.IsNullOrWhiteSpace(manifest?.ReleaseNotes))
             return manifest.ReleaseNotes.Trim();
 
-        return _localization.Format("WhatsNew.DefaultNotes", currentVersion.ToString(3));
+        var bundled = _updateService.TryGetBundledReleaseNotes();
+        if (!string.IsNullOrWhiteSpace(bundled))
+            return bundled.Trim();
+
+        return _localization.Format("WhatsNew.DefaultNotes", AppVersion.ToLabel(currentVersion));
     }
 
-    private async Task AcknowledgeVersionAsync(string versionLabel, CancellationToken cancellationToken)
-    {
-        var settings = await _settingsService.GetSettingsAsync(cancellationToken).ConfigureAwait(true);
-        settings.LastAcknowledgedVersion = versionLabel;
-        await _settingsService.SaveSettingsAsync(settings, cancellationToken).ConfigureAwait(true);
-    }
+    private Task AcknowledgeVersionAsync(string versionLabel, CancellationToken cancellationToken) =>
+        _settingsService.SetLastAcknowledgedVersionAsync(versionLabel, cancellationToken);
 }

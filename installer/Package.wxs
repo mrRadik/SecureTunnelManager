@@ -17,6 +17,27 @@
 
     <Icon Id="AppIcon" SourceFile="$(var.IconPath)" />
     <Property Id="ARPPRODUCTICON" Value="AppIcon" />
+    <Property Id="LAUNCHAPP" Value="0" />
+    <Property Id="AUTOMATED_UPDATE" Value="0" />
+
+    <SetProperty Id="WixUnelevatedShellExecTarget"
+                 Value="[INSTALLFOLDER]SecureTunnelManager.exe"
+                 Before="LaunchApplication"
+                 Sequence="execute"
+                 Condition="LAUNCHAPP = &quot;1&quot; OR AUTOMATED_UPDATE = &quot;1&quot;" />
+
+    <CustomAction Id="LaunchApplication"
+                  BinaryRef="Wix4UtilCA_$(sys.BUILDARCHSHORT)"
+                  DllEntry="WixUnelevatedShellExec"
+                  Execute="immediate"
+                  Impersonate="no"
+                  Return="ignore" />
+
+    <InstallExecuteSequence>
+      <Custom Action="LaunchApplication"
+              After="InstallFinalize"
+              Condition="(LAUNCHAPP = &quot;1&quot; OR AUTOMATED_UPDATE = &quot;1&quot;) AND NOT REMOVE" />
+    </InstallExecuteSequence>
 
     <util:CloseApplication Id="CloseRunningApp"
                            Target="SecureTunnelManager.exe"

@@ -8,7 +8,6 @@ using Microsoft.Extensions.Logging;
 using SecureTunnelManager.Core;
 using SecureTunnelManager.Core.Models;
 using SecureTunnelManager.Core.Services;
-
 namespace SecureTunnelManager.Infrastructure.Services;
 
 [SupportedOSPlatform("windows")]
@@ -33,7 +32,6 @@ public class UpdateService : IUpdateService
     {
         _httpClient = httpClient;
         _logger = logger;
-        _httpClient.Timeout = TimeSpan.FromMinutes(30);
 
         var appData = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
@@ -43,8 +41,7 @@ public class UpdateService : IUpdateService
     }
 
     public Version GetCurrentVersion() =>
-        Assembly.GetEntryAssembly()?.GetName().Version ?? new Version(1, 0, 0);
-
+        AppVersion.Normalize(Assembly.GetEntryAssembly()?.GetName().Version ?? new Version(1, 0, 0));
     public bool IsInstalledViaInstaller()
     {
         if (!OperatingSystem.IsWindows())
@@ -88,6 +85,8 @@ public class UpdateService : IUpdateService
             return null;
         }
 
+        manifest.Normalize();
+
         if (!Version.TryParse(manifest.Version, out var latestVersion))
         {
             _logger.LogWarning("Update manifest has invalid version: {Version}", manifest.Version);
@@ -103,44 +102,87 @@ public class UpdateService : IUpdateService
         IProgress<double>? progress = null,
         CancellationToken cancellationToken = default)
     {
+        manifest.Normalize();
+
         var fileName = $"SecureTunnelManager-Setup-{manifest.Version}.msi";
         var destination = Path.Combine(Path.GetTempPath(), fileName);
+        var partialPath = destination + ".download";
 
-        if (File.Exists(destination))
-            File.Delete(destination);
+        DeleteIfExists(partialPath);
+        DeleteIfExists(destination);
 
-        using var response = await _httpClient
-            .GetAsync(manifest.Url, HttpCompletionOption.ResponseHeadersRead, cancellationToken)
-            .ConfigureAwait(false);
-
-        response.EnsureSuccessStatusCode();
-
-        var totalBytes = response.Content.Headers.ContentLength ?? -1L;
-        await using var contentStream = await response.Content
-            .ReadAsStreamAsync(cancellationToken)
-            .ConfigureAwait(false);
-        await using var fileStream = File.Create(destination);
-
-        var buffer = new byte[81920];
-        long downloaded = 0;
-        int read;
-        while ((read = await contentStream.ReadAsync(buffer, cancellationToken).ConfigureAwait(false)) > 0)
+        try
         {
-            await fileStream.WriteAsync(buffer.AsMemory(0, read), cancellationToken).ConfigureAwait(false);
-            downloaded += read;
+            using var response = await _httpClient
+                .GetAsync(manifest.Url, HttpCompletionOption.ResponseHeadersRead, cancellationToken)
+                .ConfigureAwait(false);
 
-            if (totalBytes > 0 && progress is not null)
-                progress.Report((double)downloaded / totalBytes);
+            response.EnsureSuccessStatusCode();
+
+            var totalBytes = response.Content.Headers.ContentLength ?? -1L;
+            if (totalBytes is > 0 and < 1_000_000)
+            {
+                _logger.LogWarning(
+                    "Update download suspiciously small: {Bytes} bytes from {Url}",
+                    totalBytes,
+                    manifest.Url);
+            }
+
+            await using var contentStream = await response.Content
+                .ReadAsStreamAsync(cancellationToken)
+                .ConfigureAwait(false);
+            await using (var fileStream = new FileStream(
+                partialPath,
+                FileMode.CreateNew,
+                FileAccess.Write,
+                FileShare.Read,
+                bufferSize: 81920,
+                options: FileOptions.SequentialScan))
+            {
+                var buffer = new byte[81920];
+                long downloaded = 0;
+                int read;
+                while ((read = await contentStream.ReadAsync(buffer, cancellationToken).ConfigureAwait(false)) > 0)
+                {
+                    await fileStream.WriteAsync(buffer.AsMemory(0, read), cancellationToken).ConfigureAwait(false);
+                    downloaded += read;
+
+                    if (totalBytes > 0 && progress is not null)
+                        progress.Report((double)downloaded / totalBytes);
+                }
+            }
+
+            File.Move(partialPath, destination, overwrite: true);
+            VerifySha256(destination, manifest.Sha256, cancellationToken);
+            _logger.LogInformation("Downloaded update package to {Path} ({Bytes} bytes)", destination, new FileInfo(destination).Length);
+            return destination;
         }
-
-        await VerifySha256Async(destination, manifest.Sha256, cancellationToken).ConfigureAwait(false);
-        _logger.LogInformation("Downloaded update package to {Path}", destination);
-        return destination;
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to download update {Version} from {Url}", manifest.Version, manifest.Url);
+            DeleteIfExists(partialPath);
+            throw;
+        }
     }
 
-    public void LaunchInstaller(string msiPath)
+    private static void DeleteIfExists(string path)
     {
-        var arguments = $"/i \"{msiPath}\" /passive";
+        if (!File.Exists(path))
+            return;
+
+        try
+        {
+            File.Delete(path);
+        }
+        catch (IOException)
+        {
+            // Best effort — File.CreateNew / Move will surface a clearer error if still locked.
+        }
+    }
+
+    public bool LaunchInstaller(string msiPath)
+    {
+        var arguments = $"/i \"{msiPath}\" /passive /norestart AUTOMATED_UPDATE=1 LAUNCHAPP=1";
         var startInfo = new ProcessStartInfo
         {
             FileName = "msiexec.exe",
@@ -149,8 +191,28 @@ public class UpdateService : IUpdateService
             Verb = "runas"
         };
 
-        Process.Start(startInfo);
-        _logger.LogInformation("Launched MSI installer: {Arguments}", arguments);
+        try
+        {
+            using var process = Process.Start(startInfo);
+            if (process is null)
+            {
+                _logger.LogWarning("MSI installer was not started (Process.Start returned null)");
+                return false;
+            }
+
+            _logger.LogInformation("Started elevated MSI install: {Arguments}", arguments);
+            return true;
+        }
+        catch (System.ComponentModel.Win32Exception ex) when (ex.NativeErrorCode == 1223)
+        {
+            _logger.LogWarning("MSI installer launch cancelled by user (UAC declined)");
+            return false;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to start MSI installer for {MsiPath}", msiPath);
+            return false;
+        }
     }
 
     public void SavePendingReleaseNotes(string version, string? releaseNotes)
@@ -178,11 +240,10 @@ public class UpdateService : IUpdateService
 
             if (manifest is null
                 || !Version.TryParse(manifest.Version, out var pendingVersion)
-                || pendingVersion != expectedVersion)
+                || !AppVersion.AreEqual(pendingVersion, expectedVersion))
             {
                 return null;
             }
-
             File.Delete(_pendingReleaseNotesPath);
             return manifest;
         }
@@ -199,36 +260,80 @@ public class UpdateService : IUpdateService
         if (!OperatingSystem.IsWindows())
             return null;
 
+        var currentVersion = GetCurrentVersion();
+        var versionLabel = AppVersion.ToLabel(currentVersion);
+
+        var latestManifest = await FetchManifestAsync(UpdateDefaults.ManifestUrl, cancellationToken).ConfigureAwait(false);
+        if (latestManifest is not null
+            && Version.TryParse(latestManifest.Version, out var latestVersion)
+            && AppVersion.AreEqual(latestVersion, currentVersion))
+        {
+            return latestManifest;
+        }
+
+        var versionedManifest = await FetchManifestAsync(
+            UpdateDefaults.GetVersionManifestUrl(versionLabel),
+            cancellationToken).ConfigureAwait(false);
+
+        return versionedManifest;
+    }
+
+    public string? TryGetBundledReleaseNotes()
+    {
+        var assembly = typeof(UpdateService).Assembly;
+        var resourceName = assembly
+            .GetManifestResourceNames()
+            .FirstOrDefault(name => name.EndsWith("release-notes.txt", StringComparison.OrdinalIgnoreCase));
+
+        if (resourceName is null)
+            return null;
+
+        using var stream = assembly.GetManifestResourceStream(resourceName);
+        if (stream is null)
+            return null;
+
+        using var reader = new StreamReader(stream);
+        var notes = reader.ReadToEnd().Trim();
+        return string.IsNullOrWhiteSpace(notes) ? null : notes;
+    }
+
+    private async Task<UpdateManifest?> FetchManifestAsync(string url, CancellationToken cancellationToken)
+    {
         UpdateManifest? manifest;
         try
         {
             manifest = await _httpClient
-                .GetFromJsonAsync<UpdateManifest>(UpdateDefaults.ManifestUrl, ManifestJsonOptions, cancellationToken)
+                .GetFromJsonAsync<UpdateManifest>(url, ManifestJsonOptions, cancellationToken)
                 .ConfigureAwait(false);
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(ex, "Failed to fetch manifest for release notes");
+            _logger.LogWarning(ex, "Failed to fetch update manifest from {Url}", url);
             return null;
         }
 
         if (manifest is null || string.IsNullOrWhiteSpace(manifest.Version))
             return null;
 
-        if (!Version.TryParse(manifest.Version, out var manifestVersion))
-            return null;
-
-        var currentVersion = GetCurrentVersion();
-        return manifestVersion == currentVersion ? manifest : null;
+        manifest.Normalize();
+        return manifest;
     }
-
-    private static async Task VerifySha256Async(string filePath, string expectedHex, CancellationToken cancellationToken)
+    private void VerifySha256(string filePath, string expectedHex, CancellationToken cancellationToken)
     {
-        await using var stream = File.OpenRead(filePath);
-        var hash = await SHA256.HashDataAsync(stream, cancellationToken).ConfigureAwait(false);
+        using var stream = File.OpenRead(filePath);
+        var hash = SHA256.HashData(stream);
         var actualHex = Convert.ToHexString(hash);
 
-        if (!string.Equals(actualHex, expectedHex, StringComparison.OrdinalIgnoreCase))
-            throw new InvalidOperationException("Downloaded installer failed integrity check (SHA-256 mismatch).");
+        if (string.Equals(actualHex, expectedHex, StringComparison.OrdinalIgnoreCase))
+            return;
+
+        var size = new FileInfo(filePath).Length;
+        _logger.LogError(
+            "SHA-256 mismatch for {Path} ({Size} bytes). Expected {Expected}, got {Actual}",
+            filePath,
+            size,
+            expectedHex,
+            actualHex);
+        throw new InvalidOperationException("Downloaded installer failed integrity check (SHA-256 mismatch).");
     }
 }

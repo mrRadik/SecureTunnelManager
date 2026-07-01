@@ -15,11 +15,13 @@ public interface IUpdateService
         IProgress<double>? progress = null,
         CancellationToken cancellationToken = default);
 
-    void LaunchInstaller(string msiPath);
+    bool LaunchInstaller(string msiPath);
 
     void SavePendingReleaseNotes(string version, string? releaseNotes);
 
     UpdateManifest? TryConsumePendingReleaseNotes(Version expectedVersion);
 
     Task<UpdateManifest?> GetCurrentVersionManifestAsync(CancellationToken cancellationToken = default);
+
+    string? TryGetBundledReleaseNotes();
 }

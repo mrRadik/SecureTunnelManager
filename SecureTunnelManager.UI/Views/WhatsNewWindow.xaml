@@ -4,9 +4,10 @@
         xmlns:controls="clr-namespace:SecureTunnelManager.UI.Views.Controls"
         xmlns:windows="clr-namespace:SecureTunnelManager.UI.Windows"
         Style="{StaticResource StmDialogWindow}"
-        Width="520"
-        Height="420"
-        MinHeight="320"
+        Width="680"
+        Height="560"
+        MinWidth="560"
+        MinHeight="440"
         WindowStartupLocation="CenterOwner">
 
     <Grid Background="{StaticResource StmBackgroundBrush}"
@@ -20,17 +21,22 @@
 
         <controls:WindowTitleBar x:Name="TitleBar" Grid.Row="0" ShowMaximizeButton="False"/>
 
-        <StackPanel Grid.Row="1" Margin="24,20,24,12">
-            <TextBlock x:Name="SubtitleText" Style="{StaticResource StmPageSubtitle}" Margin="0,0,0,16"/>
-            <Border Style="{StaticResource StmCard}" Padding="16" Margin="0">
-                <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="240">
+        <Grid Grid.Row="1" Margin="24,20,24,12">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <TextBlock x:Name="SubtitleText" Grid.Row="0" Style="{StaticResource StmPageSubtitle}" Margin="0,0,0,16"/>
+            <Border Grid.Row="1" Style="{StaticResource StmCard}" Padding="16">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <TextBlock x:Name="ReleaseNotesText"
                                Style="{StaticResource StmBody}"
                                TextWrapping="Wrap"
                                LineHeight="22"/>
                 </ScrollViewer>
             </Border>
-        </StackPanel>
+        </Grid>
 
         <Border Grid.Row="2" Style="{StaticResource StmDialogFooter}">
             <Button x:Name="OkButton"

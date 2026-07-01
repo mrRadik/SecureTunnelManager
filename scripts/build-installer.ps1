@@ -97,11 +97,34 @@ if (-not (Test-Path $msiFile)) {
 $versionedMsi = Join-Path $OutputDir "SecureTunnelManager-Setup-$ProductVersion.msi"
 Copy-Item $msiFile $versionedMsi -Force
 
+$sha256 = (Get-FileHash -Path $versionedMsi -Algorithm SHA256).Hash.ToLowerInvariant()
+$releaseUrl = "https://github.com/mrRadik/SecureTunnelManager/releases/download/v$ProductVersion/SecureTunnelManager-Setup-$ProductVersion.msi"
+
+$releaseNotesFile = Join-Path $Root 'release\release-notes.txt'
+$releaseNotes = ''
+if (Test-Path $releaseNotesFile) {
+    $releaseNotes = (Get-Content -Path $releaseNotesFile -Raw -Encoding UTF8).Trim()
+}
+
+$updateManifest = [ordered]@{
+    version      = $ProductVersion
+    url          = $releaseUrl
+    sha256       = $sha256
+    releaseNotes = $releaseNotes
+}
+$updateJsonPath = Join-Path $OutputDir 'update.json'
+$updateManifest | ConvertTo-Json | Set-Content -Path $updateJsonPath -Encoding UTF8
+
 $sizeMb = [math]::Round((Get-Item $msiFile).Length / 1MB, 1)
 Write-Host ''
 Write-Host 'Done!' -ForegroundColor Green
 Write-Host "  Installer: $msiFile ($sizeMb MB)" -ForegroundColor Green
 Write-Host "  Versioned: $versionedMsi" -ForegroundColor Green
+Write-Host "  Manifest:  $updateJsonPath" -ForegroundColor Green
+Write-Host ''
+Write-Host 'Release upload:' -ForegroundColor Cyan
+Write-Host "  - Attach $versionedMsi to GitHub release v$ProductVersion" -ForegroundColor Gray
+Write-Host "  - Attach $updateJsonPath as update.json (same release)" -ForegroundColor Gray
 Write-Host ''
 Write-Host 'Upgrade notes:' -ForegroundColor Cyan
 Write-Host '  - Run the new MSI on top of the existing installation.' -ForegroundColor Gray

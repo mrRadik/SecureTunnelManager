@@ -30,17 +30,17 @@
 
         <StackPanel Grid.Column="2" Orientation="Horizontal">
             <Button Style="{StaticResource StmTitleBarButton}" Click="OnMinimizeClick" ToolTip="Minimize">
-                <TextBlock Text="&#xE921;" FontFamily="Segoe Fluent Icons" FontSize="10"/>
+                <TextBlock Text="&#xE921;" Style="{StaticResource StmIconGlyph}" FontSize="10"/>
             </Button>
             <Button x:Name="MaximizeButton"
                     Style="{StaticResource StmTitleBarButton}"
                     Click="OnMaximizeClick"
                     ToolTip="Maximize"
                     Visibility="{Binding ShowMaximizeButton, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BooleanToVisibilityConverter}}">
-                <TextBlock x:Name="MaximizeGlyph" Text="&#xE922;" FontFamily="Segoe Fluent Icons" FontSize="10"/>
+                <TextBlock x:Name="MaximizeGlyph" Text="&#xE922;" Style="{StaticResource StmIconGlyph}" FontSize="10"/>
             </Button>
             <Button Style="{StaticResource StmTitleBarCloseButton}" Click="OnCloseClick" ToolTip="Close">
-                <TextBlock Text="&#xE8BB;" FontFamily="Segoe Fluent Icons" FontSize="10"/>
+                <TextBlock Text="&#xE8BB;" Style="{StaticResource StmIconGlyph}" FontSize="10"/>
             </Button>
         </StackPanel>
     </Grid>

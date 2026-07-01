@@ -1,4 +1,3 @@
-using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using SecureTunnelManager.Core.Services;
@@ -26,26 +25,32 @@ public partial class SettingsViewModel : ObservableObject
     private readonly ISettingsService _settingsService;
     private readonly IAutoStartService _autoStartService;
     private readonly ILocalizationService _localization;
+    private readonly UpdatePromptService _updatePromptService;
     private bool _isLoading;
 
     public SettingsViewModel(
         ISettingsService settingsService,
         IAutoStartService autoStartService,
-        ILocalizationService localization)
+        ILocalizationService localization,
+        UpdatePromptService updatePromptService)
     {
         _settingsService = settingsService;
         _autoStartService = autoStartService;
         _localization = localization;
+        _updatePromptService = updatePromptService;
     }
+
+    [ObservableProperty]
+    private bool _vaultAutoLockEnabled = true;
 
     [ObservableProperty]
     private int _vaultAutoLockMinutes = 15;
 
     [ObservableProperty]
-    private bool _minimizeToTrayOnStart = true;
+    private int _reconnectIntervalSeconds = 15;
 
     [ObservableProperty]
-    private bool _startMinimizedWithWindows;
+    private int _circuitBreakerBreakSeconds = 90;
 
     [ObservableProperty]
     private bool _startWithWindows;
@@ -57,7 +62,19 @@ public partial class SettingsViewModel : ObservableObject
     private bool _closeToTray = true;
 
     [ObservableProperty]
+    private bool _checkForUpdatesOnStartup = true;
+
+    [ObservableProperty]
     private string _uiLanguage = "en";
+
+    [ObservableProperty]
+    private string _appVersion = "1.0.0";
+
+    [ObservableProperty]
+    private bool _canCheckForUpdates;
+
+    [ObservableProperty]
+    private bool _isCheckingForUpdates;
 
     [RelayCommand]
     public async Task LoadAsync()
@@ -66,13 +83,17 @@ public partial class SettingsViewModel : ObservableObject
         try
         {
             var settings = await _settingsService.GetSettingsAsync().ConfigureAwait(true);
+            VaultAutoLockEnabled = settings.VaultAutoLockEnabled;
             VaultAutoLockMinutes = settings.VaultAutoLockMinutes;
-            MinimizeToTrayOnStart = settings.MinimizeToTrayOnStart;
-            StartMinimizedWithWindows = settings.StartMinimizedWithWindows;
+            ReconnectIntervalSeconds = settings.ReconnectIntervalSeconds;
+            CircuitBreakerBreakSeconds = settings.CircuitBreakerBreakSeconds;
             StartAllTunnelsOnAppStart = settings.StartAllTunnelsOnAppStart;
             CloseToTray = settings.CloseToTray;
+            CheckForUpdatesOnStartup = settings.CheckForUpdatesOnStartup;
             StartWithWindows = _autoStartService.IsRegisteredWithWindows();
             UiLanguage = string.Equals(settings.UiLanguage, "ru", StringComparison.OrdinalIgnoreCase) ? "ru" : "en";
+            AppVersion = _updatePromptService.CurrentVersion;
+            CanCheckForUpdates = _updatePromptService.CanCheckForUpdates;
             _localization.ApplyLanguage(UiLanguage);
         }
         finally
@@ -81,11 +102,32 @@ public partial class SettingsViewModel : ObservableObject
         }
     }
 
+    [RelayCommand(CanExecute = nameof(CanRunUpdateCheck))]
+    private async Task CheckForUpdatesAsync()
+    {
+        IsCheckingForUpdates = true;
+        try
+        {
+            await _updatePromptService.CheckAndPromptAsync(silentWhenUpToDate: false).ConfigureAwait(true);
+        }
+        finally
+        {
+            IsCheckingForUpdates = false;
+        }
+    }
+
+    private bool CanRunUpdateCheck() => CanCheckForUpdates && !IsCheckingForUpdates;
+
+    partial void OnCanCheckForUpdatesChanged(bool value) => CheckForUpdatesCommand.NotifyCanExecuteChanged();
+    partial void OnIsCheckingForUpdatesChanged(bool value) => CheckForUpdatesCommand.NotifyCanExecuteChanged();
+
+    partial void OnVaultAutoLockEnabledChanged(bool value) => _ = PersistAsync();
     partial void OnVaultAutoLockMinutesChanged(int value) => _ = PersistAsync();
-    partial void OnMinimizeToTrayOnStartChanged(bool value) => _ = PersistAsync();
-    partial void OnStartMinimizedWithWindowsChanged(bool value) => _ = PersistAsync();
+    partial void OnReconnectIntervalSecondsChanged(int value) => _ = PersistAsync();
+    partial void OnCircuitBreakerBreakSecondsChanged(int value) => _ = PersistAsync();
     partial void OnStartAllTunnelsOnAppStartChanged(bool value) => _ = PersistAsync();
     partial void OnCloseToTrayChanged(bool value) => _ = PersistAsync();
+    partial void OnCheckForUpdatesOnStartupChanged(bool value) => _ = PersistAsync();
 
     partial void OnUiLanguageChanged(string value)
     {
@@ -115,11 +157,13 @@ public partial class SettingsViewModel : ObservableObject
             return;
 
         var settings = await _settingsService.GetSettingsAsync().ConfigureAwait(true);
-        settings.VaultAutoLockMinutes = VaultAutoLockMinutes;
-        settings.MinimizeToTrayOnStart = MinimizeToTrayOnStart;
-        settings.StartMinimizedWithWindows = StartMinimizedWithWindows;
+        settings.VaultAutoLockEnabled = VaultAutoLockEnabled;
+        settings.VaultAutoLockMinutes = Math.Clamp(VaultAutoLockMinutes, 1, 1440);
+        settings.ReconnectIntervalSeconds = Math.Clamp(ReconnectIntervalSeconds, 5, 300);
+        settings.CircuitBreakerBreakSeconds = Math.Clamp(CircuitBreakerBreakSeconds, 30, 600);
         settings.StartAllTunnelsOnAppStart = StartAllTunnelsOnAppStart;
         settings.CloseToTray = CloseToTray;
+        settings.CheckForUpdatesOnStartup = CheckForUpdatesOnStartup;
         settings.UiLanguage = UiLanguage;
         await _settingsService.SaveSettingsAsync(settings).ConfigureAwait(true);
     }

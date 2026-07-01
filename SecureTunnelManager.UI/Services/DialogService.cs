@@ -89,6 +89,30 @@ public class DialogService : IDialogService
     public void ShowInfo(string message) =>
         System.Windows.MessageBox.Show(message, "Secure Tunnel Manager", MessageBoxButton.OK, MessageBoxImage.Information);
 
+    public bool ShowConfirm(string message, string title) =>
+        System.Windows.MessageBox.Show(message, title, MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes;
+
+    public void ShowWhatsNew(string version, string releaseNotes)
+    {
+        var localization = GetLocalization();
+        var window = new WhatsNewWindow(
+            version,
+            releaseNotes,
+            localization.Get("WhatsNew.Title"),
+            localization.Format("WhatsNew.Subtitle", version),
+            localization.Get("WhatsNew.Ok"));
+        PrepareDialog(window);
+        window.ShowDialog();
+    }
+
+    private static ILocalizationService GetLocalization()
+    {
+        if (System.Windows.Application.Current?.Resources["Loc"] is ILocalizationService localization)
+            return localization;
+
+        return new LocalizationService();
+    }
+
     private static Task<bool> ShowModalAsync(VaultSetupViewModel vm, VaultSetupWindow window)
         => ShowModalAsync(window, () => vm.DialogResult, h => vm.RequestClose += h);
 

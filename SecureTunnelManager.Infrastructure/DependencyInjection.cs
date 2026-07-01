@@ -5,6 +5,7 @@ using SecureTunnelManager.Data;
 using SecureTunnelManager.Infrastructure.Hosting;
 using SecureTunnelManager.Infrastructure.Logging;
 using SecureTunnelManager.Infrastructure.Services;
+using SecureTunnelManager.Infrastructure.Ssh;
 
 namespace SecureTunnelManager.Infrastructure;
 
@@ -27,12 +28,16 @@ public static class DependencyInjection
         services.AddSingleton<IVaultService, VaultService>();
         services.AddSingleton<ICredentialService, CredentialService>();
         services.AddSingleton<ITunnelProfileService, TunnelProfileService>();
+        services.AddSingleton<SshResiliencePolicyProvider>();
+        services.AddSingleton<TunnelReconnectResilience>();
         services.AddSingleton<SshTunnelService>();
         services.AddSingleton<ISshTunnelService>(sp => sp.GetRequiredService<SshTunnelService>());
         services.AddSingleton<ITunnelManagerService, TunnelManagerService>();
         services.AddSingleton<IExportImportService, ExportImportService>();
         services.AddSingleton<IAutoStartService, AutoStartService>();
         services.AddSingleton<ISshTunnelTestService, SshTunnelTestService>();
+        services.AddSingleton<HttpClient>();
+        services.AddSingleton<IUpdateService, UpdateService>();
 
         services.AddHostedService<TunnelAutoStartHostedService>();
         services.AddHostedService<VaultIdleLockHostedService>();

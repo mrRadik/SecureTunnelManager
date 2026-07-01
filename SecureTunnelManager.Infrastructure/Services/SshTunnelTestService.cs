@@ -12,11 +12,16 @@ public class SshTunnelTestService : ISshTunnelTestService
 {
     private static readonly TimeSpan ServiceProbeTimeout = TimeSpan.FromSeconds(4);
     private readonly ICredentialService _credentialService;
+    private readonly SshResiliencePolicyProvider _resilience;
     private readonly ILogger<SshTunnelTestService> _logger;
 
-    public SshTunnelTestService(ICredentialService credentialService, ILogger<SshTunnelTestService> logger)
+    public SshTunnelTestService(
+        ICredentialService credentialService,
+        SshResiliencePolicyProvider resilience,
+        ILogger<SshTunnelTestService> logger)
     {
         _credentialService = credentialService;
+        _resilience = resilience;
         _logger = logger;
     }
 
@@ -32,6 +37,7 @@ public class SshTunnelTestService : ISshTunnelTestService
             chain = await SshHopChain.ConnectAsync(
                 request.Profile,
                 _credentialService,
+                _resilience,
                 request.JumpAuthOverrides,
                 request.TargetAuthOverride,
                 cancellationToken).ConfigureAwait(false);

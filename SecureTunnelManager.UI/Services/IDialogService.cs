@@ -13,6 +13,8 @@ public interface IDialogService
     Task<(string Path, string Password)?> PromptImportAsync();
     void ShowError(string message);
     void ShowInfo(string message);
+    bool ShowConfirm(string message, string title);
+    void ShowWhatsNew(string version, string releaseNotes);
 }
 
 /// <summary>

@@ -34,6 +34,9 @@ public class VaultIdleLockHostedService : BackgroundService
                 continue;
 
             var settings = await _settingsService.GetSettingsAsync(stoppingToken).ConfigureAwait(false);
+            if (!settings.VaultAutoLockEnabled)
+                continue;
+
             var idle = DateTime.UtcNow - _vaultService.LastActivityUtc;
 
             if (idle >= TimeSpan.FromMinutes(settings.VaultAutoLockMinutes))

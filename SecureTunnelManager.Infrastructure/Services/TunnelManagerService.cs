@@ -1,20 +1,19 @@
 using System.Collections.Concurrent;
 using Microsoft.Extensions.Logging;
+using Polly.CircuitBreaker;
 using SecureTunnelManager.Core.Models;
 using SecureTunnelManager.Core.Services;
 
 namespace SecureTunnelManager.Infrastructure.Services;
 
 /// <summary>
-/// Orchestrates tunnel lifecycle with automatic reconnection and exponential backoff.
+/// Orchestrates tunnel lifecycle with automatic reconnection, Polly circuit breaker, and backoff.
 /// </summary>
 public class TunnelManagerService : ITunnelManagerService, IDisposable
 {
-    private const int MaxReconnectAttempts = 3;
-    private static readonly int[] BackoffSeconds = [5, 15, 30];
-
     private readonly ITunnelProfileService _profileService;
     private readonly SshTunnelService _sshTunnelService;
+    private readonly TunnelReconnectResilience _reconnectResilience;
     private readonly ILogger<TunnelManagerService> _logger;
     private readonly ConcurrentDictionary<int, TunnelWorker> _workers = new();
     private readonly ConcurrentDictionary<int, TunnelRuntimeState> _states = new();
@@ -22,10 +21,12 @@ public class TunnelManagerService : ITunnelManagerService, IDisposable
     public TunnelManagerService(
         ITunnelProfileService profileService,
         SshTunnelService sshTunnelService,
+        TunnelReconnectResilience reconnectResilience,
         ILogger<TunnelManagerService> logger)
     {
         _profileService = profileService;
         _sshTunnelService = sshTunnelService;
+        _reconnectResilience = reconnectResilience;
         _logger = logger;
     }
 
@@ -80,7 +81,6 @@ public class TunnelManagerService : ITunnelManagerService, IDisposable
     {
         var attempt = 0;
         string? lastError = null;
-        var stoppedAfterMaxRetries = false;
 
         while (!cancellationToken.IsCancellationRequested)
         {
@@ -93,11 +93,15 @@ public class TunnelManagerService : ITunnelManagerService, IDisposable
             }
 
             EnsureState(profile);
-            UpdateState(profileId, TunnelStatus.Connecting, error: null, reconnectAttempt: attempt);
+            UpdateState(profileId, TunnelStatus.Connecting, lastError, reconnectAttempt: attempt);
 
             try
             {
-                await _sshTunnelService.StartAsync(profile, cancellationToken).ConfigureAwait(false);
+                await _reconnectResilience.ExecuteConnectAsync(
+                    profileId,
+                    ct => _sshTunnelService.StartAsync(profile, ct),
+                    cancellationToken).ConfigureAwait(false);
+
                 UpdateState(profileId, TunnelStatus.Connected, error: null, reconnectAttempt: 0);
                 attempt = 0;
                 lastError = null;
@@ -118,6 +122,24 @@ public class TunnelManagerService : ITunnelManagerService, IDisposable
             {
                 break;
             }
+            catch (BrokenCircuitException)
+            {
+                lastError = BuildCircuitBreakerMessage(lastError);
+                _logger.LogWarning("Tunnel {ProfileId} reconnect circuit open", profileId);
+                UpdateState(profileId, TunnelStatus.Error, lastError, reconnectAttempt: attempt);
+
+                try
+                {
+                    var wait = await _reconnectResilience.GetCircuitBreakerWaitAsync(cancellationToken).ConfigureAwait(false);
+                    await Task.Delay(wait, cancellationToken).ConfigureAwait(false);
+                }
+                catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+                {
+                    break;
+                }
+
+                continue;
+            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Tunnel {ProfileId} error", profileId);
@@ -129,27 +151,18 @@ public class TunnelManagerService : ITunnelManagerService, IDisposable
                 break;
 
             attempt++;
-            if (attempt > MaxReconnectAttempts)
-            {
-                stoppedAfterMaxRetries = true;
-                var message = BuildReconnectLimitMessage(lastError);
-                _logger.LogWarning(
-                    "Tunnel {ProfileId} stopped after {Attempts} reconnect attempts",
-                    profileId,
-                    MaxReconnectAttempts);
-                UpdateState(profileId, TunnelStatus.Error, message, reconnectAttempt: 0);
-                break;
-            }
-
-            var delayIndex = Math.Min(attempt - 1, BackoffSeconds.Length - 1);
-            var delay = BackoffSeconds[delayIndex];
-            _logger.LogInformation("Reconnect attempt {Attempt} for tunnel {ProfileId} in {Delay}s", attempt, profileId, delay);
-            UpdateState(profileId, TunnelStatus.Connecting, lastError, reconnectAttempt: attempt);
+            var delay = await _reconnectResilience.GetReconnectDelayAsync(cancellationToken).ConfigureAwait(false);
+            _logger.LogInformation(
+                "Reconnect attempt {Attempt} for tunnel {ProfileId} in {Delay}s",
+                attempt,
+                profileId,
+                delay.TotalSeconds);
+            UpdateState(profileId, TunnelStatus.Error, lastError, reconnectAttempt: attempt);
 
             try
             {
                 await _sshTunnelService.StopAsync(profileId, CancellationToken.None).ConfigureAwait(false);
-                await Task.Delay(TimeSpan.FromSeconds(delay), cancellationToken).ConfigureAwait(false);
+                await Task.Delay(delay, cancellationToken).ConfigureAwait(false);
             }
             catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
             {
@@ -158,13 +171,13 @@ public class TunnelManagerService : ITunnelManagerService, IDisposable
         }
 
         await _sshTunnelService.StopAsync(profileId, CancellationToken.None).ConfigureAwait(false);
-        if (!cancellationToken.IsCancellationRequested && !stoppedAfterMaxRetries)
+        if (!cancellationToken.IsCancellationRequested)
             UpdateState(profileId, TunnelStatus.Stopped, error: null, reconnectAttempt: 0);
     }
 
-    private static string BuildReconnectLimitMessage(string? lastError)
+    private static string BuildCircuitBreakerMessage(string? lastError)
     {
-        const string summary = "Tunnel failed after 3 reconnect attempts.";
+        const string summary = "Connection failed. Automatic reconnect paused (circuit breaker).";
         return string.IsNullOrWhiteSpace(lastError)
             ? summary
             : $"{summary} {lastError}";

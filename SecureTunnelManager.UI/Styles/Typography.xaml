@@ -1,6 +1,13 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
+    <!-- Win11: Segoe Fluent Icons; Win10 fallback: Segoe MDL2 Assets (preinstalled) -->
+    <FontFamily x:Key="StmIconFontFamily">Segoe Fluent Icons, Segoe MDL2 Assets</FontFamily>
+
+    <Style x:Key="StmIconGlyph" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource StmIconFontFamily}"/>
+    </Style>
+
     <Style x:Key="StmFontBase" TargetType="TextBlock">
         <Setter Property="FontFamily" Value="Segoe UI"/>
         <Setter Property="Foreground" Value="{StaticResource StmTextPrimaryBrush}"/>

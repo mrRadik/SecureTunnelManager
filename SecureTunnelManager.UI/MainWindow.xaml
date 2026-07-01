@@ -36,7 +36,7 @@
 
                     <StackPanel Margin="0,0,0,12">
                         <TextBlock Text="{loc:Loc Nav.Connections}" Style="{StaticResource StmNavSectionHeader}"/>
-                        <controls:NavigationItem IconGlyph="&#xE968;"
+                        <controls:NavigationItem IconGlyph="&#xE774;"
                                                  LocKey="Nav.Tunnels"
                                                  Section="{x:Static vm:NavigationSection.Tunnels}"/>
 

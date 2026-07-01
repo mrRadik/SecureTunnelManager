@@ -1,0 +1,45 @@
+<windows:StmChromeWindow x:Class="SecureTunnelManager.UI.Views.WhatsNewWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="clr-namespace:SecureTunnelManager.UI.Views.Controls"
+        xmlns:windows="clr-namespace:SecureTunnelManager.UI.Windows"
+        Style="{StaticResource StmDialogWindow}"
+        Width="520"
+        Height="420"
+        MinHeight="320"
+        WindowStartupLocation="CenterOwner">
+
+    <Grid Background="{StaticResource StmBackgroundBrush}"
+          SnapsToDevicePixels="True"
+          UseLayoutRounding="True">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <controls:WindowTitleBar x:Name="TitleBar" Grid.Row="0" ShowMaximizeButton="False"/>
+
+        <StackPanel Grid.Row="1" Margin="24,20,24,12">
+            <TextBlock x:Name="SubtitleText" Style="{StaticResource StmPageSubtitle}" Margin="0,0,0,16"/>
+            <Border Style="{StaticResource StmCard}" Padding="16" Margin="0">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="240">
+                    <TextBlock x:Name="ReleaseNotesText"
+                               Style="{StaticResource StmBody}"
+                               TextWrapping="Wrap"
+                               LineHeight="22"/>
+                </ScrollViewer>
+            </Border>
+        </StackPanel>
+
+        <Border Grid.Row="2" Style="{StaticResource StmDialogFooter}">
+            <Button x:Name="OkButton"
+                    IsDefault="True"
+                    IsCancel="True"
+                    Click="OnOkClick"
+                    Style="{StaticResource StmPrimaryButton}"
+                    HorizontalAlignment="Right"
+                    MinWidth="120"/>
+        </Border>
+    </Grid>
+</windows:StmChromeWindow>

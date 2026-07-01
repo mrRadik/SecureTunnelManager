@@ -9,12 +9,17 @@ namespace SecureTunnelManager.Infrastructure.Services;
 public class SshTunnelService : ISshTunnelService
 {
     private readonly ICredentialService _credentialService;
+    private readonly Ssh.SshResiliencePolicyProvider _resilience;
     private readonly ILogger<SshTunnelService> _logger;
     private readonly ConcurrentDictionary<int, TunnelSession> _sessions = new();
 
-    public SshTunnelService(ICredentialService credentialService, ILogger<SshTunnelService> logger)
+    public SshTunnelService(
+        ICredentialService credentialService,
+        Ssh.SshResiliencePolicyProvider resilience,
+        ILogger<SshTunnelService> logger)
     {
         _credentialService = credentialService;
+        _resilience = resilience;
         _logger = logger;
     }
 
@@ -29,7 +34,7 @@ public class SshTunnelService : ISshTunnelService
             session.ErrorMessage = null;
 
             session.Connection?.Dispose();
-            session.Connection = new SshTunnelConnection(_logger);
+            session.Connection = new SshTunnelConnection(_logger, _resilience);
 
             await session.Connection.ConnectAsync(profile, _credentialService, cancellationToken).ConfigureAwait(false);
             session.Status = TunnelStatus.Connected;

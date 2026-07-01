@@ -17,24 +17,27 @@ internal sealed class SshHopChain : IDisposable
     public static Task<SshHopChain> ConnectAsync(
         TunnelProfile profile,
         ICredentialService credentialService,
+        SshResiliencePolicyProvider resilience,
         CancellationToken cancellationToken) =>
-        ConnectAsync(profile, credentialService, jumpAuthOverrides: null, targetAuthOverride: null, cancellationToken);
+        ConnectAsync(profile, credentialService, resilience, jumpAuthOverrides: null, targetAuthOverride: null, cancellationToken);
 
     public static async Task<SshHopChain> ConnectAsync(
         TunnelProfile profile,
         ICredentialService credentialService,
+        SshResiliencePolicyProvider resilience,
         IReadOnlyList<TunnelAuthOverride>? jumpAuthOverrides,
         TunnelAuthOverride? targetAuthOverride,
         CancellationToken cancellationToken)
     {
         var chain = new SshHopChain();
-        await chain.ConnectInternalAsync(profile, credentialService, jumpAuthOverrides, targetAuthOverride, cancellationToken).ConfigureAwait(false);
+        await chain.ConnectInternalAsync(profile, credentialService, resilience, jumpAuthOverrides, targetAuthOverride, cancellationToken).ConfigureAwait(false);
         return chain;
     }
 
     private async Task ConnectInternalAsync(
         TunnelProfile profile,
         ICredentialService credentialService,
+        SshResiliencePolicyProvider resilience,
         IReadOnlyList<TunnelAuthOverride>? jumpAuthOverrides,
         TunnelAuthOverride? targetAuthOverride,
         CancellationToken cancellationToken)
@@ -92,7 +95,11 @@ internal sealed class SshHopChain : IDisposable
                 client = new SshClient(hopInfo) { KeepAliveInterval = TimeSpan.FromSeconds(30) };
             }
 
-            await Task.Run(() => client.Connect(), cancellationToken).ConfigureAwait(false);
+            await resilience.ExecuteConnectAsync(
+                hop.Host,
+                hop.Port,
+                ct => Task.Run(() => client.Connect(), ct),
+                cancellationToken).ConfigureAwait(false);
             _hopClients.Add(client);
             previousClient = client;
         }
@@ -105,7 +112,11 @@ internal sealed class SshHopChain : IDisposable
 
         var targetInfo = new ConnectionInfo("127.0.0.1", targetLocalPort, profile.TargetUsername, targetAuth);
         TargetClient = new SshClient(targetInfo) { KeepAliveInterval = TimeSpan.FromSeconds(30) };
-        await Task.Run(() => TargetClient.Connect(), cancellationToken).ConfigureAwait(false);
+        await resilience.ExecuteConnectAsync(
+            profile.TargetHost,
+            profile.TargetPort,
+            ct => Task.Run(() => TargetClient.Connect(), ct),
+            cancellationToken).ConfigureAwait(false);
     }
 
     internal static int GetFreeTcpPort()

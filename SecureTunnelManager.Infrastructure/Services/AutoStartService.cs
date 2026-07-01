@@ -22,7 +22,7 @@ public class AutoStartService : IAutoStartService
         using var key = Registry.CurrentUser.OpenSubKey(RunKeyPath, writable: true)
             ?? throw new InvalidOperationException("Unable to open registry Run key.");
 
-        key.SetValue(AppName, $"\"{exePath}\" --minimized");
+        key.SetValue(AppName, $"\"{exePath}\"");
     }
 
     public void UnregisterFromWindows()

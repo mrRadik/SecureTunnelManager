@@ -58,17 +58,45 @@
   <data name="Settings.Title" xml:space="preserve"><value>Настройки</value></data>
   <data name="Settings.Subtitle" xml:space="preserve"><value>Параметры приложения и безопасность</value></data>
   <data name="Settings.Security" xml:space="preserve"><value>Безопасность</value></data>
+  <data name="Settings.VaultAutoLockEnabled" xml:space="preserve"><value>Блокировать хранилище при бездействии</value></data>
   <data name="Settings.VaultAutoLock" xml:space="preserve"><value>Автоблокировка хранилища (минуты)</value></data>
+  <data name="Settings.Tunnels" xml:space="preserve"><value>Туннели</value></data>
+  <data name="Settings.ReconnectInterval" xml:space="preserve"><value>Интервал реконнекта (секунды)</value></data>
+  <data name="Settings.CircuitBreakerPause" xml:space="preserve"><value>Пауза circuit breaker (секунды)</value></data>
   <data name="Settings.Startup" xml:space="preserve"><value>Запуск</value></data>
   <data name="Settings.StartWithWindows" xml:space="preserve"><value>Запускать вместе с Windows</value></data>
-  <data name="Settings.MinimizeToTrayOnStart" xml:space="preserve"><value>Сворачивать в трей при запуске</value></data>
-  <data name="Settings.StartMinimizedWithWindows" xml:space="preserve"><value>Запускать свёрнутым с Windows</value></data>
   <data name="Settings.StartAllTunnelsOnStart" xml:space="preserve"><value>Запускать все туннели при старте приложения</value></data>
   <data name="Settings.CloseToTray" xml:space="preserve"><value>Кнопка закрытия сворачивает в трей</value></data>
   <data name="Settings.Language" xml:space="preserve"><value>Язык</value></data>
   <data name="Settings.LanguageEnglish" xml:space="preserve"><value>English</value></data>
   <data name="Settings.LanguageRussian" xml:space="preserve"><value>Русский</value></data>
   <data name="Settings.Appearance" xml:space="preserve"><value>Интерфейс</value></data>
+  <data name="Settings.Updates" xml:space="preserve"><value>Обновления</value></data>
+  <data name="Settings.CurrentVersion" xml:space="preserve"><value>Текущая версия: </value></data>
+  <data name="Settings.CheckForUpdatesOnStartup" xml:space="preserve"><value>Проверять обновления при запуске</value></data>
+  <data name="Settings.CheckForUpdatesNow" xml:space="preserve"><value>Проверить обновления</value></data>
+  <data name="Settings.UpdatesPortableHint" xml:space="preserve"><value>Автообновление доступно только для версии, установленной через MSI в Program Files.</value></data>
+  <data name="Updates.Title" xml:space="preserve"><value>Обновление</value></data>
+  <data name="Updates.NotInstalled" xml:space="preserve"><value>Автообновление доступно только при установке через MSI-инсталлятор.</value></data>
+  <data name="Updates.CheckFailed" xml:space="preserve"><value>Не удалось проверить обновления. Проверьте подключение к интернету и повторите попытку.</value></data>
+  <data name="Updates.UpToDate" xml:space="preserve"><value>У вас установлена последняя версия ({0}).</value></data>
+  <data name="Updates.Available" xml:space="preserve"><value>Доступна версия {0}. Сейчас установлена {1}.
+
+Установить обновление?</value></data>
+  <data name="Updates.AvailableWithNotes" xml:space="preserve"><value>Доступна версия {0}. Сейчас установлена {1}.
+
+{2}
+
+Установить обновление?</value></data>
+  <data name="Updates.InstallConfirm" xml:space="preserve"><value>Активные туннели будут остановлены, приложение закроется на время установки. Продолжить?</value></data>
+  <data name="Updates.DownloadFailed" xml:space="preserve"><value>Не удалось скачать обновление. Повторите попытку позже.</value></data>
+  <data name="Updates.InstallFailed" xml:space="preserve"><value>Не удалось запустить установщик.</value></data>
+  <data name="WhatsNew.Title" xml:space="preserve"><value>Что нового</value></data>
+  <data name="WhatsNew.Subtitle" xml:space="preserve"><value>Secure Tunnel Manager обновлён до версии {0}.</value></data>
+  <data name="WhatsNew.Ok" xml:space="preserve"><value>Понятно</value></data>
+  <data name="WhatsNew.DefaultNotes" xml:space="preserve"><value>Добро пожаловать в версию {0}.
+
+В этом обновлении — улучшения и исправления ошибок.</value></data>
   <data name="Tunnels.NewTunnel" xml:space="preserve"><value>+ Новый туннель</value></data>
   <data name="Tunnels.StartAll" xml:space="preserve"><value>Запустить все</value></data>
   <data name="Tunnels.StopAll" xml:space="preserve"><value>Остановить все</value></data>

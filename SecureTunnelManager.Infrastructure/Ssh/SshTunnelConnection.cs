@@ -13,8 +13,13 @@ internal sealed class SshTunnelConnection : IDisposable
     private SshHopChain? _hopChain;
     private ForwardedPortLocal? _localForwardPort;
     private readonly ILogger _logger;
+    private readonly SshResiliencePolicyProvider _resilience;
 
-    public SshTunnelConnection(ILogger logger) => _logger = logger;
+    public SshTunnelConnection(ILogger logger, SshResiliencePolicyProvider resilience)
+    {
+        _logger = logger;
+        _resilience = resilience;
+    }
 
     public bool IsConnected =>
         _hopChain?.TargetClient.IsConnected == true &&
@@ -27,7 +32,7 @@ internal sealed class SshTunnelConnection : IDisposable
     {
         await StopInternalAsync().ConfigureAwait(false);
 
-        _hopChain = await SshHopChain.ConnectAsync(profile, credentialService, cancellationToken).ConfigureAwait(false);
+        _hopChain = await SshHopChain.ConnectAsync(profile, credentialService, _resilience, cancellationToken).ConfigureAwait(false);
 
         _localForwardPort = new ForwardedPortLocal(
             profile.LocalBindAddress,

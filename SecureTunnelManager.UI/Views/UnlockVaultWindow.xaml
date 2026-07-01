@@ -48,7 +48,7 @@
 
                     Visibility="{Binding IsUnlockMode, Converter={StaticResource BooleanToVisibilityConverter}}">
 
-            <TextBlock Text="&#xE192;" FontFamily="Segoe Fluent Icons" FontSize="28"
+            <TextBlock Text="&#xE72E;" Style="{StaticResource StmIconGlyph}" FontSize="28"
 
                        Foreground="{StaticResource StmAccentBrush}" HorizontalAlignment="Center" Margin="0,0,0,10"/>
 

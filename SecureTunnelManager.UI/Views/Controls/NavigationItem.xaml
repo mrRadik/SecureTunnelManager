@@ -16,7 +16,7 @@
         </RadioButton.IsChecked>
         <StackPanel Orientation="Horizontal">
             <TextBlock Text="{Binding IconGlyph, ElementName=Root}"
-                       FontFamily="Segoe Fluent Icons"
+                       Style="{StaticResource StmIconGlyph}"
                        FontSize="16"
                        Width="20"
                        Margin="0,0,10,0"

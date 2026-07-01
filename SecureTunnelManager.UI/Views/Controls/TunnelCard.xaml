@@ -35,7 +35,6 @@
             <Button Grid.Column="3"
                     x:Name="MenuButton"
                     Content="&#xE712;"
-                    FontFamily="Segoe Fluent Icons"
                     Style="{StaticResource StmIconButton}"
                     VerticalAlignment="Center"
                     Click="OnMenuClick">

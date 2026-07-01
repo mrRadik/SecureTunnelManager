@@ -51,6 +51,8 @@ public partial class App : System.Windows.Application
                 services.AddSecureTunnelInfrastructure(dbPath, logDir);
                 services.AddSingleton<ILocalizationService, LocalizationService>();
                 services.AddSingleton<IDialogService, DialogService>();
+                services.AddSingleton<UpdatePromptService>();
+                services.AddSingleton<WhatsNewService>();
                 services.AddSingleton<TrayIconService>();
                 services.AddSingleton<MainViewModel>();
                 services.AddSingleton<SettingsViewModel>();
@@ -97,21 +99,32 @@ public partial class App : System.Windows.Application
         _tray.OpenRequested += (_, _) => ShowMainWindow();
         _tray.ExitRequested += (_, _) => ShutdownApplication();
 
-        var startMinimized = e.Args.Contains("--minimized", StringComparer.OrdinalIgnoreCase);
-        if (startMinimized)
-        {
-            main.Hide();
-            _tray.ShowBalloon(localization.Get("App.Title"), localization.Get("Tray.RunningInTray"));
-        }
-        else
-        {
-            main.Show();
-        }
+        main.Show();
 
         if (MainWindow.DataContext is MainViewModel vm)
             await vm.LoadCommand.ExecuteAsync(null).ConfigureAwait(true);
 
         _singleInstance.StartActivationListener(ShowMainWindow);
+
+        var whatsNew = Services.GetRequiredService<WhatsNewService>();
+        await whatsNew.TryShowWhatsNewAsync().ConfigureAwait(true);
+
+        if (appSettings.CheckForUpdatesOnStartup)
+            _ = CheckForUpdatesOnStartupAsync();
+    }
+
+    private async Task CheckForUpdatesOnStartupAsync()
+    {
+        try
+        {
+            await Task.Delay(TimeSpan.FromSeconds(3)).ConfigureAwait(true);
+            var updatePrompt = Services.GetRequiredService<UpdatePromptService>();
+            await updatePrompt.CheckAndPromptAsync(silentWhenUpToDate: true).ConfigureAwait(true);
+        }
+        catch
+        {
+            // Startup update check must not block or crash the app.
+        }
     }
 
     public void ShowMainWindow()

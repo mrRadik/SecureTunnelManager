@@ -171,8 +171,7 @@
                          ToolTip="{loc:Loc Tunnels.SearchTooltip}"/>
 
                 <TextBlock Text="&#xE721;"
-
-                           FontFamily="Segoe Fluent Icons"
+                           Style="{StaticResource StmIconGlyph}"
 
                            FontSize="14"
 

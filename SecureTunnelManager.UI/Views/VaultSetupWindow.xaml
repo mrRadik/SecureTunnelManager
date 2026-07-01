@@ -46,7 +46,7 @@
 
         <StackPanel Grid.Row="1" Margin="24,20">
 
-            <TextBlock Text="&#xE192;" FontFamily="Segoe Fluent Icons" FontSize="28"
+            <TextBlock Text="&#xE72E;" Style="{StaticResource StmIconGlyph}" FontSize="28"
 
                        Foreground="{StaticResource StmAccentBrush}" HorizontalAlignment="Center" Margin="0,0,0,12"/>
 

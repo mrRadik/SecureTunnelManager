@@ -1,0 +1,28 @@
+# Build artifacts
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+*.user
+*.suo
+.vs/
+.idea/
+
+# Publish output
+/publish/
+/installer/output/
+/tools/
+
+# Local databases
+*.db
+*.db-shm
+*.db-wal
+design-time.db
+
+# OS
+Thumbs.db
+Desktop.ini
+
+# Debug
+crash.err
+crash.out

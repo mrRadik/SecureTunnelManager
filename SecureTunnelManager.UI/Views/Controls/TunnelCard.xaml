@@ -1,0 +1,55 @@
+<UserControl x:Class="SecureTunnelManager.UI.Views.Controls.TunnelCard"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:SecureTunnelManager.UI.Views.Controls"
+             x:Name="Root">
+
+    <Border Style="{StaticResource StmTunnelCard}">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="14" Margin="0,0,0,6"/>
+                <controls:ConnectionRouteView IsCompact="True"
+                    LocalEndpoint="{Binding LocalEndpoint}"
+                    JumpHostDisplays="{Binding JumpHostDisplays}"
+                    DestinationDisplay="{Binding DestinationDisplay}"/>
+            </StackPanel>
+
+            <controls:TunnelStatusBadge Grid.Column="1"
+                Status="{Binding Status}"
+                ReconnectAttempt="{Binding ReconnectAttempt}"
+                VerticalAlignment="Center"
+                Margin="12,0,8,0"/>
+
+            <controls:TunnelErrorIndicator Grid.Column="2"
+                ErrorText="{Binding ErrorTooltip, Mode=OneWay}"
+                ShowErrorIndicator="{Binding ShowErrorIndicator, Mode=OneWay}"
+                Margin="0,0,8,0"/>
+
+            <Button Grid.Column="3"
+                    x:Name="MenuButton"
+                    Content="&#xE712;"
+                    FontFamily="Segoe Fluent Icons"
+                    Style="{StaticResource StmIconButton}"
+                    VerticalAlignment="Center"
+                    Click="OnMenuClick">
+                <Button.ContextMenu>
+                    <ContextMenu Opened="OnContextMenuOpened">
+                        <MenuItem Tag="Start" Click="OnStartClick"/>
+                        <MenuItem Tag="Stop" Click="OnStopClick"/>
+                        <MenuItem Tag="Restart" Click="OnRestartClick"/>
+                        <Separator/>
+                        <MenuItem Tag="Edit" Click="OnEditClick"/>
+                        <MenuItem Tag="Delete" Click="OnDeleteClick"/>
+                    </ContextMenu>
+                </Button.ContextMenu>
+            </Button>
+        </Grid>
+    </Border>
+</UserControl>

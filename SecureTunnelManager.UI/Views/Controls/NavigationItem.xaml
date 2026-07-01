@@ -1,0 +1,27 @@
+<UserControl x:Class="SecureTunnelManager.UI.Views.Controls.NavigationItem"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:SecureTunnelManager.UI.ViewModels"
+             x:Name="Root">
+
+    <RadioButton GroupName="MainNav"
+                 Style="{StaticResource StmSidebarNavButton}"
+                 Command="{Binding DataContext.NavigateCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                 CommandParameter="{Binding Section, ElementName=Root}">
+        <RadioButton.IsChecked>
+            <MultiBinding Mode="OneWay" Converter="{StaticResource NavigationSectionEqualsConverter}">
+                <Binding Path="DataContext.SelectedSection" RelativeSource="{RelativeSource AncestorType=Window}"/>
+                <Binding Path="Section" ElementName="Root"/>
+            </MultiBinding>
+        </RadioButton.IsChecked>
+        <StackPanel Orientation="Horizontal">
+            <TextBlock Text="{Binding IconGlyph, ElementName=Root}"
+                       FontFamily="Segoe Fluent Icons"
+                       FontSize="16"
+                       Width="20"
+                       Margin="0,0,10,0"
+                       VerticalAlignment="Center"/>
+            <TextBlock x:Name="LabelText" VerticalAlignment="Center"/>
+        </StackPanel>
+    </RadioButton>
+</UserControl>

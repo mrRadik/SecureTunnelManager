@@ -1,0 +1,35 @@
+<Project Sdk="WixToolset.Sdk/5.0.2">
+
+  <PropertyGroup>
+    <OutputName>SecureTunnelManager-Setup</OutputName>
+    <OutputPath>output\</OutputPath>
+    <SuppressPdbOutput>true</SuppressPdbOutput>
+    <Platform>x64</Platform>
+    <ProductVersion Condition="'$(ProductVersion)' == ''">1.0.0.0</ProductVersion>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PublishDir>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\publish\win-x64'))</PublishDir>
+    <IconPath>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\SecureTunnelManager.UI\Assets\app.ico'))</IconPath>
+    <DefineConstants>ProductVersion=$(ProductVersion);SourceDir=$(PublishDir);IconPath=$(IconPath)</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <HarvestDirectory Include="$(PublishDir)">
+      <ComponentGroupName>MainComponents</ComponentGroupName>
+      <DirectoryRefId>INSTALLFOLDER</DirectoryRefId>
+      <SuppressRootDirectory>true</SuppressRootDirectory>
+      <SuppressCom>true</SuppressCom>
+      <SuppressRegistry>true</SuppressRegistry>
+      <PreprocessorVariable>SourceDir</PreprocessorVariable>
+    </HarvestDirectory>
+    <BindPath Include="$(PublishDir)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="WixToolset.Heat" Version="5.0.2" />
+    <PackageReference Include="WixToolset.UI.wixext" Version="5.0.2" />
+    <PackageReference Include="WixToolset.Util.wixext" Version="5.0.2" />
+  </ItemGroup>
+
+</Project>

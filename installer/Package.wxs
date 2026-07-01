@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+     xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui"
+     xmlns:util="http://wixtoolset.org/schemas/v4/wxs/util">
+
+  <Package Name="Secure Tunnel Manager"
+           Manufacturer="Secure Tunnel Manager"
+           Version="$(var.ProductVersion)"
+           UpgradeCode="7A3C9E2F-4B1D-4A8C-9F6E-2D5B8C1A4E7F"
+           Scope="perMachine">
+
+    <MajorUpgrade AllowSameVersionUpgrades="yes"
+                  DowngradeErrorMessage="A newer version of Secure Tunnel Manager is already installed."
+                  Schedule="afterInstallInitialize" />
+
+    <MediaTemplate EmbedCab="yes" />
+
+    <Icon Id="AppIcon" SourceFile="$(var.IconPath)" />
+    <Property Id="ARPPRODUCTICON" Value="AppIcon" />
+
+    <util:CloseApplication Id="CloseRunningApp"
+                           Target="SecureTunnelManager.exe"
+                           Description="Secure Tunnel Manager must be closed before updating."
+                           CloseMessage="yes"
+                           TerminateProcess="1"
+                           RebootPrompt="no" />
+
+    <Feature Id="MainFeature" Title="Secure Tunnel Manager" Level="1">
+      <ComponentGroupRef Id="MainComponents" />
+      <ComponentRef Id="ApplicationShortcut" />
+    </Feature>
+
+    <StandardDirectory Id="ProgramFiles64Folder">
+      <Directory Id="INSTALLFOLDER" Name="Secure Tunnel Manager" />
+    </StandardDirectory>
+
+    <StandardDirectory Id="ProgramMenuFolder">
+      <Directory Id="ApplicationProgramsFolder" Name="Secure Tunnel Manager" />
+    </StandardDirectory>
+
+    <ui:WixUI Id="WixUI_InstallDir" />
+    <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
+  </Package>
+
+  <Fragment>
+    <DirectoryRef Id="ApplicationProgramsFolder">
+      <Component Id="ApplicationShortcut" Guid="*">
+        <Shortcut Id="ApplicationStartMenuShortcut"
+                  Name="Secure Tunnel Manager"
+                  Description="SSH tunnel manager"
+                  Target="[INSTALLFOLDER]SecureTunnelManager.exe"
+                  WorkingDirectory="INSTALLFOLDER"
+                  Icon="AppIcon" />
+        <RemoveFolder Id="CleanUpShortCut" Directory="ApplicationProgramsFolder" On="uninstall" />
+        <RegistryValue Root="HKCU"
+                       Key="Software\SecureTunnelManager"
+                       Name="installed"
+                       Type="integer"
+                       Value="1"
+                       KeyPath="yes" />
+      </Component>
+    </DirectoryRef>
+  </Fragment>
+
+</Wix>

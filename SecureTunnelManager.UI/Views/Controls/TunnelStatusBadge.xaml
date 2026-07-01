@@ -1,0 +1,24 @@
+<UserControl x:Class="SecureTunnelManager.UI.Views.Controls.TunnelStatusBadge"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Name="Root">
+
+    <UserControl.Resources>
+        <Storyboard x:Key="PulseStoryboard" RepeatBehavior="Forever">
+            <DoubleAnimation Storyboard.TargetName="StatusDot"
+                             Storyboard.TargetProperty="Opacity"
+                             From="1" To="0.35" Duration="0:0:0.75" AutoReverse="True"/>
+        </Storyboard>
+    </UserControl.Resources>
+
+    <Border x:Name="BadgeBorder" CornerRadius="12" Padding="10,5" HorizontalAlignment="Left">
+        <StackPanel Orientation="Horizontal">
+            <Ellipse x:Name="StatusDot" Width="8" Height="8" VerticalAlignment="Center" Margin="0,0,8,0"/>
+            <TextBlock x:Name="StatusLabel"
+                       FontFamily="Segoe UI"
+                       FontSize="13"
+                       Foreground="{StaticResource StmTextPrimaryBrush}"
+                       VerticalAlignment="Center"/>
+        </StackPanel>
+    </Border>
+</UserControl>

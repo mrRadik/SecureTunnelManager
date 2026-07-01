@@ -1,0 +1,79 @@
+<UserControl x:Class="SecureTunnelManager.UI.Views.Controls.ConnectionRouteView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:loc="clr-namespace:SecureTunnelManager.UI.Localization"
+             x:Name="Root">
+
+    <UserControl.Resources>
+        <Style x:Key="StmRouteArrow" TargetType="TextBlock">
+            <Setter Property="Text" Value="-&gt;"/>
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Foreground" Value="{StaticResource StmRouteConnectorBrush}"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="8,0"/>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid>
+        <!-- Compact horizontal route for tunnel cards -->
+        <StackPanel Orientation="Horizontal"
+                    Visibility="{Binding IsCompact, ElementName=Root, Converter={StaticResource BoolToVisibilityConverter}}">
+            <StackPanel MinWidth="0">
+                <TextBlock Text="{loc:Loc Route.Local}" Style="{StaticResource StmRouteLabel}"/>
+                <TextBlock Text="{Binding LocalEndpoint, ElementName=Root}" Style="{StaticResource StmRouteValue}"/>
+            </StackPanel>
+
+            <ItemsControl ItemsSource="{Binding JumpHostDisplays, ElementName=Root}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Horizontal"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Style="{StaticResource StmRouteArrow}"/>
+                            <StackPanel MinWidth="0">
+                                <TextBlock Text="{loc:Loc Route.JumpHost}" Style="{StaticResource StmRouteLabel}"/>
+                                <TextBlock Text="{Binding}" Style="{StaticResource StmRouteValue}"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+            <TextBlock Style="{StaticResource StmRouteArrow}"/>
+            <StackPanel MinWidth="0">
+                <TextBlock Text="{loc:Loc Route.Target}" Style="{StaticResource StmRouteLabel}"/>
+                <TextBlock Text="{Binding DestinationDisplay, ElementName=Root}" Style="{StaticResource StmRouteValue}"/>
+            </StackPanel>
+        </StackPanel>
+
+        <!-- Vertical route for wizard / detail -->
+        <StackPanel Visibility="{Binding IsCompact, ElementName=Root, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Invert}">
+            <TextBlock Text="{Binding LocalEndpoint, ElementName=Root}"
+                       FontFamily="Consolas" FontSize="13"
+                       Foreground="{StaticResource StmTextPrimaryBrush}"/>
+
+            <ItemsControl ItemsSource="{Binding JumpHostDisplays, ElementName=Root}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel>
+                            <TextBlock Text="-&gt;" FontFamily="Segoe UI" FontSize="11"
+                                       Foreground="{StaticResource StmRouteConnectorBrush}" Margin="4,2,0,2"/>
+                            <TextBlock Text="{Binding}" FontFamily="Segoe UI" FontSize="13"
+                                       Foreground="{StaticResource StmTextSecondaryBrush}"/>
+                        </StackPanel>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+            <TextBlock Text="-&gt;" FontFamily="Segoe UI" FontSize="11"
+                       Foreground="{StaticResource StmRouteConnectorBrush}" Margin="4,2,0,2"/>
+            <TextBlock Text="{Binding DestinationDisplay, ElementName=Root}"
+                       FontFamily="Consolas" FontSize="13"
+                       Foreground="{StaticResource StmTextPrimaryBrush}"/>
+        </StackPanel>
+    </Grid>
+</UserControl>

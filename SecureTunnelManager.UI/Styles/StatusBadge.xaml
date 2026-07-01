@@ -1,0 +1,39 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <Color x:Key="StmStatusConnectedDotColor">#22C55E</Color>
+    <Color x:Key="StmStatusConnectedBgColor">#3322C55E</Color>
+    <Color x:Key="StmStatusStoppedDotColor">#9CA3AF</Color>
+    <Color x:Key="StmStatusStoppedBgColor">#339CA3AF</Color>
+    <Color x:Key="StmStatusReconnectingDotColor">#F59E0B</Color>
+    <Color x:Key="StmStatusReconnectingBgColor">#33F59E0B</Color>
+    <Color x:Key="StmStatusErrorDotColor">#EF4444</Color>
+    <Color x:Key="StmStatusErrorBgColor">#33EF4444</Color>
+
+    <SolidColorBrush x:Key="StmStatusConnectedDotBrush" Color="{StaticResource StmStatusConnectedDotColor}"/>
+    <SolidColorBrush x:Key="StmStatusConnectedBgBrush" Color="{StaticResource StmStatusConnectedBgColor}"/>
+    <SolidColorBrush x:Key="StmStatusStoppedDotBrush" Color="{StaticResource StmStatusStoppedDotColor}"/>
+    <SolidColorBrush x:Key="StmStatusStoppedBgBrush" Color="{StaticResource StmStatusStoppedBgColor}"/>
+    <SolidColorBrush x:Key="StmStatusReconnectingDotBrush" Color="{StaticResource StmStatusReconnectingDotColor}"/>
+    <SolidColorBrush x:Key="StmStatusReconnectingBgBrush" Color="{StaticResource StmStatusReconnectingBgColor}"/>
+    <SolidColorBrush x:Key="StmStatusErrorDotBrush" Color="{StaticResource StmStatusErrorDotColor}"/>
+    <SolidColorBrush x:Key="StmStatusErrorBgBrush" Color="{StaticResource StmStatusErrorBgColor}"/>
+
+    <Storyboard x:Key="StmStatusPulseStoryboard" RepeatBehavior="Forever">
+        <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                         From="1" To="0.35" Duration="0:0:0.75" AutoReverse="True"/>
+    </Storyboard>
+
+    <Style x:Key="StmStatusDot" TargetType="Ellipse">
+        <Setter Property="Width" Value="8"/>
+        <Setter Property="Height" Value="8"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+
+    <Style x:Key="StmStatusBadgeBorder" TargetType="Border">
+        <Setter Property="CornerRadius" Value="12"/>
+        <Setter Property="Padding" Value="10,5"/>
+        <Setter Property="HorizontalAlignment" Value="Left"/>
+    </Style>
+
+</ResourceDictionary>

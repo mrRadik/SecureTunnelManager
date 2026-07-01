@@ -1,0 +1,60 @@
+<UserControl x:Class="SecureTunnelManager.UI.Views.Controls.SettingsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:loc="clr-namespace:SecureTunnelManager.UI.Localization"
+             Background="Transparent">
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="24">
+        <StackPanel MaxWidth="720">
+            <StackPanel Margin="0,0,0,12">
+                <TextBlock Text="{loc:Loc Settings.Title}" Style="{StaticResource StmPageTitle}"/>
+                <TextBlock Text="{loc:Loc Settings.Subtitle}" Style="{StaticResource StmPageSubtitle}"/>
+            </StackPanel>
+
+            <Border Style="{StaticResource StmCard}">
+                <StackPanel>
+                    <TextBlock Text="{loc:Loc Settings.Appearance}" Style="{StaticResource StmCardTitle}"/>
+                    <TextBlock Text="{loc:Loc Settings.Language}" Style="{StaticResource StmLabel}"/>
+                    <ComboBox SelectedValue="{Binding Settings.UiLanguage}"
+                              SelectedValuePath="Tag"
+                              Style="{StaticResource StmInputCombo}"
+                              MaxWidth="280"
+                              HorizontalAlignment="Left">
+                        <ComboBoxItem Content="{loc:Loc Settings.LanguageEnglish}" Tag="en"/>
+                        <ComboBoxItem Content="{loc:Loc Settings.LanguageRussian}" Tag="ru"/>
+                    </ComboBox>
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource StmCard}">
+                <StackPanel>
+                    <TextBlock Text="{loc:Loc Settings.Security}" Style="{StaticResource StmCardTitle}"/>
+                    <TextBlock Text="{loc:Loc Settings.VaultAutoLock}" Style="{StaticResource StmLabel}"/>
+                    <TextBox Text="{Binding Settings.VaultAutoLockMinutes, UpdateSourceTrigger=PropertyChanged}"
+                             Style="{StaticResource StmInput}" MaxWidth="120" HorizontalAlignment="Left"/>
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource StmCard}">
+                <StackPanel>
+                    <TextBlock Text="{loc:Loc Settings.Startup}" Style="{StaticResource StmCardTitle}"/>
+                    <CheckBox Content="{loc:Loc Settings.StartWithWindows}"
+                              IsChecked="{Binding Settings.StartWithWindows}"
+                              Style="{StaticResource StmCheckBox}"/>
+                    <CheckBox Content="{loc:Loc Settings.MinimizeToTrayOnStart}"
+                              IsChecked="{Binding Settings.MinimizeToTrayOnStart}"
+                              Style="{StaticResource StmCheckBox}" Margin="0,8,0,0"/>
+                    <CheckBox Content="{loc:Loc Settings.StartMinimizedWithWindows}"
+                              IsChecked="{Binding Settings.StartMinimizedWithWindows}"
+                              Style="{StaticResource StmCheckBox}" Margin="0,8,0,0"/>
+                    <CheckBox Content="{loc:Loc Settings.StartAllTunnelsOnStart}"
+                              IsChecked="{Binding Settings.StartAllTunnelsOnAppStart}"
+                              Style="{StaticResource StmCheckBox}" Margin="0,8,0,0"/>
+                    <CheckBox Content="{loc:Loc Settings.CloseToTray}"
+                              IsChecked="{Binding Settings.CloseToTray}"
+                              Style="{StaticResource StmCheckBox}" Margin="0,8,0,0"/>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

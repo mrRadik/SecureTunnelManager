@@ -1,0 +1,93 @@
+<windows:StmChromeWindow x:Class="SecureTunnelManager.UI.Views.VaultSetupWindow"
+
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+
+        xmlns:controls="clr-namespace:SecureTunnelManager.UI.Views.Controls"
+
+        xmlns:loc="clr-namespace:SecureTunnelManager.UI.Localization"
+
+        xmlns:windows="clr-namespace:SecureTunnelManager.UI.Windows"
+
+        Title="{loc:Loc Vault.CreateTitle}"
+
+        Style="{StaticResource StmDialogWindow}"
+
+        Width="420"
+
+        Height="380"
+
+        WindowStartupLocation="CenterScreen">
+
+
+
+    <Grid Background="{StaticResource StmBackgroundBrush}"
+
+          SnapsToDevicePixels="True"
+
+          UseLayoutRounding="True">
+
+        <Grid.RowDefinitions>
+
+            <RowDefinition Height="40"/>
+
+            <RowDefinition Height="*"/>
+
+            <RowDefinition Height="Auto"/>
+
+        </Grid.RowDefinitions>
+
+
+
+        <controls:WindowTitleBar Grid.Row="0" LocKey="Vault.CreateTitle" ShowMaximizeButton="False"/>
+
+
+
+        <StackPanel Grid.Row="1" Margin="24,20">
+
+            <TextBlock Text="&#xE192;" FontFamily="Segoe Fluent Icons" FontSize="28"
+
+                       Foreground="{StaticResource StmAccentBrush}" HorizontalAlignment="Center" Margin="0,0,0,12"/>
+
+            <TextBlock Text="{loc:Loc Vault.CreateTitle}" Style="{StaticResource StmPageTitle}" HorizontalAlignment="Center" Margin="0,0,0,4"/>
+
+            <TextBlock Text="{loc:Loc Vault.CreateSubtitle}"
+
+                       Style="{StaticResource StmPageSubtitle}" TextAlignment="Center" Margin="0,0,0,16"/>
+
+            <TextBlock Text="{loc:Loc Vault.MasterPassword}" Style="{StaticResource StmLabel}"/>
+
+            <controls:RevealPasswordBox Password="{Binding MasterPassword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+
+            <TextBlock Text="{loc:Loc Vault.ConfirmMasterPassword}" Style="{StaticResource StmLabel}"/>
+
+            <controls:RevealPasswordBox Password="{Binding ConfirmPassword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+
+            <TextBlock Text="{Binding ErrorMessage}"
+
+                       Style="{StaticResource StmValidationError}"
+
+                       Visibility="{Binding ErrorMessage, Converter={StaticResource StringNotEmptyToVisibilityConverter}}"/>
+
+        </StackPanel>
+
+
+
+        <Border Grid.Row="2" Style="{StaticResource StmDialogFooter}">
+
+            <Button Content="{loc:Loc Vault.CreateVault}"
+
+                    Command="{Binding CreateCommand}"
+
+                    Style="{StaticResource StmSuccessButton}"
+
+                    HorizontalAlignment="Right"/>
+
+        </Border>
+
+    </Grid>
+
+</windows:StmChromeWindow>
+
+

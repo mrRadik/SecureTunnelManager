@@ -1,0 +1,87 @@
+<UserControl x:Class="SecureTunnelManager.UI.Views.Controls.JumpHostHopEditor"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:SecureTunnelManager.UI.ViewModels">
+
+    <Border Background="{StaticResource StmSurfaceBrush}"
+            BorderBrush="{StaticResource StmBorderBrush}"
+            BorderThickness="1"
+            CornerRadius="8"
+            Padding="16"
+            Margin="0,0,0,12">
+        <StackPanel>
+            <Grid Margin="0,0,0,12">
+                <TextBlock Text="{Binding Title}" Style="{StaticResource StmCardTitle}" VerticalAlignment="Center"/>
+                <Button Content="Remove"
+                        Command="{Binding DataContext.RemoveJumpHostCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                        CommandParameter="{Binding}"
+                        Style="{StaticResource StmGhostButton}"
+                        HorizontalAlignment="Right"
+                        Padding="8,4"
+                        Visibility="{Binding CanRemove, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+            </Grid>
+
+            <Grid Margin="0,0,0,4">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="120"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0" Margin="0,0,12,0">
+                    <TextBlock Text="Host address" Style="{StaticResource StmLabel}"/>
+                    <TextBox Text="{Binding Host, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource StmInput}"/>
+                    <TextBlock Text="{Binding HostError}" Style="{StaticResource StmValidationError}"
+                               Visibility="{Binding HostError, Converter={StaticResource StringNotEmptyToVisibilityConverter}}"/>
+                </StackPanel>
+                <StackPanel Grid.Column="1">
+                    <TextBlock Text="Port" Style="{StaticResource StmLabel}"/>
+                    <TextBox Text="{Binding Port, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource StmInput}"/>
+                </StackPanel>
+            </Grid>
+
+            <TextBlock Text="Sign-in name" Style="{StaticResource StmLabel}"/>
+            <TextBox Text="{Binding Username, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource StmInput}"/>
+            <TextBlock Text="{Binding UsernameError}" Style="{StaticResource StmValidationError}"
+                       Visibility="{Binding UsernameError, Converter={StaticResource StringNotEmptyToVisibilityConverter}}"/>
+
+            <TextBlock Text="Sign-in method" Style="{StaticResource StmLabel}" Margin="0,16,0,8"/>
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                <RadioButton Content="Password"
+                             GroupName="{Binding Title}"
+                             Style="{StaticResource StmRadioButton}"
+                             IsChecked="{Binding IsPasswordAuth, Mode=TwoWay}"/>
+                <RadioButton Content="Certificate (key file)"
+                             GroupName="{Binding Title}"
+                             Style="{StaticResource StmRadioButton}"
+                             IsChecked="{Binding IsPrivateKeyAuth, Mode=TwoWay}"/>
+            </StackPanel>
+
+            <StackPanel Visibility="{Binding IsPasswordAuth, Converter={StaticResource BoolToVisibilityConverter}}">
+                <TextBlock Text="Password" Style="{StaticResource StmLabel}"/>
+                <PasswordBox x:Name="PasswordBox"
+                             Style="{StaticResource StmInputPassword}"
+                             PasswordChanged="OnPasswordChanged"/>
+                <TextBlock Text="Leave blank when editing to keep the saved password."
+                           Style="{StaticResource StmPageSubtitle}"
+                           Visibility="{Binding DataContext.IsEditMode, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                <TextBlock Text="{Binding CredentialError}" Style="{StaticResource StmValidationError}"
+                           Visibility="{Binding CredentialError, Converter={StaticResource StringNotEmptyToVisibilityConverter}}"/>
+            </StackPanel>
+
+            <StackPanel Visibility="{Binding IsPrivateKeyAuth, Converter={StaticResource BoolToVisibilityConverter}}">
+                <TextBlock Text="Key file" Style="{StaticResource StmLabel}"/>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBox Grid.Column="0" Text="{Binding PrivateKeyPath, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource StmInput}"/>
+                    <Button Grid.Column="1" Content="Browse" Command="{Binding BrowseKeyCommand}" Style="{StaticResource StmSecondaryButton}" Margin="8,0,0,4" MinWidth="90"/>
+                </Grid>
+                <TextBlock Text="{Binding PrivateKeyError}" Style="{StaticResource StmValidationError}"
+                           Visibility="{Binding PrivateKeyError, Converter={StaticResource StringNotEmptyToVisibilityConverter}}"/>
+                <TextBlock Text="Key passphrase (optional)" Style="{StaticResource StmLabel}"/>
+                <PasswordBox x:Name="KeyPassphraseBox" Style="{StaticResource StmInputPassword}" PasswordChanged="OnKeyPassphraseChanged"/>
+            </StackPanel>
+        </StackPanel>
+    </Border>
+</UserControl>

@@ -1,0 +1,286 @@
+<windows:StmChromeWindow x:Class="SecureTunnelManager.UI.Views.TunnelEditorWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="clr-namespace:SecureTunnelManager.UI.Views.Controls"
+        xmlns:windows="clr-namespace:SecureTunnelManager.UI.Windows"
+        xmlns:vm="clr-namespace:SecureTunnelManager.UI.ViewModels"
+        Title="{Binding WindowTitle}"
+        Style="{StaticResource StmWindow}"
+        MinWidth="900"
+        MinHeight="680"
+        Width="980"
+        Height="760"
+        WindowStartupLocation="CenterOwner">
+
+    <Grid Background="{StaticResource StmBackgroundBrush}"
+          SnapsToDevicePixels="True"
+          UseLayoutRounding="True">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <controls:WindowTitleBar Grid.Row="0" Title="{Binding WindowTitle}"/>
+
+            <StackPanel Grid.Row="1" Margin="24,12,24,0">
+                <TextBlock Text="{Binding StepIndicator}" Style="{StaticResource StmPageSubtitle}"/>
+                <TextBlock Text="{Binding CurrentStepTitle}" Style="{StaticResource StmCardTitle}" Margin="0,4,0,0"/>
+            </StackPanel>
+
+            <Grid Grid.Row="2" Margin="24,12,24,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1.2*"/>
+                <ColumnDefinition Width="16"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Wizard steps -->
+            <ScrollViewer Grid.Column="0" VerticalScrollBarVisibility="Auto">
+                <StackPanel>
+
+                    <!-- Step 1 -->
+                    <Border Style="{StaticResource StmCard}" Margin="0,0,0,16"
+                            Visibility="{Binding CurrentStep, Converter={StaticResource IntEqualsConverter}, ConverterParameter=0}">
+                        <StackPanel>
+                            <TextBlock Text="Give this tunnel a recognizable name and optional notes."
+                                       Style="{StaticResource StmPageSubtitle}" Margin="0,0,0,16"/>
+                            <TextBlock Text="Name" Style="{StaticResource StmLabel}"/>
+                            <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource StmInput}"/>
+                            <TextBlock Text="{Binding NameError}" Style="{StaticResource StmValidationError}"
+                                       Visibility="{Binding NameError, Converter={StaticResource StringNotEmptyToVisibilityConverter}}"/>
+                            <TextBlock Text="Description" Style="{StaticResource StmLabel}"/>
+                            <TextBox Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource StmInput}"
+                                     MinHeight="72" AcceptsReturn="True" TextWrapping="Wrap" VerticalContentAlignment="Top"/>
+                            <CheckBox Content="Connect automatically when Windows starts"
+                                      IsChecked="{Binding StartWithWindows}" Style="{StaticResource StmCheckBox}" Margin="0,16,0,0"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Step 2 -->
+                    <Border Style="{StaticResource StmCard}" Margin="0,0,0,16"
+                            Visibility="{Binding CurrentStep, Converter={StaticResource IntEqualsConverter}, ConverterParameter=1}">
+                        <StackPanel>
+                            <TextBlock Text="Intermediate servers between your PC and the target. Add more if your route uses multiple bastion hosts."
+                                       Style="{StaticResource StmPageSubtitle}" Margin="0,0,0,16"/>
+
+                            <ItemsControl ItemsSource="{Binding JumpHosts}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate DataType="{x:Type vm:JumpHostHopViewModel}">
+                                        <controls:JumpHostHopEditor/>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+
+                            <Button Content="+ Add jump host"
+                                    Command="{Binding AddJumpHostCommand}"
+                                    Style="{StaticResource StmSecondaryButton}"
+                                    HorizontalAlignment="Left"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Step 3 -->
+                    <Border Style="{StaticResource StmCard}" Margin="0,0,0,16"
+                            Visibility="{Binding CurrentStep, Converter={StaticResource IntEqualsConverter}, ConverterParameter=2}">
+                        <StackPanel>
+                            <TextBlock Text="The server and service you want to reach through the jump host."
+                                       Style="{StaticResource StmPageSubtitle}" Margin="0,0,0,16"/>
+                            <Grid Margin="0,0,0,4">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="120"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0" Margin="0,0,12,0">
+                                    <TextBlock Text="Host address" Style="{StaticResource StmLabel}"/>
+                                    <TextBox Text="{Binding TargetHost, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource StmInput}"/>
+                                    <TextBlock Text="{Binding TargetHostError}" Style="{StaticResource StmValidationError}"
+                                               Visibility="{Binding TargetHostError, Converter={StaticResource StringNotEmptyToVisibilityConverter}}"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="1">
+                                    <TextBlock Text="Port" Style="{StaticResource StmLabel}"/>
+                                    <TextBox Text="{Binding TargetPort, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource StmInput}"/>
+                                </StackPanel>
+                            </Grid>
+                            <TextBlock Text="Sign-in name" Style="{StaticResource StmLabel}"/>
+                            <TextBox Text="{Binding TargetUsername, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource StmInput}"/>
+                            <TextBlock Text="{Binding TargetUsernameError}" Style="{StaticResource StmValidationError}"
+                                       Visibility="{Binding TargetUsernameError, Converter={StaticResource StringNotEmptyToVisibilityConverter}}"/>
+
+                            <TextBlock Text="Sign-in method" Style="{StaticResource StmLabel}" Margin="0,16,0,8"/>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                                <RadioButton Content="Password"
+                                             GroupName="TargetAuthMethod"
+                                             Style="{StaticResource StmRadioButton}"
+                                             IsChecked="{Binding IsTargetPasswordAuth, Mode=TwoWay}"/>
+                                <RadioButton Content="Certificate (key file)"
+                                             GroupName="TargetAuthMethod"
+                                             Style="{StaticResource StmRadioButton}"
+                                             IsChecked="{Binding IsTargetPrivateKeyAuth, Mode=TwoWay}"/>
+                            </StackPanel>
+
+                            <StackPanel Visibility="{Binding IsTargetPasswordAuth, Converter={StaticResource BoolToVisibilityConverter}}">
+                                <TextBlock Text="Password" Style="{StaticResource StmLabel}"/>
+                                <PasswordBox x:Name="TargetPasswordBox"
+                                             Style="{StaticResource StmInputPassword}"
+                                             PasswordChanged="OnTargetPasswordChanged"/>
+                                <TextBlock Text="Leave blank when editing to keep the saved password."
+                                           Style="{StaticResource StmPageSubtitle}"
+                                           Visibility="{Binding IsEditMode, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                <TextBlock Text="{Binding TargetCredentialError}" Style="{StaticResource StmValidationError}"
+                                           Visibility="{Binding TargetCredentialError, Converter={StaticResource StringNotEmptyToVisibilityConverter}}"/>
+                            </StackPanel>
+
+                            <StackPanel Visibility="{Binding IsTargetPrivateKeyAuth, Converter={StaticResource BoolToVisibilityConverter}}">
+                                <TextBlock Text="Key file" Style="{StaticResource StmLabel}"/>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBox Grid.Column="0" Text="{Binding TargetPrivateKeyPath, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource StmInput}"/>
+                                    <Button Grid.Column="1" Content="Browse" Command="{Binding BrowseTargetKeyCommand}" Style="{StaticResource StmSecondaryButton}" Margin="8,0,0,4" MinWidth="90"/>
+                                </Grid>
+                                <TextBlock Text="{Binding TargetPrivateKeyError}" Style="{StaticResource StmValidationError}"
+                                           Visibility="{Binding TargetPrivateKeyError, Converter={StaticResource StringNotEmptyToVisibilityConverter}}"/>
+                                <TextBlock Text="Key passphrase (optional)" Style="{StaticResource StmLabel}"/>
+                                <PasswordBox x:Name="TargetKeyPassphraseBox" Style="{StaticResource StmInputPassword}"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Step 4 -->
+                    <Border Style="{StaticResource StmCard}" Margin="0,0,0,16"
+                            Visibility="{Binding CurrentStep, Converter={StaticResource IntEqualsConverter}, ConverterParameter=3}">
+                        <StackPanel>
+                            <TextBlock Text="Choose a local address and port on this PC, then the service port on the target server."
+                                       Style="{StaticResource StmPageSubtitle}" Margin="0,0,0,16"/>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="120"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0" Margin="0,0,12,0">
+                                    <TextBlock Text="Local address" Style="{StaticResource StmLabel}"/>
+                                    <TextBox Text="{Binding LocalBindAddress, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource StmInput}"/>
+                                    <TextBlock Text="{Binding LocalBindAddressError}" Style="{StaticResource StmValidationError}"
+                                               Visibility="{Binding LocalBindAddressError, Converter={StaticResource StringNotEmptyToVisibilityConverter}}"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="1">
+                                    <TextBlock Text="Local port" Style="{StaticResource StmLabel}"/>
+                                    <TextBox Text="{Binding LocalPort, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource StmInput}"/>
+                                    <TextBlock Text="{Binding LocalPortError}" Style="{StaticResource StmValidationError}"
+                                               Visibility="{Binding LocalPortError, Converter={StaticResource StringNotEmptyToVisibilityConverter}}"/>
+                                </StackPanel>
+                            </Grid>
+                            <TextBlock Text="Service port on target" Style="{StaticResource StmLabel}" Margin="0,12,0,6"/>
+                            <TextBox Text="{Binding RemotePort, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource StmInput}" MaxWidth="200" HorizontalAlignment="Left"/>
+
+                            <Border Margin="0,16,0,0"
+                                    Padding="12"
+                                    CornerRadius="6"
+                                    Background="{StaticResource StmSurfaceBrush}"
+                                    BorderBrush="{StaticResource StmBorderBrush}"
+                                    BorderThickness="1"
+                                    Visibility="{Binding HasTestResult, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                <TextBlock Text="{Binding TestMessage}" TextWrapping="Wrap">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock" BasedOn="{StaticResource StmBody}">
+                                            <Setter Property="Foreground" Value="{StaticResource StmTextPrimaryBrush}"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding TestSucceeded}" Value="True">
+                                                    <Setter Property="Foreground" Value="{StaticResource StmSuccessBrush}"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding TestSucceeded}" Value="False">
+                                                    <Setter Property="Foreground" Value="{StaticResource StmErrorBrush}"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </Border>
+                        </StackPanel>
+                    </Border>
+
+                </StackPanel>
+            </ScrollViewer>
+
+            <!-- Connection diagram -->
+            <Border Grid.Column="2" Style="{StaticResource StmCard}" Margin="0" VerticalAlignment="Top">
+                <StackPanel>
+                    <TextBlock Text="Connection path" Style="{StaticResource StmCardTitle}"/>
+                    <TextBlock Text="How traffic flows from your PC to the remote service."
+                               Style="{StaticResource StmPageSubtitle}" Margin="0,-8,0,16"/>
+
+                    <Border Background="{StaticResource StmSurfaceBrush}" CornerRadius="8" Padding="16,12" Margin="0,0,0,8">
+                        <StackPanel HorizontalAlignment="Center">
+                            <TextBlock Text="Local PC" Style="{StaticResource StmLabel}" HorizontalAlignment="Center" Margin="0,0,0,4"/>
+                            <TextBlock Text="{Binding FlowMyComputer}" Style="{StaticResource StmBody}" FontWeight="SemiBold" HorizontalAlignment="Center" FontFamily="Consolas"/>
+                        </StackPanel>
+                    </Border>
+                    <TextBlock Text="│" Style="{StaticResource StmBody}" HorizontalAlignment="Center" Opacity="0.5"/>
+                    <ItemsControl ItemsSource="{Binding FlowJumpHosts}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel>
+                                    <Border Background="{StaticResource StmSurfaceBrush}" CornerRadius="8" Padding="16,12" Margin="0,8">
+                                        <StackPanel HorizontalAlignment="Center">
+                                            <TextBlock Text="Jump Host" Style="{StaticResource StmLabel}" HorizontalAlignment="Center" Margin="0,0,0,4"/>
+                                            <TextBlock Text="{Binding}" Style="{StaticResource StmBody}" FontWeight="SemiBold" HorizontalAlignment="Center"/>
+                                        </StackPanel>
+                                    </Border>
+                                    <TextBlock Text="│" Style="{StaticResource StmBody}" HorizontalAlignment="Center" Opacity="0.5"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <Border Background="{StaticResource StmSurfaceBrush}" CornerRadius="8" Padding="16,12" Margin="0,8">
+                        <StackPanel HorizontalAlignment="Center">
+                            <TextBlock Text="Target Server" Style="{StaticResource StmLabel}" HorizontalAlignment="Center" Margin="0,0,0,4"/>
+                            <TextBlock Text="{Binding FlowTargetServer}" Style="{StaticResource StmBody}" FontWeight="SemiBold" HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+                    <TextBlock Text="│" Style="{StaticResource StmBody}" HorizontalAlignment="Center" Opacity="0.5"/>
+                    <Border Background="{StaticResource StmSelectedBrush}" CornerRadius="8" Padding="16,12" Margin="0,8,0,0">
+                        <StackPanel HorizontalAlignment="Center">
+                            <TextBlock Text="Forwarded service" Style="{StaticResource StmLabel}" HorizontalAlignment="Center" Margin="0,0,0,4"/>
+                            <TextBlock Text="{Binding FlowForwardedService}" Style="{StaticResource StmBody}" FontWeight="SemiBold" HorizontalAlignment="Center" FontFamily="Consolas"/>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <Border Grid.Row="3" Style="{StaticResource StmDialogFooter}">
+            <Grid>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                    <Button Content="Back" Command="{Binding BackCommand}" Style="{StaticResource StmGhostButton}"
+                            Visibility="{Binding IsFirstStep, Converter={StaticResource InverseBooleanToVisibilityConverter}}"/>
+                    <Button Click="OnTestClick"
+                            Visibility="{Binding IsLastStep, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource StmSecondaryButton}">
+                                <Setter Property="Margin" Value="8,0,0,0"/>
+                                <Setter Property="Content" Value="{Binding TestTunnelButtonText}"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsTesting}" Value="True">
+                                        <Setter Property="IsEnabled" Value="False"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                </StackPanel>
+                <TextBlock Text="{Binding ErrorMessage}" Style="{StaticResource StmValidationError}" VerticalAlignment="Center" HorizontalAlignment="Center"
+                           Visibility="{Binding ErrorMessage, Converter={StaticResource StringNotEmptyToVisibilityConverter}}"/>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button Content="Cancel" IsCancel="True" Style="{StaticResource StmGhostButton}" Margin="0,0,8,0"/>
+                    <Button Content="Next" Click="OnNextClick" Style="{StaticResource StmPrimaryButton}" Margin="0,0,8,0"
+                            Visibility="{Binding IsLastStep, Converter={StaticResource InverseBooleanToVisibilityConverter}}"/>
+                    <Button Content="Save Tunnel" Click="OnSaveClick" Style="{StaticResource StmSuccessButton}"
+                            Visibility="{Binding IsLastStep, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</windows:StmChromeWindow>

@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="App.Title" xml:space="preserve"><value>Secure Tunnel Manager</value></data>
+  <data name="Nav.Connections" xml:space="preserve"><value>CONNECTIONS</value></data>
+  <data name="Nav.System" xml:space="preserve"><value>SYSTEM</value></data>
+  <data name="Nav.Tunnels" xml:space="preserve"><value>Tunnels</value></data>
+  <data name="Nav.Settings" xml:space="preserve"><value>Settings</value></data>
+  <data name="Settings.Title" xml:space="preserve"><value>Settings</value></data>
+  <data name="Settings.Subtitle" xml:space="preserve"><value>Application preferences and security options</value></data>
+  <data name="Settings.Security" xml:space="preserve"><value>Security</value></data>
+  <data name="Settings.VaultAutoLock" xml:space="preserve"><value>Vault auto-lock (minutes)</value></data>
+  <data name="Settings.Startup" xml:space="preserve"><value>Startup</value></data>
+  <data name="Settings.StartWithWindows" xml:space="preserve"><value>Start with Windows</value></data>
+  <data name="Settings.MinimizeToTrayOnStart" xml:space="preserve"><value>Minimize to tray on start</value></data>
+  <data name="Settings.StartMinimizedWithWindows" xml:space="preserve"><value>Start minimized with Windows</value></data>
+  <data name="Settings.StartAllTunnelsOnStart" xml:space="preserve"><value>Start all tunnels when application starts</value></data>
+  <data name="Settings.CloseToTray" xml:space="preserve"><value>Close button minimizes to tray</value></data>
+  <data name="Settings.Language" xml:space="preserve"><value>Language</value></data>
+  <data name="Settings.LanguageEnglish" xml:space="preserve"><value>English</value></data>
+  <data name="Settings.LanguageRussian" xml:space="preserve"><value>Russian</value></data>
+  <data name="Settings.Appearance" xml:space="preserve"><value>Appearance</value></data>
+  <data name="Tunnels.NewTunnel" xml:space="preserve"><value>+ New Tunnel</value></data>
+  <data name="Tunnels.StartAll" xml:space="preserve"><value>Start All</value></data>
+  <data name="Tunnels.StopAll" xml:space="preserve"><value>Stop All</value></data>
+  <data name="Tunnels.VaultUnlocked" xml:space="preserve"><value>Vault unlocked</value></data>
+  <data name="Tunnels.VaultLocked" xml:space="preserve"><value>Vault locked</value></data>
+  <data name="Tunnels.UnlockVault" xml:space="preserve"><value>Unlock Vault</value></data>
+  <data name="Tunnels.LockVault" xml:space="preserve"><value>Lock Vault</value></data>
+  <data name="Tunnels.TunnelCountOne" xml:space="preserve"><value>1 tunnel</value></data>
+  <data name="Tunnels.TunnelCountMany" xml:space="preserve"><value>{0} tunnels</value></data>
+  <data name="Tunnels.Connected" xml:space="preserve"><value>connected</value></data>
+  <data name="Tunnels.Stopped" xml:space="preserve"><value>stopped</value></data>
+  <data name="Tunnels.Reconnecting" xml:space="preserve"><value>reconnecting</value></data>
+  <data name="Tunnels.SearchTooltip" xml:space="preserve"><value>Search by name, endpoint, or host</value></data>
+  <data name="Tunnels.FilterAll" xml:space="preserve"><value>All</value></data>
+  <data name="Tunnels.FilterConnected" xml:space="preserve"><value>Connected</value></data>
+  <data name="Tunnels.FilterStopped" xml:space="preserve"><value>Stopped</value></data>
+  <data name="Tunnels.FilterReconnecting" xml:space="preserve"><value>Reconnecting</value></data>
+  <data name="Tunnels.FilterError" xml:space="preserve"><value>Error</value></data>
+  <data name="Tunnels.Loading" xml:space="preserve"><value>Loading tunnels...</value></data>
+  <data name="Tunnels.EmptyTitle" xml:space="preserve"><value>No tunnels yet</value></data>
+  <data name="Tunnels.EmptySubtitle" xml:space="preserve"><value>Create a tunnel to forward a local port through a jump host to a remote service.</value></data>
+  <data name="Tunnels.NoResultsTitle" xml:space="preserve"><value>No matching tunnels</value></data>
+  <data name="Tunnels.NoResultsSubtitle" xml:space="preserve"><value>Try a different search term or filter.</value></data>
+  <data name="Route.Local" xml:space="preserve"><value>Local</value></data>
+  <data name="Route.JumpHost" xml:space="preserve"><value>Jump host</value></data>
+  <data name="Route.Target" xml:space="preserve"><value>Target</value></data>
+  <data name="Vault.UnlockTitle" xml:space="preserve"><value>Unlock Vault</value></data>
+  <data name="Vault.UnlockSubtitle" xml:space="preserve"><value>Enter your master password to access stored credentials.</value></data>
+  <data name="Vault.MasterPassword" xml:space="preserve"><value>Master password</value></data>
+  <data name="Vault.ResetVault" xml:space="preserve"><value>Reset Vault</value></data>
+  <data name="Vault.ResetConfirmTitle" xml:space="preserve"><value>Reset Secure Vault?</value></data>
+  <data name="Vault.ResetConfirmBody" xml:space="preserve"><value>All tunnels will be permanently deleted.&#x0a;All stored credentials will be permanently deleted.&#x0a;You will create a new master password to continue.&#x0a;This action cannot be undone.</value></data>
+  <data name="Vault.NewMasterPassword" xml:space="preserve"><value>New master password</value></data>
+  <data name="Vault.ConfirmNewPassword" xml:space="preserve"><value>Confirm new password</value></data>
+  <data name="Vault.CreateTitle" xml:space="preserve"><value>Create Master Password</value></data>
+  <data name="Vault.CreateSubtitle" xml:space="preserve"><value>Create a master password to encrypt your credentials. It cannot be recovered if lost.</value></data>
+  <data name="Vault.ConfirmMasterPassword" xml:space="preserve"><value>Confirm master password</value></data>
+  <data name="Vault.CreateVault" xml:space="preserve"><value>Create Vault</value></data>
+  <data name="Vault.Unlock" xml:space="preserve"><value>Unlock</value></data>
+  <data name="Vault.Back" xml:space="preserve"><value>Back</value></data>
+  <data name="Vault.CreateNewTitle" xml:space="preserve"><value>Create new master password</value></data>
+  <data name="Tray.Open" xml:space="preserve"><value>Open</value></data>
+  <data name="Tray.StartAll" xml:space="preserve"><value>Start All</value></data>
+  <data name="Tray.StopAll" xml:space="preserve"><value>Stop All</value></data>
+  <data name="Tray.LockVault" xml:space="preserve"><value>Lock Vault</value></data>
+  <data name="Tray.Exit" xml:space="preserve"><value>Exit</value></data>
+  <data name="Tray.RunningInTray" xml:space="preserve"><value>Application is running in the system tray.</value></data>
+  <data name="Menu.Start" xml:space="preserve"><value>Start</value></data>
+  <data name="Menu.Stop" xml:space="preserve"><value>Stop</value></data>
+  <data name="Menu.Restart" xml:space="preserve"><value>Restart</value></data>
+  <data name="Menu.Edit" xml:space="preserve"><value>Edit</value></data>
+  <data name="Menu.Delete" xml:space="preserve"><value>Delete</value></data>
+  <data name="Tunnel.Test" xml:space="preserve"><value>Test Tunnel</value></data>
+  <data name="Tunnel.Testing" xml:space="preserve"><value>Testing…</value></data>
+  <data name="Status.Connected" xml:space="preserve"><value>Connected</value></data>
+  <data name="Status.Stopped" xml:space="preserve"><value>Stopped</value></data>
+  <data name="Status.Reconnecting" xml:space="preserve"><value>Reconnecting</value></data>
+  <data name="Status.Connecting" xml:space="preserve"><value>Connecting</value></data>
+  <data name="Status.Error" xml:space="preserve"><value>Error</value></data>
+</root>

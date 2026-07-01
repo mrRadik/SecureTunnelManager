@@ -1,0 +1,93 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <Style x:Key="StmWindow" TargetType="Window">
+        <Setter Property="WindowStyle" Value="None"/>
+        <Setter Property="FontFamily" Value="Segoe UI"/>
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="Background" Value="{StaticResource StmBackgroundBrush}"/>
+        <Setter Property="Foreground" Value="{StaticResource StmTextPrimaryBrush}"/>
+        <Setter Property="UseLayoutRounding" Value="True"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+    </Style>
+
+    <Style x:Key="StmDialogWindow" TargetType="Window" BasedOn="{StaticResource StmWindow}">
+        <Setter Property="ResizeMode" Value="NoResize"/>
+    </Style>
+
+    <Style x:Key="StmMainWindow" TargetType="Window" BasedOn="{StaticResource StmWindow}">
+        <Setter Property="MinWidth" Value="1000"/>
+        <Setter Property="MinHeight" Value="640"/>
+        <Setter Property="ResizeMode" Value="CanResize"/>
+    </Style>
+
+    <Style x:Key="StmDialogFooter" TargetType="Border">
+        <Setter Property="Background" Value="{StaticResource StmSurfaceBrush}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource StmBorderBrush}"/>
+        <Setter Property="BorderThickness" Value="0,1,0,0"/>
+        <Setter Property="Padding" Value="24,16"/>
+    </Style>
+
+    <Style x:Key="StmDialogHeader" TargetType="Border">
+        <Setter Property="Background" Value="{StaticResource StmSurfaceBrush}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource StmBorderBrush}"/>
+        <Setter Property="BorderThickness" Value="0,0,0,1"/>
+        <Setter Property="Padding" Value="24,20"/>
+    </Style>
+
+    <Style x:Key="StmCheckBox" TargetType="CheckBox">
+        <Setter Property="FontFamily" Value="Segoe UI"/>
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="Foreground" Value="{StaticResource StmTextPrimaryBrush}"/>
+        <Setter Property="Margin" Value="0,4,0,0"/>
+    </Style>
+
+    <Style x:Key="StmRadioButton" TargetType="RadioButton">
+        <Setter Property="FontFamily" Value="Segoe UI"/>
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="Foreground" Value="{StaticResource StmTextPrimaryBrush}"/>
+        <Setter Property="Margin" Value="0,0,24,0"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+
+    <Style x:Key="StmListBox" TargetType="ListBox">
+        <Setter Property="Background" Value="{StaticResource StmCardBrush}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource StmBorderBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Foreground" Value="{StaticResource StmTextPrimaryBrush}"/>
+        <Setter Property="Padding" Value="4"/>
+    </Style>
+
+    <Style x:Key="StmListBoxItem" TargetType="ListBoxItem">
+        <Setter Property="FontFamily" Value="Segoe UI"/>
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="Foreground" Value="{StaticResource StmTextPrimaryBrush}"/>
+        <Setter Property="Padding" Value="12,10"/>
+        <Setter Property="Margin" Value="0,2"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ListBoxItem">
+                    <Border x:Name="border" Background="Transparent" CornerRadius="6" Padding="{TemplateBinding Padding}">
+                        <ContentPresenter TextElement.Foreground="{TemplateBinding Foreground}"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="border" Property="Background" Value="{StaticResource StmHoverBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter TargetName="border" Property="Background" Value="{StaticResource StmSelectedBrush}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="StmProgressBar" TargetType="ProgressBar">
+        <Setter Property="Height" Value="4"/>
+        <Setter Property="Foreground" Value="{StaticResource StmAccentBrush}"/>
+        <Setter Property="Background" Value="{StaticResource StmBorderBrush}"/>
+        <Setter Property="BorderThickness" Value="0"/>
+    </Style>
+
+</ResourceDictionary>

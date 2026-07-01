@@ -1,0 +1,59 @@
+﻿<windows:StmChromeWindow x:Class="SecureTunnelManager.UI.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="clr-namespace:SecureTunnelManager.UI.Views.Controls"
+        xmlns:vm="clr-namespace:SecureTunnelManager.UI.ViewModels"
+        xmlns:loc="clr-namespace:SecureTunnelManager.UI.Localization"
+        xmlns:windows="clr-namespace:SecureTunnelManager.UI.Windows"
+        Title="{loc:Loc App.Title}"
+        Style="{StaticResource StmMainWindow}"
+        Width="1200"
+        Height="760"
+        WindowStartupLocation="CenterScreen">
+
+    <Grid Background="{StaticResource StmBackgroundBrush}" SnapsToDevicePixels="True" UseLayoutRounding="True">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="40"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <controls:WindowTitleBar Grid.Row="0" LocKey="App.Title"/>
+
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="220"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <Border Grid.Column="0"
+                    Background="{StaticResource StmSidebarBrush}"
+                    BorderBrush="{StaticResource StmBorderBrush}"
+                    BorderThickness="0,0,1,0">
+                <DockPanel LastChildFill="True">
+                    <StackPanel DockPanel.Dock="Top" Margin="16,14,16,8">
+                        <TextBlock Text="{loc:Loc App.Title}" Style="{StaticResource StmSidebarAppTitle}"/>
+                    </StackPanel>
+
+                    <StackPanel Margin="0,0,0,12">
+                        <TextBlock Text="{loc:Loc Nav.Connections}" Style="{StaticResource StmNavSectionHeader}"/>
+                        <controls:NavigationItem IconGlyph="&#xE968;"
+                                                 LocKey="Nav.Tunnels"
+                                                 Section="{x:Static vm:NavigationSection.Tunnels}"/>
+
+                        <TextBlock Text="{loc:Loc Nav.System}" Style="{StaticResource StmNavSectionHeader}"/>
+                        <controls:NavigationItem IconGlyph="&#xE713;"
+                                                 LocKey="Nav.Settings"
+                                                 Section="{x:Static vm:NavigationSection.Settings}"/>
+                    </StackPanel>
+                </DockPanel>
+            </Border>
+
+            <Grid Grid.Column="1" Background="{StaticResource StmBackgroundBrush}">
+                <controls:TunnelsView DataContext="{Binding}"
+                    Visibility="{Binding SelectedSection, Converter={StaticResource NavigationSectionVisibilityConverter}, ConverterParameter=Tunnels}"/>
+                <controls:SettingsView DataContext="{Binding}"
+                    Visibility="{Binding SelectedSection, Converter={StaticResource NavigationSectionVisibilityConverter}, ConverterParameter=Settings}"/>
+            </Grid>
+        </Grid>
+    </Grid>
+</windows:StmChromeWindow>

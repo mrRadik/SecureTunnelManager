@@ -1,0 +1,24 @@
+<UserControl x:Class="SecureTunnelManager.UI.Views.Controls.TunnelErrorIndicator"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Name="Root"
+             Visibility="{Binding ShowErrorIndicator, RelativeSource={RelativeSource Self}, Converter={StaticResource BooleanToVisibilityConverter}}">
+
+    <Border x:Name="IndicatorBorder"
+            Width="22"
+            Height="22"
+            CornerRadius="11"
+            Background="{StaticResource StmStatusErrorBgBrush}"
+            BorderBrush="{StaticResource StmStatusErrorDotBrush}"
+            BorderThickness="1"
+            VerticalAlignment="Center">
+        <TextBlock Text="!"
+                   FontFamily="Segoe UI"
+                   FontSize="13"
+                   FontWeight="Bold"
+                   Foreground="{StaticResource StmStatusErrorDotBrush}"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Center"
+                   Margin="0,-1,0,0"/>
+    </Border>
+</UserControl>

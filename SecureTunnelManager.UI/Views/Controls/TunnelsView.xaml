@@ -1,0 +1,397 @@
+<UserControl x:Class="SecureTunnelManager.UI.Views.Controls.TunnelsView"
+
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+
+             xmlns:vm="clr-namespace:SecureTunnelManager.UI.ViewModels"
+
+             xmlns:controls="clr-namespace:SecureTunnelManager.UI.Views.Controls"
+
+             xmlns:loc="clr-namespace:SecureTunnelManager.UI.Localization"
+
+             Background="Transparent">
+
+
+
+    <Grid Margin="24">
+
+        <Grid.RowDefinitions>
+
+            <RowDefinition Height="Auto"/>
+
+            <RowDefinition Height="Auto"/>
+
+            <RowDefinition Height="Auto"/>
+
+            <RowDefinition Height="*"/>
+
+        </Grid.RowDefinitions>
+
+
+
+        <Grid Grid.Row="0" Margin="0,0,0,16">
+
+            <StackPanel Orientation="Horizontal">
+
+                <Button Content="{loc:Loc Tunnels.NewTunnel}" Command="{Binding AddTunnelCommand}" Style="{StaticResource StmPrimaryButton}" Margin="0,0,8,0"/>
+
+                <Button Content="{loc:Loc Tunnels.StartAll}" Command="{Binding StartAllCommand}" Style="{StaticResource StmToolbarButton}" Margin="0,0,8,0"/>
+
+                <Button Content="{loc:Loc Tunnels.StopAll}" Command="{Binding StopAllCommand}" Style="{StaticResource StmToolbarButton}"/>
+
+            </StackPanel>
+
+
+
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+
+                <Ellipse Width="8" Height="8" Margin="0,0,8,0" VerticalAlignment="Center">
+
+                    <Ellipse.Style>
+
+                        <Style TargetType="Ellipse">
+
+                            <Setter Property="Fill" Value="{StaticResource StmStatusStoppedDotBrush}"/>
+
+                            <Style.Triggers>
+
+                                <DataTrigger Binding="{Binding IsVaultUnlocked}" Value="True">
+
+                                    <Setter Property="Fill" Value="{StaticResource StmStatusConnectedDotBrush}"/>
+
+                                </DataTrigger>
+
+                            </Style.Triggers>
+
+                        </Style>
+
+                    </Ellipse.Style>
+
+                </Ellipse>
+
+                <TextBlock Text="{Binding VaultStatusText}"
+
+                           Style="{StaticResource StmBody}"
+
+                           Foreground="{StaticResource StmTextSecondaryBrush}"
+
+                           VerticalAlignment="Center"
+
+                           Margin="0,0,12,0"/>
+
+                <Button Content="{loc:Loc Tunnels.UnlockVault}"
+
+                        Command="{Binding UnlockVaultCommand}"
+
+                        Style="{StaticResource StmToolbarButton}"
+
+                        Margin="0,0,8,0"
+
+                        Visibility="{Binding IsVaultUnlocked, Converter={StaticResource InverseBooleanToVisibilityConverter}}"/>
+
+                <Button Content="{loc:Loc Tunnels.LockVault}"
+
+                        Command="{Binding LockVaultCommand}"
+
+                        Style="{StaticResource StmToolbarButton}"
+
+                        Visibility="{Binding IsVaultUnlocked, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+
+            </StackPanel>
+
+        </Grid>
+
+
+
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,12">
+
+            <TextBlock Text="{Binding TunnelCountLabel}" Style="{StaticResource StmSummaryText}" FontWeight="SemiBold" Foreground="{StaticResource StmTextPrimaryBrush}"/>
+
+            <TextBlock Style="{StaticResource StmSummaryText}">
+
+                <Run Text="● " Foreground="{StaticResource StmStatusConnectedDotBrush}"/>
+
+                <Run Text="{Binding ConnectedCount, Mode=OneWay}"/>
+
+                <Run Text=" "/>
+
+                <Run Text="{Binding ConnectedSummary, Mode=OneWay}"/>
+
+            </TextBlock>
+
+            <TextBlock Style="{StaticResource StmSummaryText}">
+
+                <Run Text="○ " Foreground="{StaticResource StmStatusStoppedDotBrush}"/>
+
+                <Run Text="{Binding StoppedCount, Mode=OneWay}"/>
+
+                <Run Text=" "/>
+
+                <Run Text="{Binding StoppedSummary, Mode=OneWay}"/>
+
+            </TextBlock>
+
+            <TextBlock Style="{StaticResource StmSummaryText}" Margin="0">
+
+                <Run Text="↻ " Foreground="{StaticResource StmStatusReconnectingDotBrush}"/>
+
+                <Run Text="{Binding ReconnectingCount, Mode=OneWay}"/>
+
+                <Run Text=" "/>
+
+                <Run Text="{Binding ReconnectingSummary, Mode=OneWay}"/>
+
+            </TextBlock>
+
+        </StackPanel>
+
+
+
+        <Grid Grid.Row="2" Margin="0,0,0,16">
+
+            <Grid.ColumnDefinitions>
+
+                <ColumnDefinition Width="280"/>
+
+                <ColumnDefinition Width="*"/>
+
+            </Grid.ColumnDefinitions>
+
+
+
+            <Grid Grid.Column="0">
+
+                <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+
+                         Style="{StaticResource StmSearchBox}"
+
+                         Padding="36,0,10,0"
+
+                         ToolTip="{loc:Loc Tunnels.SearchTooltip}"/>
+
+                <TextBlock Text="&#xE721;"
+
+                           FontFamily="Segoe Fluent Icons"
+
+                           FontSize="14"
+
+                           Foreground="{StaticResource StmTextSecondaryBrush}"
+
+                           VerticalAlignment="Center"
+
+                           Margin="12,0,0,0"
+
+                           IsHitTestVisible="False"/>
+
+            </Grid>
+
+
+
+            <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
+
+                <Button Content="{loc:Loc Tunnels.FilterAll}" Command="{Binding SetStatusFilterCommand}" CommandParameter="{x:Static vm:TunnelListFilter.All}">
+
+                    <Button.Style>
+
+                        <Style TargetType="Button" BasedOn="{StaticResource StmFilterChip}">
+
+                            <Style.Triggers>
+
+                                <DataTrigger Binding="{Binding StatusFilter}" Value="{x:Static vm:TunnelListFilter.All}">
+
+                                    <Setter Property="Background" Value="{StaticResource StmSelectedBrush}"/>
+
+                                    <Setter Property="BorderBrush" Value="{StaticResource StmAccentBrush}"/>
+
+                                </DataTrigger>
+
+                            </Style.Triggers>
+
+                        </Style>
+
+                    </Button.Style>
+
+                </Button>
+
+                <Button Content="{loc:Loc Tunnels.FilterConnected}" Command="{Binding SetStatusFilterCommand}" CommandParameter="{x:Static vm:TunnelListFilter.Connected}">
+
+                    <Button.Style>
+
+                        <Style TargetType="Button" BasedOn="{StaticResource StmFilterChip}">
+
+                            <Style.Triggers>
+
+                                <DataTrigger Binding="{Binding StatusFilter}" Value="{x:Static vm:TunnelListFilter.Connected}">
+
+                                    <Setter Property="Background" Value="{StaticResource StmSelectedBrush}"/>
+
+                                    <Setter Property="BorderBrush" Value="{StaticResource StmAccentBrush}"/>
+
+                                </DataTrigger>
+
+                            </Style.Triggers>
+
+                        </Style>
+
+                    </Button.Style>
+
+                </Button>
+
+                <Button Content="{loc:Loc Tunnels.FilterStopped}" Command="{Binding SetStatusFilterCommand}" CommandParameter="{x:Static vm:TunnelListFilter.Stopped}">
+
+                    <Button.Style>
+
+                        <Style TargetType="Button" BasedOn="{StaticResource StmFilterChip}">
+
+                            <Style.Triggers>
+
+                                <DataTrigger Binding="{Binding StatusFilter}" Value="{x:Static vm:TunnelListFilter.Stopped}">
+
+                                    <Setter Property="Background" Value="{StaticResource StmSelectedBrush}"/>
+
+                                    <Setter Property="BorderBrush" Value="{StaticResource StmAccentBrush}"/>
+
+                                </DataTrigger>
+
+                            </Style.Triggers>
+
+                        </Style>
+
+                    </Button.Style>
+
+                </Button>
+
+                <Button Content="{loc:Loc Tunnels.FilterReconnecting}" Command="{Binding SetStatusFilterCommand}" CommandParameter="{x:Static vm:TunnelListFilter.Reconnecting}">
+
+                    <Button.Style>
+
+                        <Style TargetType="Button" BasedOn="{StaticResource StmFilterChip}">
+
+                            <Style.Triggers>
+
+                                <DataTrigger Binding="{Binding StatusFilter}" Value="{x:Static vm:TunnelListFilter.Reconnecting}">
+
+                                    <Setter Property="Background" Value="{StaticResource StmSelectedBrush}"/>
+
+                                    <Setter Property="BorderBrush" Value="{StaticResource StmAccentBrush}"/>
+
+                                </DataTrigger>
+
+                            </Style.Triggers>
+
+                        </Style>
+
+                    </Button.Style>
+
+                </Button>
+
+                <Button Content="{loc:Loc Tunnels.FilterError}" Command="{Binding SetStatusFilterCommand}" CommandParameter="{x:Static vm:TunnelListFilter.Error}" Margin="0">
+
+                    <Button.Style>
+
+                        <Style TargetType="Button" BasedOn="{StaticResource StmFilterChip}">
+
+                            <Setter Property="Margin" Value="0"/>
+
+                            <Style.Triggers>
+
+                                <DataTrigger Binding="{Binding StatusFilter}" Value="{x:Static vm:TunnelListFilter.Error}">
+
+                                    <Setter Property="Background" Value="{StaticResource StmSelectedBrush}"/>
+
+                                    <Setter Property="BorderBrush" Value="{StaticResource StmAccentBrush}"/>
+
+                                </DataTrigger>
+
+                            </Style.Triggers>
+
+                        </Style>
+
+                    </Button.Style>
+
+                </Button>
+
+            </StackPanel>
+
+        </Grid>
+
+
+
+        <Grid Grid.Row="3">
+
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center"
+
+                        Visibility="{Binding IsBusy, Converter={StaticResource BooleanToVisibilityConverter}}">
+
+                <ProgressBar Style="{StaticResource StmProgressBar}" Width="240" IsIndeterminate="True"/>
+
+                <TextBlock Text="{loc:Loc Tunnels.Loading}" Style="{StaticResource StmEmptyStateText}"/>
+
+            </StackPanel>
+
+
+
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center"
+
+                        Visibility="{Binding ShowEmptyState, Converter={StaticResource BooleanToVisibilityConverter}}">
+
+                <TextBlock Text="{loc:Loc Tunnels.EmptyTitle}" Style="{StaticResource StmEmptyStateTitle}"/>
+
+                <TextBlock Text="{loc:Loc Tunnels.EmptySubtitle}"
+
+                           Style="{StaticResource StmEmptyStateText}" TextAlignment="Center" MaxWidth="420"/>
+
+                <Button Content="{loc:Loc Tunnels.NewTunnel}"
+
+                        Command="{Binding AddTunnelCommand}"
+
+                        Style="{StaticResource StmPrimaryButton}"
+
+                        HorizontalAlignment="Center"
+
+                        Margin="0,16,0,0"/>
+
+            </StackPanel>
+
+
+
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center"
+
+                        Visibility="{Binding ShowNoResults, Converter={StaticResource BooleanToVisibilityConverter}}">
+
+                <TextBlock Text="{loc:Loc Tunnels.NoResultsTitle}" Style="{StaticResource StmEmptyStateTitle}"/>
+
+                <TextBlock Text="{loc:Loc Tunnels.NoResultsSubtitle}" Style="{StaticResource StmEmptyStateText}"/>
+
+            </StackPanel>
+
+
+
+            <ScrollViewer VerticalScrollBarVisibility="Auto"
+
+                          Visibility="{Binding HasFilteredTunnels, Converter={StaticResource BooleanToVisibilityConverter}}">
+
+                <ItemsControl ItemsSource="{Binding FilteredTunnels}">
+
+                    <ItemsControl.ItemTemplate>
+
+                        <DataTemplate DataType="{x:Type vm:TunnelRowViewModel}">
+
+                            <controls:TunnelCard DataContext="{Binding}"/>
+
+                        </DataTemplate>
+
+                    </ItemsControl.ItemTemplate>
+
+                </ItemsControl>
+
+            </ScrollViewer>
+
+        </Grid>
+
+    </Grid>
+
+</UserControl>
+
+

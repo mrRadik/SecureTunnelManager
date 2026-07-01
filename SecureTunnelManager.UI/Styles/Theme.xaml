@@ -1,0 +1,22 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <SolidColorBrush x:Key="StmTitleBarBrush" Color="{StaticResource StmBackgroundColor}"/>
+
+    <SolidColorBrush x:Key="StmRowZebraBrush" Color="#14FFFFFF"/>
+    <SolidColorBrush x:Key="StmRowHoverBrush" Color="#1FFFFFFF"/>
+    <SolidColorBrush x:Key="StmRouteConnectorBrush" Color="#9CA3AF"/>
+
+    <Duration x:Key="StmTransitionDuration">0:0:0.15</Duration>
+
+    <Style x:Key="StmToolTip" TargetType="ToolTip">
+        <Setter Property="Background" Value="{StaticResource StmSurfaceBrush}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource StmBorderBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Padding" Value="10,8"/>
+        <Setter Property="FontFamily" Value="Segoe UI"/>
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="HasDropShadow" Value="True"/>
+    </Style>
+
+</ResourceDictionary>

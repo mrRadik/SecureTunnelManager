@@ -38,6 +38,16 @@ public class DialogService : IDialogService
         return await ShowModalAsync(vm, window).ConfigureAwait(true);
     }
 
+    public async Task<bool> ShowRdpEditorAsync(RdpTarget? target = null)
+    {
+        var vm = _serviceProvider.GetRequiredService<RdpEditorViewModel>();
+        await vm.InitializeAsync(target).ConfigureAwait(true);
+
+        var window = new RdpEditorWindow { DataContext = vm };
+        PrepareDialog(window);
+        return await ShowModalAsync(vm, window).ConfigureAwait(true);
+    }
+
     public Task<string?> PromptPasswordAsync(string title, string message)
     {
         var window = new PasswordPromptWindow(title, message);
@@ -120,6 +130,9 @@ public class DialogService : IDialogService
         => ShowModalAsync(window, () => vm.DialogResult, h => vm.RequestClose += h);
 
     private static Task<bool> ShowModalAsync(TunnelEditorViewModel vm, TunnelEditorWindow window)
+        => ShowModalAsync(window, () => vm.DialogResult, h => vm.RequestClose += h);
+
+    private static Task<bool> ShowModalAsync(RdpEditorViewModel vm, RdpEditorWindow window)
         => ShowModalAsync(window, () => vm.DialogResult, h => vm.RequestClose += h);
 
     private static Task<bool> ShowModalAsync(

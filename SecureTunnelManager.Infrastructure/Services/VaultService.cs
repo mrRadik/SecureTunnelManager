@@ -156,6 +156,7 @@ public class VaultService : IVaultService
         await using var db = await _dbFactory.CreateDbContextAsync(cancellationToken).ConfigureAwait(false);
         await db.Credentials.ExecuteDeleteAsync(cancellationToken).ConfigureAwait(false);
         await db.TunnelProfiles.ExecuteDeleteAsync(cancellationToken).ConfigureAwait(false);
+        await db.RdpTargets.ExecuteDeleteAsync(cancellationToken).ConfigureAwait(false);
 
         var vaultKeys = new[] { VaultInitializedKey, MasterPasswordHashKey, MasterPasswordSaltKey };
         await db.Settings.Where(s => vaultKeys.Contains(s.Key))

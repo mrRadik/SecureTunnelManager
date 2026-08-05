@@ -1,5 +1,5 @@
-using System.IO;
 using SecureTunnelManager.Core.Services;
+using SecureTunnelManager.UI.Helpers;
 using SecureTunnelManager.UI.Services;
 
 namespace SecureTunnelManager.UI.Services;
@@ -43,15 +43,11 @@ public sealed class TrayIconService : IDisposable
     {
         try
         {
-            var iconPath = Path.Combine(AppContext.BaseDirectory, "Assets", "app.ico");
-            if (File.Exists(iconPath))
-                _notifyIcon.Icon = new System.Drawing.Icon(iconPath);
-            else
-                _notifyIcon.Icon = System.Drawing.SystemIcons.Shield;
+            _notifyIcon.Icon = AppIconHelper.LoadNotifyIcon();
         }
         catch
         {
-            _notifyIcon.Icon = System.Drawing.SystemIcons.Shield;
+            _notifyIcon.Icon = System.Drawing.SystemIcons.Application;
         }
     }
 

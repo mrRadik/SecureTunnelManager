@@ -6,12 +6,12 @@
         xmlns:loc="clr-namespace:SecureTunnelManager.UI.Localization"
         xmlns:windows="clr-namespace:SecureTunnelManager.UI.Windows"
         Title="{loc:Loc App.Title}"
-        Style="{StaticResource StmMainWindow}"
+        Style="{DynamicResource StmMainWindow}"
         Width="1200"
         Height="760"
         WindowStartupLocation="CenterScreen">
 
-    <Grid Background="{StaticResource StmBackgroundBrush}" SnapsToDevicePixels="True" UseLayoutRounding="True">
+    <Grid Background="{DynamicResource StmBackgroundBrush}" SnapsToDevicePixels="True" UseLayoutRounding="True">
         <Grid.RowDefinitions>
             <RowDefinition Height="40"/>
             <RowDefinition Height="*"/>
@@ -26,21 +26,24 @@
             </Grid.ColumnDefinitions>
 
             <Border Grid.Column="0"
-                    Background="{StaticResource StmSidebarBrush}"
-                    BorderBrush="{StaticResource StmBorderBrush}"
+                    Background="{DynamicResource StmSidebarBrush}"
+                    BorderBrush="{DynamicResource StmBorderBrush}"
                     BorderThickness="0,0,1,0">
                 <DockPanel LastChildFill="True">
                     <StackPanel DockPanel.Dock="Top" Margin="16,14,16,8">
-                        <TextBlock Text="{loc:Loc App.Title}" Style="{StaticResource StmSidebarAppTitle}"/>
+                        <TextBlock Text="{loc:Loc App.Title}" Style="{DynamicResource StmSidebarAppTitle}"/>
                     </StackPanel>
 
                     <StackPanel Margin="0,0,0,12">
-                        <TextBlock Text="{loc:Loc Nav.Connections}" Style="{StaticResource StmNavSectionHeader}"/>
+                        <TextBlock Text="{loc:Loc Nav.Connections}" Style="{DynamicResource StmNavSectionHeader}"/>
                         <controls:NavigationItem IconGlyph="&#xE774;"
                                                  LocKey="Nav.Tunnels"
                                                  Section="{x:Static vm:NavigationSection.Tunnels}"/>
+                        <controls:NavigationItem IconGlyph="&#xE7F8;"
+                                                 LocKey="Nav.Rdp"
+                                                 Section="{x:Static vm:NavigationSection.Rdp}"/>
 
-                        <TextBlock Text="{loc:Loc Nav.System}" Style="{StaticResource StmNavSectionHeader}"/>
+                        <TextBlock Text="{loc:Loc Nav.System}" Style="{DynamicResource StmNavSectionHeader}"/>
                         <controls:NavigationItem IconGlyph="&#xE713;"
                                                  LocKey="Nav.Settings"
                                                  Section="{x:Static vm:NavigationSection.Settings}"/>
@@ -48,9 +51,11 @@
                 </DockPanel>
             </Border>
 
-            <Grid Grid.Column="1" Background="{StaticResource StmBackgroundBrush}">
+            <Grid Grid.Column="1" Background="{DynamicResource StmBackgroundBrush}">
                 <controls:TunnelsView DataContext="{Binding}"
                     Visibility="{Binding SelectedSection, Converter={StaticResource NavigationSectionVisibilityConverter}, ConverterParameter=Tunnels}"/>
+                <controls:RdpView DataContext="{Binding Rdp}"
+                    Visibility="{Binding DataContext.SelectedSection, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource NavigationSectionVisibilityConverter}, ConverterParameter=Rdp}"/>
                 <controls:SettingsView DataContext="{Binding}"
                     Visibility="{Binding SelectedSection, Converter={StaticResource NavigationSectionVisibilityConverter}, ConverterParameter=Settings}"/>
             </Grid>

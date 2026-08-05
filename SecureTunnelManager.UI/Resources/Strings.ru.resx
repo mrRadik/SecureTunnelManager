@@ -54,6 +54,7 @@
   <data name="Nav.Connections" xml:space="preserve"><value>ПОДКЛЮЧЕНИЯ</value></data>
   <data name="Nav.System" xml:space="preserve"><value>СИСТЕМА</value></data>
   <data name="Nav.Tunnels" xml:space="preserve"><value>Туннели</value></data>
+  <data name="Nav.Rdp" xml:space="preserve"><value>RDP</value></data>
   <data name="Nav.Settings" xml:space="preserve"><value>Настройки</value></data>
   <data name="Settings.Title" xml:space="preserve"><value>Настройки</value></data>
   <data name="Settings.Subtitle" xml:space="preserve"><value>Параметры приложения и безопасность</value></data>
@@ -71,6 +72,10 @@
   <data name="Settings.StartAllTunnelsOnStart" xml:space="preserve"><value>Запускать все туннели при старте приложения</value></data>
   <data name="Settings.CloseToTray" xml:space="preserve"><value>Кнопка закрытия сворачивает в трей</value></data>
   <data name="Settings.Language" xml:space="preserve"><value>Язык</value></data>
+  <data name="Settings.Theme" xml:space="preserve"><value>Тема</value></data>
+  <data name="Settings.ThemeLight" xml:space="preserve"><value>Светлая</value></data>
+  <data name="Settings.ThemeDark" xml:space="preserve"><value>Тёмная</value></data>
+  <data name="Settings.ThemeSystem" xml:space="preserve"><value>Как в системе</value></data>
   <data name="Settings.LanguageEnglish" xml:space="preserve"><value>English</value></data>
   <data name="Settings.LanguageRussian" xml:space="preserve"><value>Русский</value></data>
   <data name="Settings.Appearance" xml:space="preserve"><value>Интерфейс</value></data>
@@ -159,4 +164,20 @@
   <data name="Status.Reconnecting" xml:space="preserve"><value>Переподключение</value></data>
   <data name="Status.Connecting" xml:space="preserve"><value>Подключение</value></data>
   <data name="Status.Error" xml:space="preserve"><value>Ошибка</value></data>
+  <data name="Rdp.NewComputer" xml:space="preserve"><value>+ Новый компьютер</value></data>
+  <data name="Rdp.Subtitle" xml:space="preserve"><value>Подключение к Windows через jump host встроенным Remote Desktop.</value></data>
+  <data name="Rdp.EmptyTitle" xml:space="preserve"><value>Пока нет компьютеров</value></data>
+  <data name="Rdp.EmptyText" xml:space="preserve"><value>Добавьте компьютер — двойной клик откроет Remote Desktop через SSH jump host.</value></data>
+  <data name="Rdp.NoResultsTitle" xml:space="preserve"><value>Ничего не найдено</value></data>
+  <data name="Rdp.NoResultsText" xml:space="preserve"><value>Попробуйте другой поисковый запрос.</value></data>
+  <data name="Rdp.CountSummary" xml:space="preserve"><value>{0} компьютеров · {1} подключено</value></data>
+  <data name="Rdp.Status.Connected" xml:space="preserve"><value>Подключён</value></data>
+  <data name="Rdp.Status.Connecting" xml:space="preserve"><value>Подключение</value></data>
+  <data name="Rdp.Status.Disconnected" xml:space="preserve"><value>Отключён</value></data>
+  <data name="Rdp.Status.Error" xml:space="preserve"><value>Ошибка</value></data>
+  <data name="Rdp.Menu.Connect" xml:space="preserve"><value>Подключить</value></data>
+  <data name="Rdp.Menu.Disconnect" xml:space="preserve"><value>Отключить</value></data>
+  <data name="Rdp.DeleteTitle" xml:space="preserve"><value>Удалить компьютер</value></data>
+  <data name="Rdp.DeleteConfirm" xml:space="preserve"><value>Удалить «{0}»?</value></data>
+  <data name="Rdp.UnexpectedError" xml:space="preserve"><value>Произошла непредвиденная ошибка.</value></data>
 </root>

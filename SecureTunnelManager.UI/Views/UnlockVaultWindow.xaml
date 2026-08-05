@@ -1,4 +1,4 @@
-<windows:StmChromeWindow x:Class="SecureTunnelManager.UI.Views.UnlockVaultWindow"
+﻿<windows:StmChromeWindow x:Class="SecureTunnelManager.UI.Views.UnlockVaultWindow"
 
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 
@@ -12,7 +12,7 @@
 
         Title="{loc:Loc Vault.UnlockTitle}"
 
-        Style="{StaticResource StmDialogWindow}"
+        Style="{DynamicResource StmDialogWindow}"
 
         Width="420"
 
@@ -22,7 +22,7 @@
 
 
 
-    <Grid Background="{StaticResource StmBackgroundBrush}"
+    <Grid Background="{DynamicResource StmBackgroundBrush}"
 
           SnapsToDevicePixels="True"
 
@@ -48,23 +48,23 @@
 
                     Visibility="{Binding IsUnlockMode, Converter={StaticResource BooleanToVisibilityConverter}}">
 
-            <TextBlock Text="&#xE72E;" Style="{StaticResource StmIconGlyph}" FontSize="28"
+            <TextBlock Text="&#xE72E;" Style="{DynamicResource StmIconGlyph}" FontSize="28"
 
-                       Foreground="{StaticResource StmAccentBrush}" HorizontalAlignment="Center" Margin="0,0,0,10"/>
+                       Foreground="{DynamicResource StmAccentBrush}" HorizontalAlignment="Center" Margin="0,0,0,10"/>
 
-            <TextBlock Text="{loc:Loc Vault.UnlockTitle}" Style="{StaticResource StmPageTitle}" HorizontalAlignment="Center" Margin="0,0,0,4"/>
+            <TextBlock Text="{loc:Loc Vault.UnlockTitle}" Style="{DynamicResource StmPageTitle}" HorizontalAlignment="Center" Margin="0,0,0,4"/>
 
             <TextBlock Text="{loc:Loc Vault.UnlockSubtitle}"
 
-                       Style="{StaticResource StmPageSubtitle}" TextAlignment="Center" Margin="0,0,0,14"/>
+                       Style="{DynamicResource StmPageSubtitle}" TextAlignment="Center" Margin="0,0,0,14"/>
 
-            <TextBlock Text="{loc:Loc Vault.MasterPassword}" Style="{StaticResource StmLabel}"/>
+            <TextBlock Text="{loc:Loc Vault.MasterPassword}" Style="{DynamicResource StmLabel}"/>
 
             <controls:RevealPasswordBox Password="{Binding MasterPassword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
 
             <TextBlock Text="{Binding ErrorMessage}"
 
-                       Style="{StaticResource StmValidationError}"
+                       Style="{DynamicResource StmValidationError}"
 
                        Visibility="{Binding ErrorMessage, Converter={StaticResource StringNotEmptyToVisibilityConverter}}"/>
 
@@ -76,11 +76,11 @@
 
                     Visibility="{Binding IsConfirmResetMode, Converter={StaticResource BooleanToVisibilityConverter}}">
 
-            <TextBlock Text="{loc:Loc Vault.ResetConfirmTitle}" Style="{StaticResource StmPageTitle}" Margin="0,0,0,12"/>
+            <TextBlock Text="{loc:Loc Vault.ResetConfirmTitle}" Style="{DynamicResource StmPageTitle}" Margin="0,0,0,12"/>
 
-            <Border Background="{StaticResource StmStatusErrorBgBrush}"
+            <Border Background="{DynamicResource StmStatusErrorBgBrush}"
 
-                    BorderBrush="{StaticResource StmStatusErrorDotBrush}"
+                    BorderBrush="{DynamicResource StmStatusErrorDotBrush}"
 
                     BorderThickness="1"
 
@@ -88,7 +88,7 @@
 
                     Padding="12">
 
-                <TextBlock Text="{loc:Loc Vault.ResetConfirmBody}" TextWrapping="Wrap" Style="{StaticResource StmBody}"/>
+                <TextBlock Text="{loc:Loc Vault.ResetConfirmBody}" TextWrapping="Wrap" Style="{DynamicResource StmBody}"/>
 
             </Border>
 
@@ -102,19 +102,19 @@
 
             <StackPanel Margin="24,16,24,8">
 
-                <TextBlock Text="{loc:Loc Vault.CreateNewTitle}" Style="{StaticResource StmPageTitle}" Margin="0,0,0,12"/>
+                <TextBlock Text="{loc:Loc Vault.CreateNewTitle}" Style="{DynamicResource StmPageTitle}" Margin="0,0,0,12"/>
 
-                <TextBlock Text="{loc:Loc Vault.NewMasterPassword}" Style="{StaticResource StmLabel}"/>
+                <TextBlock Text="{loc:Loc Vault.NewMasterPassword}" Style="{DynamicResource StmLabel}"/>
 
                 <controls:RevealPasswordBox Password="{Binding NewMasterPassword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
 
-                <TextBlock Text="{loc:Loc Vault.ConfirmNewPassword}" Style="{StaticResource StmLabel}"/>
+                <TextBlock Text="{loc:Loc Vault.ConfirmNewPassword}" Style="{DynamicResource StmLabel}"/>
 
                 <controls:RevealPasswordBox Password="{Binding ConfirmNewPassword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
 
                 <TextBlock Text="{Binding ErrorMessage}"
 
-                           Style="{StaticResource StmValidationError}"
+                           Style="{DynamicResource StmValidationError}"
 
                            Visibility="{Binding ErrorMessage, Converter={StaticResource StringNotEmptyToVisibilityConverter}}"/>
 
@@ -124,7 +124,7 @@
 
 
 
-        <Border Grid.Row="2" Style="{StaticResource StmDialogFooter}"
+        <Border Grid.Row="2" Style="{DynamicResource StmDialogFooter}"
 
                 Visibility="{Binding IsUnlockMode, Converter={StaticResource BooleanToVisibilityConverter}}">
 
@@ -134,7 +134,7 @@
 
                         Command="{Binding RequestResetVaultCommand}"
 
-                        Style="{StaticResource StmGhostButton}"
+                        Style="{DynamicResource StmGhostButton}"
 
                         HorizontalAlignment="Left"
 
@@ -148,7 +148,7 @@
 
                         IsDefault="True"
 
-                        Style="{StaticResource StmPrimaryButton}"
+                        Style="{DynamicResource StmPrimaryButton}"
 
                         HorizontalAlignment="Right"/>
 
@@ -158,7 +158,7 @@
 
 
 
-        <Border Grid.Row="2" Style="{StaticResource StmDialogFooter}"
+        <Border Grid.Row="2" Style="{DynamicResource StmDialogFooter}"
 
                 Visibility="{Binding IsConfirmResetMode, Converter={StaticResource BooleanToVisibilityConverter}}">
 
@@ -168,7 +168,7 @@
 
                         Command="{Binding CancelResetConfirmCommand}"
 
-                        Style="{StaticResource StmGhostButton}"
+                        Style="{DynamicResource StmGhostButton}"
 
                         HorizontalAlignment="Left"
 
@@ -180,7 +180,7 @@
 
                         Command="{Binding ConfirmResetVaultCommand}"
 
-                        Style="{StaticResource StmDestructiveButton}"
+                        Style="{DynamicResource StmDestructiveButton}"
 
                         HorizontalAlignment="Right"/>
 
@@ -190,7 +190,7 @@
 
 
 
-        <Border Grid.Row="2" Style="{StaticResource StmDialogFooter}"
+        <Border Grid.Row="2" Style="{DynamicResource StmDialogFooter}"
 
                 Visibility="{Binding IsResetMode, Converter={StaticResource BooleanToVisibilityConverter}}">
 
@@ -200,7 +200,7 @@
 
                         Command="{Binding BackToUnlockCommand}"
 
-                        Style="{StaticResource StmGhostButton}"
+                        Style="{DynamicResource StmGhostButton}"
 
                         HorizontalAlignment="Left"
 
@@ -212,7 +212,7 @@
 
                         Command="{Binding ResetVaultCommand}"
 
-                        Style="{StaticResource StmDestructiveButton}"
+                        Style="{DynamicResource StmDestructiveButton}"
 
                         HorizontalAlignment="Right"/>
 

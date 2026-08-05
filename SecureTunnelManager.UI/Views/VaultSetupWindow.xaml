@@ -1,4 +1,4 @@
-<windows:StmChromeWindow x:Class="SecureTunnelManager.UI.Views.VaultSetupWindow"
+﻿<windows:StmChromeWindow x:Class="SecureTunnelManager.UI.Views.VaultSetupWindow"
 
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 
@@ -12,7 +12,7 @@
 
         Title="{loc:Loc Vault.CreateTitle}"
 
-        Style="{StaticResource StmDialogWindow}"
+        Style="{DynamicResource StmDialogWindow}"
 
         Width="420"
 
@@ -22,7 +22,7 @@
 
 
 
-    <Grid Background="{StaticResource StmBackgroundBrush}"
+    <Grid Background="{DynamicResource StmBackgroundBrush}"
 
           SnapsToDevicePixels="True"
 
@@ -46,27 +46,27 @@
 
         <StackPanel Grid.Row="1" Margin="24,20">
 
-            <TextBlock Text="&#xE72E;" Style="{StaticResource StmIconGlyph}" FontSize="28"
+            <TextBlock Text="&#xE72E;" Style="{DynamicResource StmIconGlyph}" FontSize="28"
 
-                       Foreground="{StaticResource StmAccentBrush}" HorizontalAlignment="Center" Margin="0,0,0,12"/>
+                       Foreground="{DynamicResource StmAccentBrush}" HorizontalAlignment="Center" Margin="0,0,0,12"/>
 
-            <TextBlock Text="{loc:Loc Vault.CreateTitle}" Style="{StaticResource StmPageTitle}" HorizontalAlignment="Center" Margin="0,0,0,4"/>
+            <TextBlock Text="{loc:Loc Vault.CreateTitle}" Style="{DynamicResource StmPageTitle}" HorizontalAlignment="Center" Margin="0,0,0,4"/>
 
             <TextBlock Text="{loc:Loc Vault.CreateSubtitle}"
 
-                       Style="{StaticResource StmPageSubtitle}" TextAlignment="Center" Margin="0,0,0,16"/>
+                       Style="{DynamicResource StmPageSubtitle}" TextAlignment="Center" Margin="0,0,0,16"/>
 
-            <TextBlock Text="{loc:Loc Vault.MasterPassword}" Style="{StaticResource StmLabel}"/>
+            <TextBlock Text="{loc:Loc Vault.MasterPassword}" Style="{DynamicResource StmLabel}"/>
 
             <controls:RevealPasswordBox Password="{Binding MasterPassword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
 
-            <TextBlock Text="{loc:Loc Vault.ConfirmMasterPassword}" Style="{StaticResource StmLabel}"/>
+            <TextBlock Text="{loc:Loc Vault.ConfirmMasterPassword}" Style="{DynamicResource StmLabel}"/>
 
             <controls:RevealPasswordBox Password="{Binding ConfirmPassword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
 
             <TextBlock Text="{Binding ErrorMessage}"
 
-                       Style="{StaticResource StmValidationError}"
+                       Style="{DynamicResource StmValidationError}"
 
                        Visibility="{Binding ErrorMessage, Converter={StaticResource StringNotEmptyToVisibilityConverter}}"/>
 
@@ -74,13 +74,13 @@
 
 
 
-        <Border Grid.Row="2" Style="{StaticResource StmDialogFooter}">
+        <Border Grid.Row="2" Style="{DynamicResource StmDialogFooter}">
 
             <Button Content="{loc:Loc Vault.CreateVault}"
 
                     Command="{Binding CreateCommand}"
 
-                    Style="{StaticResource StmSuccessButton}"
+                    Style="{DynamicResource StmSuccessButton}"
 
                     HorizontalAlignment="Right"/>
 

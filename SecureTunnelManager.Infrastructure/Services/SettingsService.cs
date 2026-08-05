@@ -20,6 +20,7 @@ public class SettingsService : ISettingsService
     private const string CheckForUpdatesOnStartupKey = "CheckForUpdatesOnStartup";
     private const string LastAcknowledgedVersionKey = "LastAcknowledgedVersion";
     private const string UiLanguageKey = "UiLanguage";
+    private const string UiThemeKey = "UiTheme";
 
     private readonly IDbContextFactory<AppDbContext> _dbFactory;
 
@@ -44,7 +45,10 @@ public class SettingsService : ISettingsService
             CloseToTray = !dict.TryGetValue(CloseToTrayKey, out var closeTray) || bool.Parse(closeTray),
             CheckForUpdatesOnStartup = !dict.TryGetValue(CheckForUpdatesOnStartupKey, out var checkUpdates) || bool.Parse(checkUpdates),
             LastAcknowledgedVersion = dict.GetValueOrDefault(LastAcknowledgedVersionKey),
-            UiLanguage = dict.TryGetValue(UiLanguageKey, out var lang) && !string.IsNullOrWhiteSpace(lang) ? lang : "en"
+            UiLanguage = dict.TryGetValue(UiLanguageKey, out var lang) && !string.IsNullOrWhiteSpace(lang) ? lang : "en",
+            UiTheme = dict.TryGetValue(UiThemeKey, out var theme) && !string.IsNullOrWhiteSpace(theme)
+                ? AppThemeModes.Normalize(theme)
+                : AppThemeModes.Dark
         };
     }
 
@@ -71,6 +75,7 @@ public class SettingsService : ISettingsService
             await UpsertAsync(db, LastAcknowledgedVersionKey, settings.LastAcknowledgedVersion, cancellationToken).ConfigureAwait(false);
 
         await UpsertAsync(db, UiLanguageKey, settings.UiLanguage, cancellationToken).ConfigureAwait(false);
+        await UpsertAsync(db, UiThemeKey, AppThemeModes.Normalize(settings.UiTheme), cancellationToken).ConfigureAwait(false);
 
         await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
     }

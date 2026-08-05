@@ -1,4 +1,4 @@
-<UserControl x:Class="SecureTunnelManager.UI.Views.Controls.TunnelsView"
+﻿<UserControl x:Class="SecureTunnelManager.UI.Views.Controls.TunnelsView"
 
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 
@@ -34,11 +34,11 @@
 
             <StackPanel Orientation="Horizontal">
 
-                <Button Content="{loc:Loc Tunnels.NewTunnel}" Command="{Binding AddTunnelCommand}" Style="{StaticResource StmPrimaryButton}" Margin="0,0,8,0"/>
+                <Button Content="{loc:Loc Tunnels.NewTunnel}" Command="{Binding AddTunnelCommand}" Style="{DynamicResource StmPrimaryButton}" Margin="0,0,8,0"/>
 
-                <Button Content="{loc:Loc Tunnels.StartAll}" Command="{Binding StartAllCommand}" Style="{StaticResource StmToolbarButton}" Margin="0,0,8,0"/>
+                <Button Content="{loc:Loc Tunnels.StartAll}" Command="{Binding StartAllCommand}" Style="{DynamicResource StmToolbarButton}" Margin="0,0,8,0"/>
 
-                <Button Content="{loc:Loc Tunnels.StopAll}" Command="{Binding StopAllCommand}" Style="{StaticResource StmToolbarButton}"/>
+                <Button Content="{loc:Loc Tunnels.StopAll}" Command="{Binding StopAllCommand}" Style="{DynamicResource StmToolbarButton}"/>
 
             </StackPanel>
 
@@ -52,13 +52,13 @@
 
                         <Style TargetType="Ellipse">
 
-                            <Setter Property="Fill" Value="{StaticResource StmStatusStoppedDotBrush}"/>
+                            <Setter Property="Fill" Value="{DynamicResource StmStatusStoppedDotBrush}"/>
 
                             <Style.Triggers>
 
                                 <DataTrigger Binding="{Binding IsVaultUnlocked}" Value="True">
 
-                                    <Setter Property="Fill" Value="{StaticResource StmStatusConnectedDotBrush}"/>
+                                    <Setter Property="Fill" Value="{DynamicResource StmStatusConnectedDotBrush}"/>
 
                                 </DataTrigger>
 
@@ -72,9 +72,9 @@
 
                 <TextBlock Text="{Binding VaultStatusText}"
 
-                           Style="{StaticResource StmBody}"
+                           Style="{DynamicResource StmBody}"
 
-                           Foreground="{StaticResource StmTextSecondaryBrush}"
+                           Foreground="{DynamicResource StmTextSecondaryBrush}"
 
                            VerticalAlignment="Center"
 
@@ -84,7 +84,7 @@
 
                         Command="{Binding UnlockVaultCommand}"
 
-                        Style="{StaticResource StmToolbarButton}"
+                        Style="{DynamicResource StmToolbarButton}"
 
                         Margin="0,0,8,0"
 
@@ -94,7 +94,7 @@
 
                         Command="{Binding LockVaultCommand}"
 
-                        Style="{StaticResource StmToolbarButton}"
+                        Style="{DynamicResource StmToolbarButton}"
 
                         Visibility="{Binding IsVaultUnlocked, Converter={StaticResource BooleanToVisibilityConverter}}"/>
 
@@ -106,11 +106,11 @@
 
         <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,12">
 
-            <TextBlock Text="{Binding TunnelCountLabel}" Style="{StaticResource StmSummaryText}" FontWeight="SemiBold" Foreground="{StaticResource StmTextPrimaryBrush}"/>
+            <TextBlock Text="{Binding TunnelCountLabel}" Style="{DynamicResource StmSummaryText}" FontWeight="SemiBold" Foreground="{DynamicResource StmTextPrimaryBrush}"/>
 
-            <TextBlock Style="{StaticResource StmSummaryText}">
+            <TextBlock Style="{DynamicResource StmSummaryText}">
 
-                <Run Text="● " Foreground="{StaticResource StmStatusConnectedDotBrush}"/>
+                <Run Text="● " Foreground="{DynamicResource StmStatusConnectedDotBrush}"/>
 
                 <Run Text="{Binding ConnectedCount, Mode=OneWay}"/>
 
@@ -120,9 +120,9 @@
 
             </TextBlock>
 
-            <TextBlock Style="{StaticResource StmSummaryText}">
+            <TextBlock Style="{DynamicResource StmSummaryText}">
 
-                <Run Text="○ " Foreground="{StaticResource StmStatusStoppedDotBrush}"/>
+                <Run Text="○ " Foreground="{DynamicResource StmStatusStoppedDotBrush}"/>
 
                 <Run Text="{Binding StoppedCount, Mode=OneWay}"/>
 
@@ -132,9 +132,9 @@
 
             </TextBlock>
 
-            <TextBlock Style="{StaticResource StmSummaryText}" Margin="0">
+            <TextBlock Style="{DynamicResource StmSummaryText}" Margin="0">
 
-                <Run Text="↻ " Foreground="{StaticResource StmStatusReconnectingDotBrush}"/>
+                <Run Text="↻ " Foreground="{DynamicResource StmStatusReconnectingDotBrush}"/>
 
                 <Run Text="{Binding ReconnectingCount, Mode=OneWay}"/>
 
@@ -164,18 +164,18 @@
 
                 <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
 
-                         Style="{StaticResource StmSearchBox}"
+                         Style="{DynamicResource StmSearchBox}"
 
                          Padding="36,0,10,0"
 
                          ToolTip="{loc:Loc Tunnels.SearchTooltip}"/>
 
                 <TextBlock Text="&#xE721;"
-                           Style="{StaticResource StmIconGlyph}"
+                           Style="{DynamicResource StmIconGlyph}"
 
                            FontSize="14"
 
-                           Foreground="{StaticResource StmTextSecondaryBrush}"
+                           Foreground="{DynamicResource StmTextSecondaryBrush}"
 
                            VerticalAlignment="Center"
 
@@ -199,9 +199,9 @@
 
                                 <DataTrigger Binding="{Binding StatusFilter}" Value="{x:Static vm:TunnelListFilter.All}">
 
-                                    <Setter Property="Background" Value="{StaticResource StmSelectedBrush}"/>
+                                    <Setter Property="Background" Value="{DynamicResource StmSelectedBrush}"/>
 
-                                    <Setter Property="BorderBrush" Value="{StaticResource StmAccentBrush}"/>
+                                    <Setter Property="BorderBrush" Value="{DynamicResource StmAccentBrush}"/>
 
                                 </DataTrigger>
 
@@ -223,9 +223,9 @@
 
                                 <DataTrigger Binding="{Binding StatusFilter}" Value="{x:Static vm:TunnelListFilter.Connected}">
 
-                                    <Setter Property="Background" Value="{StaticResource StmSelectedBrush}"/>
+                                    <Setter Property="Background" Value="{DynamicResource StmSelectedBrush}"/>
 
-                                    <Setter Property="BorderBrush" Value="{StaticResource StmAccentBrush}"/>
+                                    <Setter Property="BorderBrush" Value="{DynamicResource StmAccentBrush}"/>
 
                                 </DataTrigger>
 
@@ -247,9 +247,9 @@
 
                                 <DataTrigger Binding="{Binding StatusFilter}" Value="{x:Static vm:TunnelListFilter.Stopped}">
 
-                                    <Setter Property="Background" Value="{StaticResource StmSelectedBrush}"/>
+                                    <Setter Property="Background" Value="{DynamicResource StmSelectedBrush}"/>
 
-                                    <Setter Property="BorderBrush" Value="{StaticResource StmAccentBrush}"/>
+                                    <Setter Property="BorderBrush" Value="{DynamicResource StmAccentBrush}"/>
 
                                 </DataTrigger>
 
@@ -271,9 +271,9 @@
 
                                 <DataTrigger Binding="{Binding StatusFilter}" Value="{x:Static vm:TunnelListFilter.Reconnecting}">
 
-                                    <Setter Property="Background" Value="{StaticResource StmSelectedBrush}"/>
+                                    <Setter Property="Background" Value="{DynamicResource StmSelectedBrush}"/>
 
-                                    <Setter Property="BorderBrush" Value="{StaticResource StmAccentBrush}"/>
+                                    <Setter Property="BorderBrush" Value="{DynamicResource StmAccentBrush}"/>
 
                                 </DataTrigger>
 
@@ -297,9 +297,9 @@
 
                                 <DataTrigger Binding="{Binding StatusFilter}" Value="{x:Static vm:TunnelListFilter.Error}">
 
-                                    <Setter Property="Background" Value="{StaticResource StmSelectedBrush}"/>
+                                    <Setter Property="Background" Value="{DynamicResource StmSelectedBrush}"/>
 
-                                    <Setter Property="BorderBrush" Value="{StaticResource StmAccentBrush}"/>
+                                    <Setter Property="BorderBrush" Value="{DynamicResource StmAccentBrush}"/>
 
                                 </DataTrigger>
 
@@ -323,9 +323,9 @@
 
                         Visibility="{Binding IsBusy, Converter={StaticResource BooleanToVisibilityConverter}}">
 
-                <ProgressBar Style="{StaticResource StmProgressBar}" Width="240" IsIndeterminate="True"/>
+                <ProgressBar Style="{DynamicResource StmProgressBar}" Width="240" IsIndeterminate="True"/>
 
-                <TextBlock Text="{loc:Loc Tunnels.Loading}" Style="{StaticResource StmEmptyStateText}"/>
+                <TextBlock Text="{loc:Loc Tunnels.Loading}" Style="{DynamicResource StmEmptyStateText}"/>
 
             </StackPanel>
 
@@ -335,17 +335,17 @@
 
                         Visibility="{Binding ShowEmptyState, Converter={StaticResource BooleanToVisibilityConverter}}">
 
-                <TextBlock Text="{loc:Loc Tunnels.EmptyTitle}" Style="{StaticResource StmEmptyStateTitle}"/>
+                <TextBlock Text="{loc:Loc Tunnels.EmptyTitle}" Style="{DynamicResource StmEmptyStateTitle}"/>
 
                 <TextBlock Text="{loc:Loc Tunnels.EmptySubtitle}"
 
-                           Style="{StaticResource StmEmptyStateText}" TextAlignment="Center" MaxWidth="420"/>
+                           Style="{DynamicResource StmEmptyStateText}" TextAlignment="Center" MaxWidth="420"/>
 
                 <Button Content="{loc:Loc Tunnels.NewTunnel}"
 
                         Command="{Binding AddTunnelCommand}"
 
-                        Style="{StaticResource StmPrimaryButton}"
+                        Style="{DynamicResource StmPrimaryButton}"
 
                         HorizontalAlignment="Center"
 
@@ -359,9 +359,9 @@
 
                         Visibility="{Binding ShowNoResults, Converter={StaticResource BooleanToVisibilityConverter}}">
 
-                <TextBlock Text="{loc:Loc Tunnels.NoResultsTitle}" Style="{StaticResource StmEmptyStateTitle}"/>
+                <TextBlock Text="{loc:Loc Tunnels.NoResultsTitle}" Style="{DynamicResource StmEmptyStateTitle}"/>
 
-                <TextBlock Text="{loc:Loc Tunnels.NoResultsSubtitle}" Style="{StaticResource StmEmptyStateText}"/>
+                <TextBlock Text="{loc:Loc Tunnels.NoResultsSubtitle}" Style="{DynamicResource StmEmptyStateText}"/>
 
             </StackPanel>
 

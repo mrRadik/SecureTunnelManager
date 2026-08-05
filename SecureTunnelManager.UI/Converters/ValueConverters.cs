@@ -6,6 +6,20 @@ using SecureTunnelManager.UI.ViewModels;
 
 namespace SecureTunnelManager.UI.Converters;
 
+public class StringEqualsToBoolConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture) =>
+        string.Equals(value?.ToString(), parameter?.ToString(), StringComparison.OrdinalIgnoreCase);
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        if (value is not true)
+            return System.Windows.Data.Binding.DoNothing;
+
+        return parameter?.ToString() ?? string.Empty;
+    }
+}
+
 public class TunnelStatusToIconConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)

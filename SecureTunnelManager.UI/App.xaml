@@ -27,6 +27,7 @@
             <converters:NavigationSectionVisibilityConverter x:Key="NavigationSectionVisibilityConverter"/>
             <loc:LocKeyConverter x:Key="LocKeyConverter"/>
             <converters:IntEqualsConverter x:Key="IntEqualsConverter"/>
+            <converters:StringEqualsToBoolConverter x:Key="StringEqualsToBoolConverter"/>
             <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
         </ResourceDictionary>
     </Application.Resources>

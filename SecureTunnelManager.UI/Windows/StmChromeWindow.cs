@@ -15,6 +15,8 @@ public class StmChromeWindow : Window
         FontFamily = new System.Windows.Media.FontFamily("Segoe UI");
         FontSize = 14;
 
+        AppIconHelper.ApplyWindowIcon(this);
+
         SourceInitialized += OnSourceInitialized;
         Loaded += OnLoaded;
         ContentRendered += OnContentRendered;
@@ -26,8 +28,11 @@ public class StmChromeWindow : Window
     private void OnActivationChanged(object? sender, EventArgs e) =>
         NativeWindowHelper.RefreshBorderlessChrome(this);
 
-    private void OnSourceInitialized(object? sender, EventArgs e) =>
+    private void OnSourceInitialized(object? sender, EventArgs e)
+    {
+        AppIconHelper.ApplyWindowIcon(this);
         NativeWindowHelper.ApplyBorderlessChrome(this);
+    }
 
     private void OnLoaded(object? sender, RoutedEventArgs e) =>
         NativeWindowHelper.RefreshBorderlessChrome(this);

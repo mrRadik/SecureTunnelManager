@@ -1,0 +1,152 @@
+<windows:StmChromeWindow x:Class="SecureTunnelManager.UI.Views.RdpEditorWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="clr-namespace:SecureTunnelManager.UI.Views.Controls"
+        xmlns:windows="clr-namespace:SecureTunnelManager.UI.Windows"
+        xmlns:vm="clr-namespace:SecureTunnelManager.UI.ViewModels"
+        Title="{Binding WindowTitle}"
+        Style="{DynamicResource StmWindow}"
+        MinWidth="820"
+        MinHeight="640"
+        Width="900"
+        Height="720"
+        WindowStartupLocation="CenterOwner">
+
+    <Grid Background="{DynamicResource StmBackgroundBrush}"
+          SnapsToDevicePixels="True"
+          UseLayoutRounding="True">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <controls:WindowTitleBar Grid.Row="0" Title="{Binding WindowTitle}"/>
+
+        <StackPanel Grid.Row="1" Margin="24,12,24,0">
+            <TextBlock Text="{Binding StepIndicator}" Style="{DynamicResource StmPageSubtitle}"/>
+            <TextBlock Text="{Binding CurrentStepTitle}" Style="{DynamicResource StmCardTitle}" Margin="0,4,0,0"/>
+        </StackPanel>
+
+        <ScrollViewer Grid.Row="2" Margin="24,12,24,0" VerticalScrollBarVisibility="Auto">
+            <StackPanel>
+                <Border Style="{DynamicResource StmCard}" Margin="0,0,0,16"
+                        Visibility="{Binding CurrentStep, Converter={StaticResource IntEqualsConverter}, ConverterParameter=0}">
+                    <StackPanel>
+                        <TextBlock Text="Name shown on the computer tile."
+                                   Style="{DynamicResource StmPageSubtitle}" Margin="0,0,0,16"/>
+                        <TextBlock Text="Name" Style="{DynamicResource StmLabel}"/>
+                        <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" Style="{DynamicResource StmInput}"/>
+                        <TextBlock Text="{Binding NameError}" Style="{DynamicResource StmValidationError}"
+                                   Visibility="{Binding NameError, Converter={StaticResource StringNotEmptyToVisibilityConverter}}"/>
+                        <TextBlock Text="Description" Style="{DynamicResource StmLabel}"/>
+                        <TextBox Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}" Style="{DynamicResource StmInput}"
+                                 MinHeight="72" AcceptsReturn="True" TextWrapping="Wrap" VerticalContentAlignment="Top"/>
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{DynamicResource StmCard}" Margin="0,0,0,16"
+                        Visibility="{Binding CurrentStep, Converter={StaticResource IntEqualsConverter}, ConverterParameter=1}">
+                    <StackPanel>
+                        <TextBlock Text="Intermediate servers between your PC and the RDP host. Add more if the route uses multiple jump hosts. The last hop opens the port forward."
+                                   Style="{DynamicResource StmPageSubtitle}" Margin="0,0,0,16"/>
+                        <ItemsControl ItemsSource="{Binding JumpHosts}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate DataType="{x:Type vm:JumpHostHopViewModel}">
+                                    <controls:JumpHostHopEditor/>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                        <Button Content="+ Add jump host"
+                                Command="{Binding AddJumpHostCommand}"
+                                Style="{DynamicResource StmSecondaryButton}"
+                                HorizontalAlignment="Left"/>
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{DynamicResource StmCard}" Margin="0,0,0,16"
+                        Visibility="{Binding CurrentStep, Converter={StaticResource IntEqualsConverter}, ConverterParameter=2}">
+                    <StackPanel>
+                        <TextBlock Text="Windows host reached through the jump host. Remote Desktop (mstsc) opens after the tunnel is up."
+                                   Style="{DynamicResource StmPageSubtitle}" Margin="0,0,0,16"/>
+
+                        <Grid Margin="0,0,0,4">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="120"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0" Margin="0,0,12,0">
+                                <TextBlock Text="RDP host" Style="{DynamicResource StmLabel}"/>
+                                <TextBox Text="{Binding RdpHost, UpdateSourceTrigger=PropertyChanged}" Style="{DynamicResource StmInput}"/>
+                                <TextBlock Text="{Binding RdpHostError}" Style="{DynamicResource StmValidationError}"
+                                           Visibility="{Binding RdpHostError, Converter={StaticResource StringNotEmptyToVisibilityConverter}}"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="1">
+                                <TextBlock Text="Port" Style="{DynamicResource StmLabel}"/>
+                                <TextBox Text="{Binding RdpPort, UpdateSourceTrigger=PropertyChanged}" Style="{DynamicResource StmInput}"/>
+                                <TextBlock Text="{Binding RdpPortError}" Style="{DynamicResource StmValidationError}"
+                                           Visibility="{Binding RdpPortError, Converter={StaticResource StringNotEmptyToVisibilityConverter}}"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <Grid Margin="0,8,0,4">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="120"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0" Margin="0,0,12,0">
+                                <TextBlock Text="Local bind" Style="{DynamicResource StmLabel}"/>
+                                <TextBox Text="{Binding LocalBindAddress, UpdateSourceTrigger=PropertyChanged}" Style="{DynamicResource StmInput}"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="1">
+                                <TextBlock Text="Local port" Style="{DynamicResource StmLabel}"/>
+                                <TextBox Text="{Binding LocalPort, UpdateSourceTrigger=PropertyChanged}" Style="{DynamicResource StmInput}"/>
+                                <TextBlock Text="{Binding LocalPortError}" Style="{DynamicResource StmValidationError}"
+                                           Visibility="{Binding LocalPortError, Converter={StaticResource StringNotEmptyToVisibilityConverter}}"/>
+                            </StackPanel>
+                        </Grid>
+                        <TextBlock Text="Local port 0 picks a free port for each session."
+                                   Style="{DynamicResource StmPageSubtitle}" Margin="0,0,0,12"/>
+
+                        <TextBlock Text="Sign-in name (optional)" Style="{DynamicResource StmLabel}"/>
+                        <TextBox Text="{Binding RdpUsername, UpdateSourceTrigger=PropertyChanged}" Style="{DynamicResource StmInput}"/>
+                        <TextBlock Text="For a local account use .\user or COMPUTER\user. Domain: DOMAIN\user."
+                                   Style="{DynamicResource StmPageSubtitle}"/>
+                        <TextBlock Text="Password" Style="{DynamicResource StmLabel}"/>
+                        <PasswordBox x:Name="RdpPasswordBox"
+                                     Style="{DynamicResource StmInputPassword}"
+                                     PasswordChanged="OnRdpPasswordChanged"/>
+                        <TextBlock Text="Leave blank to skip auto-login, or when editing leave password blank to keep the saved one. Windows policies may still require a prompt."
+                                   Style="{DynamicResource StmPageSubtitle}"/>
+                        <TextBlock Text="{Binding RdpCredentialError}" Style="{DynamicResource StmValidationError}"
+                                   Visibility="{Binding RdpCredentialError, Converter={StaticResource StringNotEmptyToVisibilityConverter}}"/>
+                    </StackPanel>
+                </Border>
+
+                <TextBlock Text="{Binding ErrorMessage}" Style="{DynamicResource StmValidationError}"
+                           Visibility="{Binding ErrorMessage, Converter={StaticResource StringNotEmptyToVisibilityConverter}}"/>
+            </StackPanel>
+        </ScrollViewer>
+
+        <Border Grid.Row="3"
+                BorderBrush="{DynamicResource StmBorderBrush}"
+                BorderThickness="0,1,0,0"
+                Padding="24,16"
+                Background="{DynamicResource StmSurfaceBrush}">
+            <Grid>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                    <Button Content="Back" Command="{Binding BackCommand}" Style="{DynamicResource StmSecondaryButton}"
+                            Visibility="{Binding IsFirstStep, Converter={StaticResource InverseBooleanToVisibilityConverter}}"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button Content="Cancel" Command="{Binding CancelCommand}" Style="{DynamicResource StmGhostButton}" Margin="0,0,8,0"/>
+                    <Button Content="Next" Command="{Binding NextCommand}" Style="{DynamicResource StmPrimaryButton}"
+                            Visibility="{Binding IsLastStep, Converter={StaticResource InverseBooleanToVisibilityConverter}}"/>
+                    <Button Content="Save" Command="{Binding SaveCommand}" Style="{DynamicResource StmPrimaryButton}"
+                            Visibility="{Binding IsLastStep, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</windows:StmChromeWindow>

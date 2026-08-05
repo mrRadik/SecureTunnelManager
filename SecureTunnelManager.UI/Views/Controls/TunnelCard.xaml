@@ -1,10 +1,10 @@
-<UserControl x:Class="SecureTunnelManager.UI.Views.Controls.TunnelCard"
+﻿<UserControl x:Class="SecureTunnelManager.UI.Views.Controls.TunnelCard"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:controls="clr-namespace:SecureTunnelManager.UI.Views.Controls"
              x:Name="Root">
 
-    <Border Style="{StaticResource StmTunnelCard}">
+    <Border Style="{DynamicResource StmTunnelCard}">
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
@@ -35,7 +35,7 @@
             <Button Grid.Column="3"
                     x:Name="MenuButton"
                     Content="&#xE712;"
-                    Style="{StaticResource StmIconButton}"
+                    Style="{DynamicResource StmIconButton}"
                     VerticalAlignment="Center"
                     Click="OnMenuClick">
                 <Button.ContextMenu>

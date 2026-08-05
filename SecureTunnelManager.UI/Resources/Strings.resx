@@ -54,6 +54,7 @@
   <data name="Nav.Connections" xml:space="preserve"><value>CONNECTIONS</value></data>
   <data name="Nav.System" xml:space="preserve"><value>SYSTEM</value></data>
   <data name="Nav.Tunnels" xml:space="preserve"><value>Tunnels</value></data>
+  <data name="Nav.Rdp" xml:space="preserve"><value>RDP</value></data>
   <data name="Nav.Settings" xml:space="preserve"><value>Settings</value></data>
   <data name="Settings.Title" xml:space="preserve"><value>Settings</value></data>
   <data name="Settings.Subtitle" xml:space="preserve"><value>Application preferences and security options</value></data>
@@ -71,6 +72,10 @@
   <data name="Settings.StartAllTunnelsOnStart" xml:space="preserve"><value>Start all tunnels when application starts</value></data>
   <data name="Settings.CloseToTray" xml:space="preserve"><value>Close button minimizes to tray</value></data>
   <data name="Settings.Language" xml:space="preserve"><value>Language</value></data>
+  <data name="Settings.Theme" xml:space="preserve"><value>Theme</value></data>
+  <data name="Settings.ThemeLight" xml:space="preserve"><value>Light</value></data>
+  <data name="Settings.ThemeDark" xml:space="preserve"><value>Dark</value></data>
+  <data name="Settings.ThemeSystem" xml:space="preserve"><value>Use system setting</value></data>
   <data name="Settings.LanguageEnglish" xml:space="preserve"><value>English</value></data>
   <data name="Settings.LanguageRussian" xml:space="preserve"><value>Russian</value></data>
   <data name="Settings.Appearance" xml:space="preserve"><value>Appearance</value></data>
@@ -159,4 +164,20 @@ This update includes improvements and bug fixes.</value></data>
   <data name="Status.Reconnecting" xml:space="preserve"><value>Reconnecting</value></data>
   <data name="Status.Connecting" xml:space="preserve"><value>Connecting</value></data>
   <data name="Status.Error" xml:space="preserve"><value>Error</value></data>
+  <data name="Rdp.NewComputer" xml:space="preserve"><value>+ New computer</value></data>
+  <data name="Rdp.Subtitle" xml:space="preserve"><value>Connect to Windows machines through a jump host using built-in Remote Desktop.</value></data>
+  <data name="Rdp.EmptyTitle" xml:space="preserve"><value>No computers yet</value></data>
+  <data name="Rdp.EmptyText" xml:space="preserve"><value>Add a computer to open Remote Desktop through your SSH jump host with a double-click.</value></data>
+  <data name="Rdp.NoResultsTitle" xml:space="preserve"><value>No matches</value></data>
+  <data name="Rdp.NoResultsText" xml:space="preserve"><value>Try a different search.</value></data>
+  <data name="Rdp.CountSummary" xml:space="preserve"><value>{0} computers · {1} connected</value></data>
+  <data name="Rdp.Status.Connected" xml:space="preserve"><value>Connected</value></data>
+  <data name="Rdp.Status.Connecting" xml:space="preserve"><value>Connecting</value></data>
+  <data name="Rdp.Status.Disconnected" xml:space="preserve"><value>Disconnected</value></data>
+  <data name="Rdp.Status.Error" xml:space="preserve"><value>Error</value></data>
+  <data name="Rdp.Menu.Connect" xml:space="preserve"><value>Connect</value></data>
+  <data name="Rdp.Menu.Disconnect" xml:space="preserve"><value>Disconnect</value></data>
+  <data name="Rdp.DeleteTitle" xml:space="preserve"><value>Delete computer</value></data>
+  <data name="Rdp.DeleteConfirm" xml:space="preserve"><value>Delete “{0}”?</value></data>
+  <data name="Rdp.UnexpectedError" xml:space="preserve"><value>An unexpected error occurred.</value></data>
 </root>

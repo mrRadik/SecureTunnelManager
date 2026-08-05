@@ -50,15 +50,18 @@ public partial class App : System.Windows.Application
             {
                 services.AddSecureTunnelInfrastructure(dbPath, logDir);
                 services.AddSingleton<ILocalizationService, LocalizationService>();
+                services.AddSingleton<IThemeService, ThemeService>();
                 services.AddSingleton<IDialogService, DialogService>();
                 services.AddSingleton<UpdatePromptService>();
                 services.AddSingleton<WhatsNewService>();
                 services.AddSingleton<TrayIconService>();
                 services.AddSingleton<MainViewModel>();
                 services.AddSingleton<SettingsViewModel>();
+                services.AddSingleton<RdpViewModel>();
                 services.AddTransient<VaultSetupViewModel>();
                 services.AddTransient<UnlockVaultViewModel>();
                 services.AddTransient<TunnelEditorViewModel>();
+                services.AddTransient<RdpEditorViewModel>();
             })
             .Build();
 
@@ -67,8 +70,10 @@ public partial class App : System.Windows.Application
 
         var settingsService = Services.GetRequiredService<ISettingsService>();
         var localization = Services.GetRequiredService<ILocalizationService>();
+        var themeService = Services.GetRequiredService<IThemeService>();
         var appSettings = await settingsService.GetSettingsAsync().ConfigureAwait(true);
         localization.ApplyLanguage(appSettings.UiLanguage);
+        themeService.ApplyTheme(appSettings.UiTheme);
         Resources["Loc"] = localization;
 
         // Create main window early so modal dialogs can use it as Owner after first show.
@@ -155,6 +160,8 @@ public partial class App : System.Windows.Application
         }
 
         _tray?.Dispose();
+        if (Services.GetService(typeof(IThemeService)) is IDisposable themeService)
+            themeService.Dispose();
         _singleInstance?.Dispose();
         _singleInstance = null;
 

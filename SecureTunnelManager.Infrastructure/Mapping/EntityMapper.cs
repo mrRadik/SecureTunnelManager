@@ -13,6 +13,48 @@ internal static class EntityMapper
         CreatedDate = entity.CreatedDate
     };
 
+    public static RdpTarget ToModel(RdpTargetEntity entity) => new()
+    {
+        Id = entity.Id,
+        Name = entity.Name,
+        Description = entity.Description,
+        JumpHosts = JumpHostSerialization.Deserialize(entity.JumpHostsJson),
+        RdpHost = entity.RdpHost,
+        RdpPort = entity.RdpPort,
+        RdpCredentialId = entity.RdpCredentialId,
+        LocalPort = entity.LocalPort,
+        LocalBindAddress = string.IsNullOrWhiteSpace(entity.LocalBindAddress) ? "127.0.0.1" : entity.LocalBindAddress,
+        CreatedDate = entity.CreatedDate,
+        ModifiedDate = entity.ModifiedDate
+    };
+
+    public static RdpTargetEntity ToEntity(RdpTarget target) => new()
+    {
+        Id = target.Id,
+        Name = target.Name,
+        Description = target.Description,
+        JumpHostsJson = target.JumpHosts.Count > 0 ? JumpHostSerialization.Serialize(target.JumpHosts) : null,
+        RdpHost = target.RdpHost,
+        RdpPort = target.RdpPort,
+        RdpCredentialId = target.RdpCredentialId,
+        LocalPort = target.LocalPort,
+        LocalBindAddress = target.LocalBindAddress,
+        CreatedDate = target.CreatedDate,
+        ModifiedDate = target.ModifiedDate
+    };
+
+    public static void UpdateEntity(RdpTargetEntity entity, RdpTarget target)
+    {
+        entity.Name = target.Name;
+        entity.Description = target.Description;
+        entity.JumpHostsJson = target.JumpHosts.Count > 0 ? JumpHostSerialization.Serialize(target.JumpHosts) : null;
+        entity.RdpHost = target.RdpHost;
+        entity.RdpPort = target.RdpPort;
+        entity.RdpCredentialId = target.RdpCredentialId;
+        entity.LocalPort = target.LocalPort;
+        entity.LocalBindAddress = target.LocalBindAddress;
+    }
+
     public static TunnelProfile ToModel(TunnelProfileEntity entity)
     {
         var profile = new TunnelProfile

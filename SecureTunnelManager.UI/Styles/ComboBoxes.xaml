@@ -1,11 +1,11 @@
-<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <Style x:Key="StmComboBoxItem" TargetType="ComboBoxItem">
         <Setter Property="FontFamily" Value="Segoe UI"/>
         <Setter Property="FontSize" Value="14"/>
-        <Setter Property="Foreground" Value="{StaticResource StmTextPrimaryBrush}"/>
-        <Setter Property="Background" Value="{StaticResource StmCardBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource StmTextPrimaryBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource StmCardBrush}"/>
         <Setter Property="Padding" Value="10,8"/>
         <Setter Property="Template">
             <Setter.Value>
@@ -15,10 +15,10 @@
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsHighlighted" Value="True">
-                            <Setter TargetName="border" Property="Background" Value="{StaticResource StmHoverBrush}"/>
+                            <Setter TargetName="border" Property="Background" Value="{DynamicResource StmHoverBrush}"/>
                         </Trigger>
                         <Trigger Property="IsSelected" Value="True">
-                            <Setter TargetName="border" Property="Background" Value="{StaticResource StmSelectedBrush}"/>
+                            <Setter TargetName="border" Property="Background" Value="{DynamicResource StmSelectedBrush}"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -29,14 +29,14 @@
     <Style x:Key="StmComboBox" TargetType="ComboBox">
         <Setter Property="FontFamily" Value="Segoe UI"/>
         <Setter Property="FontSize" Value="14"/>
-        <Setter Property="Foreground" Value="{StaticResource StmTextPrimaryBrush}"/>
-        <Setter Property="Background" Value="{StaticResource StmCardBrush}"/>
-        <Setter Property="BorderBrush" Value="{StaticResource StmBorderBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource StmTextPrimaryBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource StmCardBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource StmBorderBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="Height" Value="40"/>
         <Setter Property="Padding" Value="10,0"/>
         <Setter Property="Margin" Value="0,0,0,4"/>
-        <Setter Property="ItemContainerStyle" Value="{StaticResource StmComboBoxItem}"/>
+        <Setter Property="ItemContainerStyle" Value="{DynamicResource StmComboBoxItem}"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="ComboBox">
@@ -62,14 +62,14 @@
                                             </Grid.ColumnDefinitions>
                                             <Path Grid.Column="1"
                                                   Data="M 0 0 L 4 4 L 8 0 Z"
-                                                  Fill="{StaticResource StmTextSecondaryBrush}"
+                                                  Fill="{DynamicResource StmTextSecondaryBrush}"
                                                   HorizontalAlignment="Center"
                                                   VerticalAlignment="Center"/>
                                         </Grid>
                                     </Border>
                                     <ControlTemplate.Triggers>
                                         <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter TargetName="border" Property="Background" Value="{StaticResource StmHoverBrush}"/>
+                                            <Setter TargetName="border" Property="Background" Value="{DynamicResource StmHoverBrush}"/>
                                         </Trigger>
                                     </ControlTemplate.Triggers>
                                 </ControlTemplate>
@@ -88,8 +88,8 @@
                                AllowsTransparency="True"
                                Focusable="False"
                                PopupAnimation="Slide">
-                            <Border Background="{StaticResource StmCardBrush}"
-                                    BorderBrush="{StaticResource StmBorderBrush}"
+                            <Border Background="{DynamicResource StmCardBrush}"
+                                    BorderBrush="{DynamicResource StmBorderBrush}"
                                     BorderThickness="1"
                                     CornerRadius="6"
                                     MinWidth="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}"
@@ -102,7 +102,7 @@
                     </Grid>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsKeyboardFocusWithin" Value="True">
-                            <Setter TargetName="toggle" Property="BorderBrush" Value="{StaticResource StmAccentBrush}"/>
+                            <Setter TargetName="toggle" Property="BorderBrush" Value="{DynamicResource StmAccentBrush}"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>

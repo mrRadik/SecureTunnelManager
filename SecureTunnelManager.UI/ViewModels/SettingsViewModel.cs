@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using SecureTunnelManager.Core.Models;
 using SecureTunnelManager.Core.Services;
 using SecureTunnelManager.UI.Services;
 
@@ -8,6 +9,7 @@ namespace SecureTunnelManager.UI.ViewModels;
 public enum NavigationSection
 {
     Tunnels,
+    Rdp,
     Settings
 }
 
@@ -25,6 +27,7 @@ public partial class SettingsViewModel : ObservableObject
     private readonly ISettingsService _settingsService;
     private readonly IAutoStartService _autoStartService;
     private readonly ILocalizationService _localization;
+    private readonly IThemeService _themeService;
     private readonly UpdatePromptService _updatePromptService;
     private bool _isLoading;
 
@@ -32,11 +35,13 @@ public partial class SettingsViewModel : ObservableObject
         ISettingsService settingsService,
         IAutoStartService autoStartService,
         ILocalizationService localization,
+        IThemeService themeService,
         UpdatePromptService updatePromptService)
     {
         _settingsService = settingsService;
         _autoStartService = autoStartService;
         _localization = localization;
+        _themeService = themeService;
         _updatePromptService = updatePromptService;
     }
 
@@ -68,6 +73,9 @@ public partial class SettingsViewModel : ObservableObject
     private string _uiLanguage = "en";
 
     [ObservableProperty]
+    private string _uiTheme = AppThemeModes.Dark;
+
+    [ObservableProperty]
     private string _appVersion = "1.0.0";
 
     [ObservableProperty]
@@ -92,6 +100,8 @@ public partial class SettingsViewModel : ObservableObject
             CheckForUpdatesOnStartup = settings.CheckForUpdatesOnStartup;
             StartWithWindows = _autoStartService.IsRegisteredWithWindows();
             UiLanguage = string.Equals(settings.UiLanguage, "ru", StringComparison.OrdinalIgnoreCase) ? "ru" : "en";
+            UiTheme = AppThemeModes.Normalize(settings.UiTheme);
+            _themeService.ApplyTheme(UiTheme);
             AppVersion = _updatePromptService.CurrentVersion;
             CanCheckForUpdates = _updatePromptService.CanCheckForUpdates;
             _localization.ApplyLanguage(UiLanguage);
@@ -138,6 +148,22 @@ public partial class SettingsViewModel : ObservableObject
         _ = PersistAsync();
     }
 
+    partial void OnUiThemeChanged(string value)
+    {
+        if (_isLoading || string.IsNullOrWhiteSpace(value))
+            return;
+
+        var normalized = AppThemeModes.Normalize(value);
+        if (!string.Equals(value, normalized, StringComparison.Ordinal))
+        {
+            UiTheme = normalized;
+            return;
+        }
+
+        _themeService.ApplyTheme(normalized);
+        _ = PersistAsync();
+    }
+
     partial void OnStartWithWindowsChanged(bool value)
     {
         if (_isLoading)
@@ -165,6 +191,7 @@ public partial class SettingsViewModel : ObservableObject
         settings.CloseToTray = CloseToTray;
         settings.CheckForUpdatesOnStartup = CheckForUpdatesOnStartup;
         settings.UiLanguage = UiLanguage;
+        settings.UiTheme = AppThemeModes.Normalize(UiTheme);
         await _settingsService.SaveSettingsAsync(settings).ConfigureAwait(true);
     }
 }

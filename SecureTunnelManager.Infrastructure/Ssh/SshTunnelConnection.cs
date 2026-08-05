@@ -22,7 +22,7 @@ internal sealed class SshTunnelConnection : IDisposable
     }
 
     public bool IsConnected =>
-        _hopChain?.TargetClient.IsConnected == true &&
+        _hopChain?.TargetClient?.IsConnected == true &&
         _localForwardPort?.IsStarted == true;
 
     public async Task ConnectAsync(
@@ -40,7 +40,7 @@ internal sealed class SshTunnelConnection : IDisposable
             profile.RemoteHost,
             (uint)profile.RemotePort);
 
-        _hopChain.TargetClient.AddForwardedPort(_localForwardPort);
+        _hopChain.TargetClient!.AddForwardedPort(_localForwardPort);
         _localForwardPort.Start();
 
         var hops = profile.GetEffectiveJumpHosts();
@@ -71,7 +71,7 @@ internal sealed class SshTunnelConnection : IDisposable
                 if (_localForwardPort.IsStarted)
                     _localForwardPort.Stop();
 
-                _hopChain?.TargetClient.RemoveForwardedPort(_localForwardPort);
+                _hopChain?.TargetClient?.RemoveForwardedPort(_localForwardPort);
                 _localForwardPort.Dispose();
                 _localForwardPort = null;
             }

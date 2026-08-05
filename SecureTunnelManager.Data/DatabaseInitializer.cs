@@ -12,6 +12,34 @@ public static class DatabaseInitializer
         await db.Database.EnsureCreatedAsync(cancellationToken).ConfigureAwait(false);
         await EnsureColumnAsync(db, "TunnelProfiles", "LocalBindAddress", "TEXT NOT NULL DEFAULT '127.0.0.1'", cancellationToken).ConfigureAwait(false);
         await EnsureColumnAsync(db, "TunnelProfiles", "JumpHostsJson", "TEXT", cancellationToken).ConfigureAwait(false);
+        await EnsureRdpTargetsTableAsync(db, cancellationToken).ConfigureAwait(false);
+    }
+
+    private static async Task EnsureRdpTargetsTableAsync(AppDbContext db, CancellationToken cancellationToken)
+    {
+        await db.Database.ExecuteSqlRawAsync(
+            """
+            CREATE TABLE IF NOT EXISTS "RdpTargets" (
+                "Id" INTEGER NOT NULL CONSTRAINT "PK_RdpTargets" PRIMARY KEY AUTOINCREMENT,
+                "Name" TEXT NOT NULL,
+                "Description" TEXT NOT NULL,
+                "JumpHostsJson" TEXT NULL,
+                "RdpHost" TEXT NOT NULL,
+                "RdpPort" INTEGER NOT NULL,
+                "RdpCredentialId" INTEGER NULL,
+                "LocalPort" INTEGER NOT NULL,
+                "LocalBindAddress" TEXT NOT NULL,
+                "CreatedDate" TEXT NOT NULL,
+                "ModifiedDate" TEXT NOT NULL
+            );
+            """,
+            cancellationToken).ConfigureAwait(false);
+
+        await db.Database.ExecuteSqlRawAsync(
+            """
+            CREATE INDEX IF NOT EXISTS "IX_RdpTargets_Name" ON "RdpTargets" ("Name");
+            """,
+            cancellationToken).ConfigureAwait(false);
     }
 
     private static async Task EnsureColumnAsync(

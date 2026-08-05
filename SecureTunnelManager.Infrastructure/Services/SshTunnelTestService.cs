@@ -49,7 +49,7 @@ public class SshTunnelTestService : ISshTunnelTestService
                 request.Profile.RemoteHost,
                 (uint)request.Profile.RemotePort);
 
-            chain.TargetClient.AddForwardedPort(testForward);
+            chain.TargetClient!.AddForwardedPort(testForward);
             testForward.Start();
 
             var serviceReachable = await ProbeLocalForwardAsync(testLocalPort, cancellationToken).ConfigureAwait(false);

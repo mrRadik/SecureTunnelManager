@@ -10,6 +10,7 @@ public class AppDbContext : DbContext
     }
 
     public DbSet<TunnelProfileEntity> TunnelProfiles => Set<TunnelProfileEntity>();
+    public DbSet<RdpTargetEntity> RdpTargets => Set<RdpTargetEntity>();
     public DbSet<CredentialEntity> Credentials => Set<CredentialEntity>();
     public DbSet<SettingEntity> Settings => Set<SettingEntity>();
 
@@ -26,6 +27,17 @@ public class AppDbContext : DbContext
             entity.Property(e => e.TargetHost).HasMaxLength(255).IsRequired();
             entity.Property(e => e.TargetUsername).HasMaxLength(128).IsRequired();
             entity.Property(e => e.RemoteHost).HasMaxLength(255).IsRequired();
+            entity.Property(e => e.LocalBindAddress).HasMaxLength(255).IsRequired();
+            entity.HasIndex(e => e.Name);
+        });
+
+        modelBuilder.Entity<RdpTargetEntity>(entity =>
+        {
+            entity.ToTable("RdpTargets");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Name).HasMaxLength(200).IsRequired();
+            entity.Property(e => e.Description).HasMaxLength(1000);
+            entity.Property(e => e.RdpHost).HasMaxLength(255).IsRequired();
             entity.Property(e => e.LocalBindAddress).HasMaxLength(255).IsRequired();
             entity.HasIndex(e => e.Name);
         });

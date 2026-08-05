@@ -38,6 +38,8 @@ public partial class MainViewModel : ObservableObject
 
     public SettingsViewModel Settings { get; }
 
+    public RdpViewModel Rdp { get; }
+
 
 
     public MainViewModel(
@@ -56,7 +58,9 @@ public partial class MainViewModel : ObservableObject
 
         ILocalizationService localization,
 
-        SettingsViewModel settings)
+        SettingsViewModel settings,
+
+        RdpViewModel rdp)
 
     {
 
@@ -75,6 +79,8 @@ public partial class MainViewModel : ObservableObject
         _localization = localization;
 
         Settings = settings;
+
+        Rdp = rdp;
 
 
 
@@ -187,6 +193,8 @@ public partial class MainViewModel : ObservableObject
             await Settings.LoadCommand.ExecuteAsync(null).ConfigureAwait(true);
 
             RefreshVaultState();
+
+            await Rdp.LoadAsync().ConfigureAwait(true);
 
             var profiles = await _profileService.GetAllAsync().ConfigureAwait(true);
 
@@ -569,6 +577,10 @@ public partial class MainViewModel : ObservableObject
         if (value == NavigationSection.Settings)
 
             _ = Settings.LoadCommand.ExecuteAsync(null);
+
+        else if (value == NavigationSection.Rdp)
+
+            _ = Rdp.LoadAsync();
 
     }
 

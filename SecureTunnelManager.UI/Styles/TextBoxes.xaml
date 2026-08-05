@@ -1,14 +1,14 @@
-<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <Style x:Key="StmTextBox" TargetType="TextBox">
         <Setter Property="FontFamily" Value="Segoe UI"/>
         <Setter Property="FontSize" Value="14"/>
-        <Setter Property="Foreground" Value="{StaticResource StmTextPrimaryBrush}"/>
-        <Setter Property="Background" Value="{StaticResource StmCardBrush}"/>
-        <Setter Property="BorderBrush" Value="{StaticResource StmBorderBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource StmTextPrimaryBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource StmCardBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource StmBorderBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="CaretBrush" Value="{StaticResource StmTextPrimaryBrush}"/>
+        <Setter Property="CaretBrush" Value="{DynamicResource StmTextPrimaryBrush}"/>
         <Setter Property="Height" Value="40"/>
         <Setter Property="Padding" Value="10,0"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
@@ -28,15 +28,15 @@
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsEnabled" Value="False">
-                            <Setter TargetName="border" Property="Background" Value="{StaticResource StmDisabledBackgroundBrush}"/>
-                            <Setter Property="Foreground" Value="{StaticResource StmDisabledTextBrush}"/>
+                            <Setter TargetName="border" Property="Background" Value="{DynamicResource StmDisabledBackgroundBrush}"/>
+                            <Setter Property="Foreground" Value="{DynamicResource StmDisabledTextBrush}"/>
                         </Trigger>
                         <Trigger Property="IsKeyboardFocused" Value="True">
-                            <Setter TargetName="border" Property="BorderBrush" Value="{StaticResource StmAccentBrush}"/>
+                            <Setter TargetName="border" Property="BorderBrush" Value="{DynamicResource StmAccentBrush}"/>
                             <Setter TargetName="border" Property="BorderThickness" Value="2"/>
                         </Trigger>
                         <Trigger Property="Validation.HasError" Value="True">
-                            <Setter TargetName="border" Property="BorderBrush" Value="{StaticResource StmErrorBrush}"/>
+                            <Setter TargetName="border" Property="BorderBrush" Value="{DynamicResource StmErrorBrush}"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -47,9 +47,9 @@
     <Style x:Key="StmPasswordBox" TargetType="PasswordBox">
         <Setter Property="FontFamily" Value="Segoe UI"/>
         <Setter Property="FontSize" Value="14"/>
-        <Setter Property="Foreground" Value="{StaticResource StmTextPrimaryBrush}"/>
-        <Setter Property="Background" Value="{StaticResource StmCardBrush}"/>
-        <Setter Property="BorderBrush" Value="{StaticResource StmBorderBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource StmTextPrimaryBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource StmCardBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource StmBorderBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="Height" Value="40"/>
         <Setter Property="Padding" Value="10,0"/>
@@ -70,7 +70,7 @@
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsKeyboardFocused" Value="True">
-                            <Setter TargetName="border" Property="BorderBrush" Value="{StaticResource StmAccentBrush}"/>
+                            <Setter TargetName="border" Property="BorderBrush" Value="{DynamicResource StmAccentBrush}"/>
                             <Setter TargetName="border" Property="BorderThickness" Value="2"/>
                         </Trigger>
                     </ControlTemplate.Triggers>

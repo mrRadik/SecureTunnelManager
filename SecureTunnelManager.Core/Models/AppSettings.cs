@@ -17,4 +17,5 @@ public class AppSettings
     public bool CheckForUpdatesOnStartup { get; set; } = true;
     public string? LastAcknowledgedVersion { get; set; }
     public string UiLanguage { get; set; } = "en";
+    public string UiTheme { get; set; } = AppThemeModes.Dark;
 }

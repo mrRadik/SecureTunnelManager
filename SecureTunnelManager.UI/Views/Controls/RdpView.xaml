@@ -5,78 +5,94 @@
              xmlns:loc="clr-namespace:SecureTunnelManager.UI.Localization"
              Background="Transparent">
 
-    <Grid Margin="24">
+    <Grid Style="{DynamicResource StmPageLayout}">
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <Grid Grid.Row="0" Margin="0,0,0,16">
-            <StackPanel Orientation="Horizontal">
-                <Button Content="{loc:Loc Rdp.NewComputer}"
-                        Command="{Binding AddComputerCommand}"
-                        Style="{DynamicResource StmPrimaryButton}"
-                        Margin="0,0,8,0"/>
-            </StackPanel>
+        <!-- Page header -->
+        <controls:PageHeader Grid.Row="0">
+            <controls:PageHeader.PrimaryActions>
+                <StackPanel Orientation="Horizontal">
+                    <Button Content="{loc:Loc Rdp.NewComputer}"
+                            Command="{Binding AddComputerCommand}"
+                            Style="{DynamicResource StmPrimaryButton}"/>
+                </StackPanel>
+            </controls:PageHeader.PrimaryActions>
+        </controls:PageHeader>
 
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
-                <TextBlock Text="{Binding StatusSummary}"
-                           Style="{DynamicResource StmBody}"
-                           Foreground="{DynamicResource StmTextSecondaryBrush}"
-                           VerticalAlignment="Center"
-                           Margin="0,0,16,0"/>
-                <TextBox Width="220"
-                         Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
-                         Style="{DynamicResource StmInput}"
-                         Margin="0"/>
-            </StackPanel>
-        </Grid>
+        <!-- Summary statistics -->
+        <controls:SummaryStats Grid.Row="1" Margin="{DynamicResource StmSummaryStatsMargin}">
+            <controls:SummaryStatItem Count="{Binding TotalCount, Mode=OneWay}"
+                                      Label="{Binding TotalLabel, Mode=OneWay}"
+                                      ShowSymbol="False"
+                                      IsEmphasized="True"/>
+            <controls:SummaryStatItem Count="{Binding ConnectedCount, Mode=OneWay}"
+                                      Label="{Binding ConnectedSummary, Mode=OneWay}"
+                                      SymbolBrush="{DynamicResource StmStatusConnectedDotBrush}"/>
+            <controls:SummaryStatItem Count="{Binding DisconnectedCount, Mode=OneWay}"
+                                      Label="{Binding DisconnectedSummary, Mode=OneWay}"
+                                      Symbol="○"
+                                      SymbolBrush="{DynamicResource StmStatusStoppedDotBrush}"/>
+            <controls:SummaryStatItem Count="{Binding ErrorCount, Mode=OneWay}"
+                                      Label="{Binding ErrorSummary, Mode=OneWay}"
+                                      Symbol="×"
+                                      SymbolBrush="{DynamicResource StmStatusErrorDotBrush}"
+                                      Margin="0"/>
+        </controls:SummaryStats>
 
-        <TextBlock Grid.Row="1"
-                   Text="{loc:Loc Rdp.Subtitle}"
-                   Style="{DynamicResource StmPageSubtitle}"
-                   Margin="0,0,0,16"/>
+        <!-- Search and filters -->
+        <controls:FilterToolbar Grid.Row="2">
+            <controls:FilterToolbar.SearchContent>
+                <controls:SearchBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                                    Placeholder="{loc:Loc Rdp.SearchPlaceholder}"/>
+            </controls:FilterToolbar.SearchContent>
+            <controls:FilterToolbar.FilterContent>
+                <StackPanel Orientation="Horizontal">
+                    <controls:SegmentedControl ItemsSource="{Binding RdpFilterSegments}"
+                                               SelectedValue="{Binding StatusFilter, Mode=TwoWay}"
+                                               IsInline="True"/>
+                    <Border Style="{DynamicResource StmToolbarDivider}" Margin="8,4"/>
+                    <controls:SegmentedControl ItemsSource="{Binding ViewModeSegments}"
+                                               SelectedValue="{Binding ViewMode, Mode=TwoWay}"
+                                               IsInline="True"/>
+                </StackPanel>
+            </controls:FilterToolbar.FilterContent>
+        </controls:FilterToolbar>
 
-        <Grid Grid.Row="2">
+        <!-- Main content -->
+        <Grid Grid.Row="3">
             <ScrollViewer VerticalScrollBarVisibility="Auto"
-                          Visibility="{Binding ShowEmptyState, Converter={StaticResource InverseBooleanToVisibilityConverter}}">
-                <ItemsControl ItemsSource="{Binding FilteredComputers}">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <WrapPanel/>
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
+                          Visibility="{Binding ShowGrid, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <ItemsControl ItemsSource="{Binding FilteredGroups}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <controls:RdpComputerTile/>
+                            <controls:RdpGroupSection/>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
             </ScrollViewer>
 
-            <Border Style="{DynamicResource StmCard}" Margin="0"
-                    Visibility="{Binding ShowEmptyState, Converter={StaticResource BooleanToVisibilityConverter}}">
-                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Margin="24">
-                    <TextBlock Text="&#xE7F8;" Style="{DynamicResource StmIconGlyph}" FontSize="40"
-                               Foreground="{DynamicResource StmAccentBrush}" HorizontalAlignment="Center" Margin="0,0,0,12"/>
-                    <TextBlock Text="{loc:Loc Rdp.EmptyTitle}" Style="{DynamicResource StmEmptyStateTitle}"/>
-                    <TextBlock Text="{loc:Loc Rdp.EmptyText}" Style="{DynamicResource StmEmptyStateText}" MaxWidth="420"/>
+            <controls:EmptyState VerticalAlignment="Center" HorizontalAlignment="Center"
+                                 ShowIcon="True"
+                                 IconGlyph="&#xE7F8;"
+                                 Title="{loc:Loc Rdp.EmptyTitle}"
+                                 Subtitle="{loc:Loc Rdp.EmptyText}"
+                                 Visibility="{Binding ShowEmptyState, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <controls:EmptyState.ActionContent>
                     <Button Content="{loc:Loc Rdp.NewComputer}"
                             Command="{Binding AddComputerCommand}"
-                            Style="{DynamicResource StmPrimaryButton}"
-                            HorizontalAlignment="Center"
-                            Margin="0,16,0,0"/>
-                </StackPanel>
-            </Border>
+                            Style="{DynamicResource StmPrimaryButton}"/>
+                </controls:EmptyState.ActionContent>
+            </controls:EmptyState>
 
-            <Border Style="{DynamicResource StmCard}" Margin="0"
-                    Visibility="{Binding ShowNoResults, Converter={StaticResource BooleanToVisibilityConverter}}">
-                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Margin="24">
-                    <TextBlock Text="{loc:Loc Rdp.NoResultsTitle}" Style="{DynamicResource StmEmptyStateTitle}"/>
-                    <TextBlock Text="{loc:Loc Rdp.NoResultsText}" Style="{DynamicResource StmEmptyStateText}" MaxWidth="360"/>
-                </StackPanel>
-            </Border>
+            <controls:EmptyState VerticalAlignment="Center" HorizontalAlignment="Center"
+                                 Title="{loc:Loc Rdp.NoResultsTitle}"
+                                 Subtitle="{loc:Loc Rdp.NoResultsText}"
+                                 Visibility="{Binding ShowNoResults, Converter={StaticResource BooleanToVisibilityConverter}}"/>
         </Grid>
     </Grid>
 </UserControl>

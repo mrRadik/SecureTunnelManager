@@ -18,6 +18,8 @@ internal static class EntityMapper
         Id = entity.Id,
         Name = entity.Name,
         Description = entity.Description,
+        IconKey = entity.IconKey,
+        GroupName = entity.GroupName,
         JumpHosts = JumpHostSerialization.Deserialize(entity.JumpHostsJson),
         RdpHost = entity.RdpHost,
         RdpPort = entity.RdpPort,
@@ -33,6 +35,8 @@ internal static class EntityMapper
         Id = target.Id,
         Name = target.Name,
         Description = target.Description,
+        IconKey = target.IconKey,
+        GroupName = target.GroupName,
         JumpHostsJson = target.JumpHosts.Count > 0 ? JumpHostSerialization.Serialize(target.JumpHosts) : null,
         RdpHost = target.RdpHost,
         RdpPort = target.RdpPort,
@@ -47,6 +51,8 @@ internal static class EntityMapper
     {
         entity.Name = target.Name;
         entity.Description = target.Description;
+        entity.IconKey = target.IconKey;
+        entity.GroupName = target.GroupName;
         entity.JumpHostsJson = target.JumpHosts.Count > 0 ? JumpHostSerialization.Serialize(target.JumpHosts) : null;
         entity.RdpHost = target.RdpHost;
         entity.RdpPort = target.RdpPort;
@@ -62,6 +68,7 @@ internal static class EntityMapper
             Id = entity.Id,
             Name = entity.Name,
             Description = entity.Description,
+            IconKey = entity.IconKey,
             JumpHost = entity.JumpHost,
             JumpPort = entity.JumpPort,
             JumpUsername = entity.JumpUsername,
@@ -99,6 +106,7 @@ internal static class EntityMapper
             Id = profile.Id,
             Name = profile.Name,
             Description = profile.Description,
+            IconKey = profile.IconKey,
             JumpHost = profile.JumpHost,
             JumpPort = profile.JumpPort,
             JumpUsername = profile.JumpUsername,
@@ -130,6 +138,7 @@ internal static class EntityMapper
 
         entity.Name = profile.Name;
         entity.Description = profile.Description;
+        entity.IconKey = profile.IconKey;
         entity.JumpHost = profile.JumpHost;
         entity.JumpPort = profile.JumpPort;
         entity.JumpUsername = profile.JumpUsername;
@@ -160,6 +169,7 @@ internal static class EntityMapper
         {
             Name = profile.Name,
             Description = profile.Description,
+            IconKey = profile.IconKey,
             JumpHost = profile.JumpHost,
             JumpPort = profile.JumpPort,
             JumpUsername = profile.JumpUsername,
@@ -192,6 +202,7 @@ internal static class EntityMapper
         {
             Name = dto.Name,
             Description = dto.Description,
+            IconKey = dto.IconKey,
             JumpHost = dto.JumpHost,
             JumpPort = dto.JumpPort,
             JumpUsername = dto.JumpUsername,

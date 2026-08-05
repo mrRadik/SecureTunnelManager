@@ -71,4 +71,51 @@ public class RdpTargetService : IRdpTargetService
         await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         _logger.LogInformation("RDP target deleted: {Name}", entity.Name);
     }
+
+    public async Task<IReadOnlyList<string>> GetGroupNamesAsync(CancellationToken cancellationToken = default)
+    {
+        await using var db = await _dbFactory.CreateDbContextAsync(cancellationToken).ConfigureAwait(false);
+        return await db.RdpTargets.AsNoTracking()
+            .Where(t => t.GroupName != null && t.GroupName != "")
+            .Select(t => t.GroupName!)
+            .Distinct()
+            .OrderBy(n => n)
+            .ToListAsync(cancellationToken)
+            .ConfigureAwait(false);
+    }
+
+    public async Task SetGroupNameAsync(int targetId, string? groupName, CancellationToken cancellationToken = default)
+    {
+        var normalized = string.IsNullOrWhiteSpace(groupName) ? null : groupName.Trim();
+        await using var db = await _dbFactory.CreateDbContextAsync(cancellationToken).ConfigureAwait(false);
+        var entity = await db.RdpTargets.FirstOrDefaultAsync(t => t.Id == targetId, cancellationToken).ConfigureAwait(false)
+            ?? throw new InvalidOperationException($"RDP target {targetId} not found.");
+
+        entity.GroupName = normalized;
+        entity.ModifiedDate = DateTime.UtcNow;
+        await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+    }
+
+    public async Task RenameGroupAsync(string oldName, string newName, CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(oldName);
+        var normalizedNew = string.IsNullOrWhiteSpace(newName) ? null : newName.Trim();
+        if (normalizedNew is not null && string.Equals(oldName.Trim(), normalizedNew, StringComparison.OrdinalIgnoreCase))
+            return;
+
+        await using var db = await _dbFactory.CreateDbContextAsync(cancellationToken).ConfigureAwait(false);
+        var entities = await db.RdpTargets
+            .Where(t => t.GroupName == oldName.Trim())
+            .ToListAsync(cancellationToken)
+            .ConfigureAwait(false);
+
+        foreach (var entity in entities)
+        {
+            entity.GroupName = normalizedNew;
+            entity.ModifiedDate = DateTime.UtcNow;
+        }
+
+        await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        _logger.LogInformation("RDP group renamed: {OldName} -> {NewName}", oldName, normalizedNew ?? "(none)");
+    }
 }

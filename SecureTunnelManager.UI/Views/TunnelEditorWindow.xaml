@@ -4,6 +4,7 @@
         xmlns:controls="clr-namespace:SecureTunnelManager.UI.Views.Controls"
         xmlns:windows="clr-namespace:SecureTunnelManager.UI.Windows"
         xmlns:vm="clr-namespace:SecureTunnelManager.UI.ViewModels"
+        xmlns:loc="clr-namespace:SecureTunnelManager.UI.Localization"
         Title="{Binding WindowTitle}"
         Style="{DynamicResource StmWindow}"
         MinWidth="900"
@@ -53,6 +54,12 @@
                             <TextBlock Text="Description" Style="{DynamicResource StmLabel}"/>
                             <TextBox Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}" Style="{DynamicResource StmInput}"
                                      MinHeight="72" AcceptsReturn="True" TextWrapping="Wrap" VerticalContentAlignment="Top"/>
+                            <TextBlock Text="{loc:Loc Editor.Icon}" Style="{DynamicResource StmLabel}" Margin="0,12,0,0"/>
+                            <TextBlock Text="{loc:Loc Editor.IconHint}"
+                                       Style="{DynamicResource StmPageSubtitle}"
+                                       Margin="0,0,0,8"/>
+                            <controls:ServiceIconPicker SelectedIconKey="{Binding IconKey, Mode=TwoWay}"
+                                                        FallbackKey="tunnel"/>
                             <CheckBox Content="Connect automatically when Windows starts"
                                       IsChecked="{Binding StartWithWindows}" Style="{DynamicResource StmCheckBox}" Margin="0,16,0,0"/>
                         </StackPanel>

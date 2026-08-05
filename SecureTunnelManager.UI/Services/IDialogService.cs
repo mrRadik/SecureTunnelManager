@@ -9,6 +9,12 @@ public interface IDialogService
     Task<bool> ShowVaultSetupAsync();
     Task<bool> ShowTunnelEditorAsync(TunnelProfile? profile = null);
     Task<bool> ShowRdpEditorAsync(RdpTarget? target = null);
+    Task<string?> PickRdpGroupAsync(
+        string title,
+        string message,
+        IReadOnlyList<string> existingGroups,
+        string? currentGroup,
+        bool allowClear = true);
     Task<string?> PromptPasswordAsync(string title, string message);
     Task<(string Path, string Password)?> PromptExportAsync(IReadOnlyList<TunnelListItemViewModel> selected);
     Task<(string Path, string Password)?> PromptImportAsync();

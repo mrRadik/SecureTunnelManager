@@ -15,6 +15,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="40"/>
             <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
         <controls:WindowTitleBar Grid.Row="0" LocKey="App.Title"/>
@@ -30,11 +31,12 @@
                     BorderBrush="{DynamicResource StmBorderBrush}"
                     BorderThickness="0,0,1,0">
                 <DockPanel LastChildFill="True">
-                    <StackPanel DockPanel.Dock="Top" Margin="16,14,16,8">
-                        <TextBlock Text="{loc:Loc App.Title}" Style="{DynamicResource StmSidebarAppTitle}"/>
+                    <StackPanel DockPanel.Dock="Top" Margin="14,10,14,3">
+                        <TextBlock Text="{loc:Loc App.Title}"
+                                   Style="{DynamicResource StmSidebarAppTitle}"/>
                     </StackPanel>
 
-                    <StackPanel Margin="0,0,0,12">
+                    <StackPanel Margin="0,0,0,10">
                         <TextBlock Text="{loc:Loc Nav.Connections}" Style="{DynamicResource StmNavSectionHeader}"/>
                         <controls:NavigationItem IconGlyph="&#xE774;"
                                                  LocKey="Nav.Tunnels"
@@ -60,5 +62,14 @@
                     Visibility="{Binding SelectedSection, Converter={StaticResource NavigationSectionVisibilityConverter}, ConverterParameter=Settings}"/>
             </Grid>
         </Grid>
+
+        <controls:AppStatusBar Grid.Row="2"
+                               VaultStatusText="{Binding VaultStatusText}"
+                               IsVaultUnlocked="{Binding IsVaultUnlocked}"
+                               ActiveConnectionsText="{Binding ActiveConnectionsText}"
+                               VersionText="{Binding VersionText}"
+                               VaultActionText="{Binding VaultActionText}"
+                               VaultActionCommand="{Binding VaultActionCommand}"
+                               VaultClickCommand="{Binding VaultStatusClickCommand}"/>
     </Grid>
 </windows:StmChromeWindow>

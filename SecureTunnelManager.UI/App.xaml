@@ -9,10 +9,12 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="Styles/Colors.xaml"/>
                 <ResourceDictionary Source="Styles/Theme.xaml"/>
+                <ResourceDictionary Source="Styles/Layout.xaml"/>
                 <ResourceDictionary Source="Styles/ScrollBars.xaml"/>
                 <ResourceDictionary Source="Styles/StatusBadge.xaml"/>
                 <ResourceDictionary Source="Styles/Typography.xaml"/>
                 <ResourceDictionary Source="Styles/Buttons.xaml"/>
+                <ResourceDictionary Source="Styles/SegmentedControl.xaml"/>
                 <ResourceDictionary Source="Styles/Inputs.xaml"/>
                 <ResourceDictionary Source="Styles/Cards.xaml"/>
                 <ResourceDictionary Source="Styles/WindowStyles.xaml"/>
@@ -29,6 +31,8 @@
             <converters:IntEqualsConverter x:Key="IntEqualsConverter"/>
             <converters:StringEqualsToBoolConverter x:Key="StringEqualsToBoolConverter"/>
             <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
+            <converters:BoolToChevronConverter x:Key="BoolToChevronConverter"/>
+            <converters:IntGreaterThanZeroToVisibilityConverter x:Key="IntGreaterThanZeroToVisibilityConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

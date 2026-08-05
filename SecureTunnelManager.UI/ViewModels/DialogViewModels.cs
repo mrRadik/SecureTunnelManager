@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using SecureTunnelManager.Core.Models;
+using SecureTunnelManager.Core.ServiceIcons;
 using SecureTunnelManager.Core.Services;
 using SecureTunnelManager.Core.Validation;
 using System.Collections.ObjectModel;
@@ -232,6 +233,7 @@ public partial class TunnelEditorViewModel : ObservableObject
 
     [ObservableProperty] private string _name = string.Empty;
     [ObservableProperty] private string _description = string.Empty;
+    [ObservableProperty] private string _iconKey = ServiceIconCatalog.DefaultTunnelKey;
 
     public ObservableCollection<JumpHostHopViewModel> JumpHosts { get; } = new();
     public ObservableCollection<string> FlowJumpHosts { get; } = new();
@@ -342,6 +344,7 @@ public partial class TunnelEditorViewModel : ObservableObject
         {
             ProfileId = 0;
             CurrentStep = 0;
+            IconKey = ServiceIconCatalog.DefaultTunnelKey;
             LocalBindAddress = "127.0.0.1";
             ResetJumpHosts(new List<JumpHostHop> { new() { Port = 22 } });
             OnPropertyChanged(nameof(WindowTitle));
@@ -355,6 +358,7 @@ public partial class TunnelEditorViewModel : ObservableObject
         CurrentStep = 0;
         Name = profile.Name;
         Description = profile.Description;
+        IconKey = string.IsNullOrWhiteSpace(profile.IconKey) ? ServiceIconCatalog.DefaultTunnelKey : profile.IconKey;
         profile.EnsureJumpHostsFromLegacy();
         ResetJumpHosts(profile.JumpHosts);
         TargetHost = profile.TargetHost;
@@ -692,6 +696,7 @@ public partial class TunnelEditorViewModel : ObservableObject
                 Id = ProfileId,
                 Name = Name.Trim(),
                 Description = Description.Trim(),
+                IconKey = string.IsNullOrWhiteSpace(IconKey) ? ServiceIconCatalog.DefaultTunnelKey : IconKey.Trim(),
                 JumpHosts = jumpModels,
                 TargetHost = TargetHost.Trim(),
                 TargetPort = TargetPort,

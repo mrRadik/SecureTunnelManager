@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using SecureTunnelManager.Core.Models;
+using SecureTunnelManager.Core.ServiceIcons;
 using SecureTunnelManager.Core.Services;
 using SecureTunnelManager.Core.Validation;
 
@@ -43,6 +44,10 @@ public partial class RdpEditorViewModel : ObservableObject
 
     [ObservableProperty] private string _name = string.Empty;
     [ObservableProperty] private string _description = string.Empty;
+    [ObservableProperty] private string _iconKey = ServiceIconCatalog.DefaultRdpKey;
+    [ObservableProperty] private string _groupName = string.Empty;
+
+    public ObservableCollection<string> ExistingGroups { get; } = new();
 
     public ObservableCollection<JumpHostHopViewModel> JumpHosts { get; } = new();
 
@@ -70,12 +75,18 @@ public partial class RdpEditorViewModel : ObservableObject
         ClearValidationErrors();
         RdpPassword = string.Empty;
 
+        ExistingGroups.Clear();
+        foreach (var group in await _targetService.GetGroupNamesAsync().ConfigureAwait(true))
+            ExistingGroups.Add(group);
+
         if (target is null)
         {
             TargetId = 0;
             CurrentStep = 0;
             Name = string.Empty;
             Description = string.Empty;
+            IconKey = ServiceIconCatalog.DefaultRdpKey;
+            GroupName = string.Empty;
             RdpHost = string.Empty;
             RdpPort = 3389;
             LocalPort = 0;
@@ -90,6 +101,8 @@ public partial class RdpEditorViewModel : ObservableObject
             CurrentStep = 0;
             Name = target.Name;
             Description = target.Description;
+            IconKey = string.IsNullOrWhiteSpace(target.IconKey) ? ServiceIconCatalog.DefaultRdpKey : target.IconKey;
+            GroupName = target.GroupName ?? string.Empty;
             RdpHost = target.RdpHost;
             RdpPort = target.RdpPort;
             LocalPort = target.LocalPort;
@@ -236,6 +249,8 @@ public partial class RdpEditorViewModel : ObservableObject
                 Id = TargetId,
                 Name = Name.Trim(),
                 Description = Description.Trim(),
+                IconKey = string.IsNullOrWhiteSpace(IconKey) ? ServiceIconCatalog.DefaultRdpKey : IconKey.Trim(),
+                GroupName = string.IsNullOrWhiteSpace(GroupName) ? null : GroupName.Trim(),
                 JumpHosts = jumpModels,
                 RdpHost = RdpHost.Trim(),
                 RdpPort = RdpPort,

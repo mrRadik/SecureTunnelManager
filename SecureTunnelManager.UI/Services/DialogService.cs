@@ -48,6 +48,30 @@ public class DialogService : IDialogService
         return await ShowModalAsync(vm, window).ConfigureAwait(true);
     }
 
+    public Task<string?> PickRdpGroupAsync(
+        string title,
+        string message,
+        IReadOnlyList<string> existingGroups,
+        string? currentGroup,
+        bool allowClear = true)
+    {
+        var localization = GetLocalization();
+        var window = new GroupPickerWindow(
+            title,
+            message,
+            localization.Get("Rdp.Group.Label"),
+            localization.Get("Rdp.Group.NoGroup"),
+            existingGroups,
+            currentGroup,
+            allowClear)
+        {
+            CancelButtonContent = localization.Get("Common.Cancel"),
+            OkButtonContent = localization.Get("Common.Ok")
+        };
+        PrepareDialog(window);
+        return Task.FromResult(window.ShowDialog() == true ? window.SelectedGroup : null);
+    }
+
     public Task<string?> PromptPasswordAsync(string title, string message)
     {
         var window = new PasswordPromptWindow(title, message);

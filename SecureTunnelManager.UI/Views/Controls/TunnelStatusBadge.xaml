@@ -11,14 +11,10 @@
         </Storyboard>
     </UserControl.Resources>
 
-    <Border x:Name="BadgeBorder" CornerRadius="12" Padding="10,5" HorizontalAlignment="Left">
+    <Border x:Name="BadgeBorder" Style="{DynamicResource StmStatusBadgeBorder}">
         <StackPanel Orientation="Horizontal">
-            <Ellipse x:Name="StatusDot" Width="8" Height="8" VerticalAlignment="Center" Margin="0,0,8,0"/>
-            <TextBlock x:Name="StatusLabel"
-                       FontFamily="Segoe UI"
-                       FontSize="13"
-                       Foreground="{DynamicResource StmTextPrimaryBrush}"
-                       VerticalAlignment="Center"/>
+            <Ellipse x:Name="StatusDot" Style="{DynamicResource StmStatusDot}"/>
+            <TextBlock x:Name="StatusLabel" Style="{DynamicResource StmStatusBadgeLabel}"/>
         </StackPanel>
     </Border>
 </UserControl>

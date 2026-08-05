@@ -117,6 +117,9 @@
   <data name="Tunnels.Connected" xml:space="preserve"><value>подключено</value></data>
   <data name="Tunnels.Stopped" xml:space="preserve"><value>остановлено</value></data>
   <data name="Tunnels.Reconnecting" xml:space="preserve"><value>переподключение</value></data>
+  <data name="Tunnels.Error" xml:space="preserve"><value>ошибка</value></data>
+  <data name="Tunnels.Stats.Total" xml:space="preserve"><value>всего</value></data>
+  <data name="Tunnels.SearchPlaceholder" xml:space="preserve"><value>Поиск туннелей...</value></data>
   <data name="Tunnels.SearchTooltip" xml:space="preserve"><value>Поиск по имени, адресу или хосту</value></data>
   <data name="Tunnels.FilterAll" xml:space="preserve"><value>Все</value></data>
   <data name="Tunnels.FilterConnected" xml:space="preserve"><value>Подключены</value></data>
@@ -161,6 +164,7 @@
   <data name="Tunnel.Testing" xml:space="preserve"><value>Проверка…</value></data>
   <data name="Status.Connected" xml:space="preserve"><value>Подключён</value></data>
   <data name="Status.Stopped" xml:space="preserve"><value>Остановлен</value></data>
+  <data name="Status.Disconnected" xml:space="preserve"><value>Отключён</value></data>
   <data name="Status.Reconnecting" xml:space="preserve"><value>Переподключение</value></data>
   <data name="Status.Connecting" xml:space="preserve"><value>Подключение</value></data>
   <data name="Status.Error" xml:space="preserve"><value>Ошибка</value></data>
@@ -170,6 +174,13 @@
   <data name="Rdp.EmptyText" xml:space="preserve"><value>Добавьте компьютер — двойной клик откроет Remote Desktop через SSH jump host.</value></data>
   <data name="Rdp.NoResultsTitle" xml:space="preserve"><value>Ничего не найдено</value></data>
   <data name="Rdp.NoResultsText" xml:space="preserve"><value>Попробуйте другой поисковый запрос.</value></data>
+  <data name="Rdp.SearchPlaceholder" xml:space="preserve"><value>Поиск компьютеров...</value></data>
+  <data name="Rdp.ViewMode.List" xml:space="preserve"><value>☰ Список</value></data>
+  <data name="Rdp.ViewMode.Grid" xml:space="preserve"><value>⊞ Сетка</value></data>
+  <data name="Rdp.Stats.Total" xml:space="preserve"><value>всего</value></data>
+  <data name="Rdp.Stats.Connected" xml:space="preserve"><value>подключено</value></data>
+  <data name="Rdp.Stats.Disconnected" xml:space="preserve"><value>отключено</value></data>
+  <data name="Rdp.Stats.Error" xml:space="preserve"><value>ошибка</value></data>
   <data name="Rdp.CountSummary" xml:space="preserve"><value>{0} компьютеров · {1} подключено</value></data>
   <data name="Rdp.Status.Connected" xml:space="preserve"><value>Подключён</value></data>
   <data name="Rdp.Status.Connecting" xml:space="preserve"><value>Подключение</value></data>
@@ -180,4 +191,25 @@
   <data name="Rdp.DeleteTitle" xml:space="preserve"><value>Удалить компьютер</value></data>
   <data name="Rdp.DeleteConfirm" xml:space="preserve"><value>Удалить «{0}»?</value></data>
   <data name="Rdp.UnexpectedError" xml:space="preserve"><value>Произошла непредвиденная ошибка.</value></data>
+  <data name="Rdp.Group.Ungrouped" xml:space="preserve"><value>Без группы</value></data>
+  <data name="Rdp.Group.Header" xml:space="preserve"><value>{0} ({1})</value></data>
+  <data name="Rdp.Group.Connected" xml:space="preserve"><value>{0} подключено</value></data>
+  <data name="Rdp.Group.Label" xml:space="preserve"><value>Группа</value></data>
+  <data name="Rdp.Group.EditorHint" xml:space="preserve"><value>Введите новое имя, чтобы создать группу, или выберите из списка.</value></data>
+  <data name="Rdp.Group.NoGroup" xml:space="preserve"><value>Без группы</value></data>
+  <data name="Rdp.Group.MoveTitle" xml:space="preserve"><value>Переместить в группу</value></data>
+  <data name="Rdp.Group.MoveMessage" xml:space="preserve"><value>Выберите группу для «{0}». Новое имя создаст группу.</value></data>
+  <data name="Rdp.Group.RenameTitle" xml:space="preserve"><value>Переименовать группу</value></data>
+  <data name="Rdp.Group.RenameMessage" xml:space="preserve"><value>Введите новое имя для «{0}».</value></data>
+  <data name="Rdp.Group.Menu.Rename" xml:space="preserve"><value>Переименовать группу</value></data>
+  <data name="Rdp.Group.Menu.Expand" xml:space="preserve"><value>Развернуть</value></data>
+  <data name="Rdp.Group.Menu.Collapse" xml:space="preserve"><value>Свернуть</value></data>
+  <data name="Rdp.Menu.MoveToGroup" xml:space="preserve"><value>Переместить в группу…</value></data>
+  <data name="StatusBar.ActiveConnections" xml:space="preserve"><value>{0} активных подключений</value></data>
+  <data name="StatusBar.VaultTooltip" xml:space="preserve"><value>Нажмите, чтобы заблокировать или разблокировать хранилище</value></data>
+  <data name="Editor.Icon" xml:space="preserve"><value>Иконка</value></data>
+  <data name="Editor.IconHint" xml:space="preserve"><value>Выберите иконку для отображения на карточке.</value></data>
+  <data name="Common.ClearSearch" xml:space="preserve"><value>Очистить поиск</value></data>
+  <data name="Common.Cancel" xml:space="preserve"><value>Отмена</value></data>
+  <data name="Common.Ok" xml:space="preserve"><value>OK</value></data>
 </root>

@@ -8,6 +8,10 @@ public class RdpTarget
     public int Id { get; set; }
     public string Name { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
+    public string IconKey { get; set; } = string.Empty;
+
+    /// <summary>Optional group label for organizing computers on the RDP page.</summary>
+    public string? GroupName { get; set; }
 
     public List<JumpHostHop> JumpHosts { get; set; } = new();
 

@@ -7,6 +7,7 @@ public class TunnelExportDto
 {
     public string Name { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
+    public string IconKey { get; set; } = string.Empty;
     public string JumpHost { get; set; } = string.Empty;
     public int JumpPort { get; set; }
     public string JumpUsername { get; set; } = string.Empty;

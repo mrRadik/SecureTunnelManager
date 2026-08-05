@@ -39,7 +39,7 @@ public partial class TunnelCard : System.Windows.Controls.UserControl
 
     private void OnMenuClick(object sender, RoutedEventArgs e)
     {
-        if (sender is not System.Windows.Controls.Button { ContextMenu: { } menu })
+        if (CardBorder.ContextMenu is not ContextMenu menu)
             return;
 
         menu.PlacementTarget = MenuButton;

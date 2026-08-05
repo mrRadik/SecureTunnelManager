@@ -94,6 +94,18 @@ public sealed class RdpSessionService : IRdpSessionService, IDisposable
             return _states.TryGetValue(targetId, out var state) ? state : null;
     }
 
+    public void SyncTargetMetadata(RdpTarget target)
+    {
+        lock (_sync)
+        {
+            if (!_states.TryGetValue(target.Id, out var state))
+                return;
+
+            state.Name = target.Name;
+            state.RdpHostDisplay = $"{target.RdpHost}:{target.RdpPort}";
+        }
+    }
+
     private void OnVaultLocked(object? sender, EventArgs e) =>
         _ = DisconnectAllAsync();
 

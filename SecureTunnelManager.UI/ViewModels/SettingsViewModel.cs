@@ -22,6 +22,32 @@ public enum TunnelListFilter
     Error
 }
 
+public enum RdpListFilter
+{
+    All,
+    Connected,
+    Disconnected,
+    Error
+}
+
+public enum RdpViewMode
+{
+    Grid,
+    List
+}
+
+public sealed class FilterSegmentItem
+{
+    public FilterSegmentItem(string label, object value)
+    {
+        Label = label;
+        Value = value;
+    }
+
+    public string Label { get; }
+    public object Value { get; }
+}
+
 public partial class SettingsViewModel : ObservableObject
 {
     private readonly ISettingsService _settingsService;

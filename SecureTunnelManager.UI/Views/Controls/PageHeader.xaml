@@ -1,0 +1,15 @@
+<UserControl x:Class="SecureTunnelManager.UI.Views.Controls.PageHeader"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Margin="{DynamicResource StmPageHeaderMargin}">
+
+    <Grid>
+        <ContentPresenter Content="{Binding PrimaryActions, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                          HorizontalAlignment="Left"
+                          VerticalAlignment="Center"/>
+
+        <ContentPresenter Content="{Binding SecondaryActions, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                          HorizontalAlignment="Right"
+                          VerticalAlignment="Center"/>
+    </Grid>
+</UserControl>

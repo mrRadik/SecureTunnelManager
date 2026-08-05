@@ -1,0 +1,24 @@
+<UserControl x:Class="SecureTunnelManager.UI.Views.Controls.ServiceIconBadge"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Name="Root"
+             Loaded="OnLoaded">
+
+    <Border x:Name="IconHost"
+            CornerRadius="{StaticResource StmControlCornerRadius}"
+            ToolTip="{Binding DisplayName, ElementName=Root}">
+        <Grid>
+            <TextBlock x:Name="GlyphBlock"
+                       Style="{DynamicResource StmCardIconGlyph}"
+                       Text="{Binding Glyph, ElementName=Root}"/>
+
+            <TextBlock x:Name="AbbreviationBlock"
+                       Text="{Binding Abbreviation, ElementName=Root}"
+                       FontWeight="SemiBold"
+                       Foreground="#F5F5F5"
+                       Opacity="0.95"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center"/>
+        </Grid>
+    </Border>
+</UserControl>

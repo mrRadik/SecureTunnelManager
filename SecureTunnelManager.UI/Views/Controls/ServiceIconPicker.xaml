@@ -1,0 +1,53 @@
+<UserControl x:Class="SecureTunnelManager.UI.Views.Controls.ServiceIconPicker"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:SecureTunnelManager.UI.Views.Controls"
+             x:Name="Root">
+
+    <ListBox ItemsSource="{Binding Icons, ElementName=Root}"
+             SelectedValue="{Binding SelectedIconKey, ElementName=Root, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+             SelectedValuePath="Key"
+             BorderThickness="0"
+             Background="Transparent"
+             ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+             Padding="0">
+        <ListBox.ItemsPanel>
+            <ItemsPanelTemplate>
+                <WrapPanel/>
+            </ItemsPanelTemplate>
+        </ListBox.ItemsPanel>
+        <ListBox.ItemContainerStyle>
+            <Style TargetType="ListBoxItem">
+                <Setter Property="Margin" Value="0,0,8,8"/>
+                <Setter Property="Padding" Value="0"/>
+                <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                <Setter Property="VerticalContentAlignment" Value="Center"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="ListBoxItem">
+                            <Border x:Name="SelectionBorder"
+                                    Padding="2"
+                                    CornerRadius="{StaticResource StmControlCornerRadius}"
+                                    Background="Transparent"
+                                    BorderBrush="{DynamicResource StmAccentBrush}"
+                                    BorderThickness="2">
+                                <ContentPresenter/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsSelected" Value="False">
+                                    <Setter TargetName="SelectionBorder" Property="BorderBrush" Value="Transparent"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+        </ListBox.ItemContainerStyle>
+        <ListBox.ItemTemplate>
+            <DataTemplate>
+                <controls:ServiceIconBadge IconKey="{Binding Key}"
+                                           FallbackKey="{Binding FallbackKey, ElementName=Root}"/>
+            </DataTemplate>
+        </ListBox.ItemTemplate>
+    </ListBox>
+</UserControl>

@@ -40,6 +40,7 @@ public partial class RdpComputerTile : System.Windows.Controls.UserControl
             {
                 "Connect" => Localization.Get("Rdp.Menu.Connect"),
                 "Disconnect" => Localization.Get("Rdp.Menu.Disconnect"),
+                "MoveToGroup" => Localization.Get("Rdp.Menu.MoveToGroup"),
                 "Edit" => Localization.Get("Menu.Edit"),
                 "Delete" => Localization.Get("Menu.Delete"),
                 _ => item.Tag?.ToString() ?? string.Empty
@@ -54,6 +55,16 @@ public partial class RdpComputerTile : System.Windows.Controls.UserControl
         }
     }
 
+    private void OnMenuClick(object sender, RoutedEventArgs e)
+    {
+        if (sender is not System.Windows.Controls.Button button || CardBorder.ContextMenu is not ContextMenu menu)
+            return;
+
+        menu.PlacementTarget = button;
+        menu.IsOpen = true;
+        e.Handled = true;
+    }
+
     private async void OnConnectClick(object sender, RoutedEventArgs e)
     {
         if (Row is null || RdpVm is null) return;
@@ -64,6 +75,12 @@ public partial class RdpComputerTile : System.Windows.Controls.UserControl
     {
         if (Row is null || RdpVm is null) return;
         await RdpVm.DisconnectCommand.ExecuteAsync(Row);
+    }
+
+    private async void OnMoveToGroupClick(object sender, RoutedEventArgs e)
+    {
+        if (Row is null || RdpVm is null) return;
+        await RdpVm.MoveToGroupCommand.ExecuteAsync(Row);
     }
 
     private async void OnEditClick(object sender, RoutedEventArgs e)

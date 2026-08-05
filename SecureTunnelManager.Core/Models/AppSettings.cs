@@ -18,4 +18,7 @@ public class AppSettings
     public string? LastAcknowledgedVersion { get; set; }
     public string UiLanguage { get; set; } = "en";
     public string UiTheme { get; set; } = AppThemeModes.Dark;
+
+    /// <summary>JSON array of collapsed RDP group keys (empty string = ungrouped).</summary>
+    public string? RdpCollapsedGroupsJson { get; set; }
 }

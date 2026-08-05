@@ -1,0 +1,57 @@
+<UserControl x:Class="SecureTunnelManager.UI.Views.Controls.SearchBox"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:loc="clr-namespace:SecureTunnelManager.UI.Localization"
+             MinWidth="{DynamicResource StmSearchBoxMinWidth}"
+             HorizontalAlignment="Stretch">
+
+    <Grid Height="{DynamicResource StmControlHeight}" HorizontalAlignment="Stretch">
+        <TextBox x:Name="SearchInput"
+                 Text="{Binding Text, RelativeSource={RelativeSource AncestorType=UserControl}, UpdateSourceTrigger=PropertyChanged}"
+                 Style="{DynamicResource StmSearchBox}"
+                 Padding="36,0,32,0"
+                 Height="{DynamicResource StmControlHeight}"
+                 HorizontalAlignment="Stretch"
+                 Margin="0"
+                 VerticalAlignment="Center"/>
+
+        <TextBlock Text="&#xE721;"
+                   Style="{DynamicResource StmIconGlyph}"
+                   FontSize="14"
+                   Foreground="{DynamicResource StmTextSecondaryBrush}"
+                   VerticalAlignment="Center"
+                   Margin="12,0,0,0"
+                   IsHitTestVisible="False"/>
+
+        <TextBlock Text="{Binding Placeholder, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                   FontSize="13"
+                   Foreground="{DynamicResource StmTextSecondaryBrush}"
+                   VerticalAlignment="Center"
+                   Margin="36,0,32,0"
+                   IsHitTestVisible="False">
+            <TextBlock.Style>
+                <Style TargetType="TextBlock">
+                    <Setter Property="Visibility" Value="Collapsed"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding Text, ElementName=SearchInput}" Value="">
+                            <Setter Property="Visibility" Value="Visible"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </TextBlock.Style>
+        </TextBlock>
+
+        <Button Content="&#xE711;"
+                Style="{DynamicResource StmIconButton}"
+                FontSize="12"
+                MinWidth="28"
+                MinHeight="28"
+                Padding="4"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Center"
+                Margin="0,0,4,0"
+                ToolTip="{loc:Loc Common.ClearSearch}"
+                Visibility="{Binding Text, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource StringNotEmptyToVisibilityConverter}}"
+                Click="OnClearClick"/>
+    </Grid>
+</UserControl>

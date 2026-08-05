@@ -109,10 +109,22 @@ public partial class TunnelStatusBadge : System.Windows.Controls.UserControl
 
     private void SetBadge(System.Windows.Media.Brush background, System.Windows.Media.Brush dot, string label)
     {
+        if (BadgeBorder is null || StatusDot is null || StatusLabel is null)
+            return;
+
         BadgeBorder.Background = background;
         StatusDot.Fill = dot;
         StatusDot.Opacity = 1;
         StatusLabel.Text = label;
+        StatusLabel.ClearValue(FontSizeProperty);
+        StatusLabel.ClearValue(FontWeightProperty);
+        StatusLabel.ClearValue(ForegroundProperty);
+        StatusLabel.ClearValue(System.Windows.Controls.TextBlock.OpacityProperty);
+        StatusDot.ClearValue(System.Windows.FrameworkElement.WidthProperty);
+        StatusDot.ClearValue(System.Windows.FrameworkElement.HeightProperty);
+        StatusDot.ClearValue(System.Windows.FrameworkElement.MarginProperty);
+        BadgeBorder.ClearValue(System.Windows.Controls.Border.PaddingProperty);
+        BadgeBorder.ClearValue(System.Windows.UIElement.OpacityProperty);
     }
 
     private void StartPulse()

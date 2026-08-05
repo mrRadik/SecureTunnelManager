@@ -14,4 +14,5 @@ public interface IRdpSessionService
     Task DisconnectAllAsync(CancellationToken cancellationToken = default);
     IReadOnlyList<RdpRuntimeState> GetRuntimeStates();
     RdpRuntimeState? GetRuntimeState(int targetId);
+    void SyncTargetMetadata(RdpTarget target);
 }

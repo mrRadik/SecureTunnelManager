@@ -117,6 +117,9 @@ This update includes improvements and bug fixes.</value></data>
   <data name="Tunnels.Connected" xml:space="preserve"><value>connected</value></data>
   <data name="Tunnels.Stopped" xml:space="preserve"><value>stopped</value></data>
   <data name="Tunnels.Reconnecting" xml:space="preserve"><value>reconnecting</value></data>
+  <data name="Tunnels.Error" xml:space="preserve"><value>error</value></data>
+  <data name="Tunnels.Stats.Total" xml:space="preserve"><value>total</value></data>
+  <data name="Tunnels.SearchPlaceholder" xml:space="preserve"><value>Search tunnels...</value></data>
   <data name="Tunnels.SearchTooltip" xml:space="preserve"><value>Search by name, endpoint, or host</value></data>
   <data name="Tunnels.FilterAll" xml:space="preserve"><value>All</value></data>
   <data name="Tunnels.FilterConnected" xml:space="preserve"><value>Connected</value></data>
@@ -161,6 +164,7 @@ This update includes improvements and bug fixes.</value></data>
   <data name="Tunnel.Testing" xml:space="preserve"><value>Testing…</value></data>
   <data name="Status.Connected" xml:space="preserve"><value>Connected</value></data>
   <data name="Status.Stopped" xml:space="preserve"><value>Stopped</value></data>
+  <data name="Status.Disconnected" xml:space="preserve"><value>Disconnected</value></data>
   <data name="Status.Reconnecting" xml:space="preserve"><value>Reconnecting</value></data>
   <data name="Status.Connecting" xml:space="preserve"><value>Connecting</value></data>
   <data name="Status.Error" xml:space="preserve"><value>Error</value></data>
@@ -170,6 +174,13 @@ This update includes improvements and bug fixes.</value></data>
   <data name="Rdp.EmptyText" xml:space="preserve"><value>Add a computer to open Remote Desktop through your SSH jump host with a double-click.</value></data>
   <data name="Rdp.NoResultsTitle" xml:space="preserve"><value>No matches</value></data>
   <data name="Rdp.NoResultsText" xml:space="preserve"><value>Try a different search.</value></data>
+  <data name="Rdp.SearchPlaceholder" xml:space="preserve"><value>Search computers...</value></data>
+  <data name="Rdp.ViewMode.List" xml:space="preserve"><value>☰ List</value></data>
+  <data name="Rdp.ViewMode.Grid" xml:space="preserve"><value>⊞ Grid</value></data>
+  <data name="Rdp.Stats.Total" xml:space="preserve"><value>total</value></data>
+  <data name="Rdp.Stats.Connected" xml:space="preserve"><value>connected</value></data>
+  <data name="Rdp.Stats.Disconnected" xml:space="preserve"><value>disconnected</value></data>
+  <data name="Rdp.Stats.Error" xml:space="preserve"><value>error</value></data>
   <data name="Rdp.CountSummary" xml:space="preserve"><value>{0} computers · {1} connected</value></data>
   <data name="Rdp.Status.Connected" xml:space="preserve"><value>Connected</value></data>
   <data name="Rdp.Status.Connecting" xml:space="preserve"><value>Connecting</value></data>
@@ -180,4 +191,25 @@ This update includes improvements and bug fixes.</value></data>
   <data name="Rdp.DeleteTitle" xml:space="preserve"><value>Delete computer</value></data>
   <data name="Rdp.DeleteConfirm" xml:space="preserve"><value>Delete “{0}”?</value></data>
   <data name="Rdp.UnexpectedError" xml:space="preserve"><value>An unexpected error occurred.</value></data>
+  <data name="Rdp.Group.Ungrouped" xml:space="preserve"><value>Ungrouped</value></data>
+  <data name="Rdp.Group.Header" xml:space="preserve"><value>{0} ({1})</value></data>
+  <data name="Rdp.Group.Connected" xml:space="preserve"><value>{0} connected</value></data>
+  <data name="Rdp.Group.Label" xml:space="preserve"><value>Group</value></data>
+  <data name="Rdp.Group.EditorHint" xml:space="preserve"><value>Type a new name to create a group, or pick an existing one.</value></data>
+  <data name="Rdp.Group.NoGroup" xml:space="preserve"><value>No group</value></data>
+  <data name="Rdp.Group.MoveTitle" xml:space="preserve"><value>Move to group</value></data>
+  <data name="Rdp.Group.MoveMessage" xml:space="preserve"><value>Choose a group for “{0}”. Type a new name to create a group.</value></data>
+  <data name="Rdp.Group.RenameTitle" xml:space="preserve"><value>Rename group</value></data>
+  <data name="Rdp.Group.RenameMessage" xml:space="preserve"><value>Enter a new name for “{0}”.</value></data>
+  <data name="Rdp.Group.Menu.Rename" xml:space="preserve"><value>Rename group</value></data>
+  <data name="Rdp.Group.Menu.Expand" xml:space="preserve"><value>Expand</value></data>
+  <data name="Rdp.Group.Menu.Collapse" xml:space="preserve"><value>Collapse</value></data>
+  <data name="Rdp.Menu.MoveToGroup" xml:space="preserve"><value>Move to group…</value></data>
+  <data name="StatusBar.ActiveConnections" xml:space="preserve"><value>{0} active connections</value></data>
+  <data name="StatusBar.VaultTooltip" xml:space="preserve"><value>Click to lock or unlock the vault</value></data>
+  <data name="Editor.Icon" xml:space="preserve"><value>Icon</value></data>
+  <data name="Editor.IconHint" xml:space="preserve"><value>Choose an icon shown on the card.</value></data>
+  <data name="Common.ClearSearch" xml:space="preserve"><value>Clear search</value></data>
+  <data name="Common.Cancel" xml:space="preserve"><value>Cancel</value></data>
+  <data name="Common.Ok" xml:space="preserve"><value>OK</value></data>
 </root>

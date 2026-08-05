@@ -1,0 +1,73 @@
+<UserControl x:Class="SecureTunnelManager.UI.Views.Controls.AppStatusBar"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:loc="clr-namespace:SecureTunnelManager.UI.Localization">
+
+    <Border Style="{DynamicResource StmStatusBar}">
+        <Grid VerticalAlignment="Center">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0"
+                        Orientation="Horizontal"
+                        VerticalAlignment="Center"
+                        Cursor="Hand"
+                        MouseLeftButtonUp="OnVaultStatusClick"
+                        ToolTip="{loc:Loc StatusBar.VaultTooltip}">
+                <Ellipse Width="6" Height="6" Margin="0,0,6,0" VerticalAlignment="Center">
+                    <Ellipse.Style>
+                        <Style TargetType="Ellipse">
+                            <Setter Property="Fill" Value="{DynamicResource StmStatusStoppedDotBrush}"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsVaultUnlocked, RelativeSource={RelativeSource AncestorType=UserControl}}" Value="True">
+                                    <Setter Property="Fill" Value="{DynamicResource StmStatusConnectedDotBrush}"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Ellipse.Style>
+                </Ellipse>
+                <TextBlock x:Name="VaultStatusLabel"
+                           Text="{Binding VaultStatusText, RelativeSource={RelativeSource AncestorType=UserControl}}">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock" BasedOn="{StaticResource StmStatusBarText}">
+                            <Setter Property="Foreground" Value="{DynamicResource StmTextSecondaryBrush}"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsVaultUnlocked, RelativeSource={RelativeSource AncestorType=UserControl}}" Value="False">
+                                    <Setter Property="Foreground" Value="{DynamicResource StmTextSecondaryBrush}"/>
+                                    <Setter Property="Opacity" Value="0.95"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding IsVaultUnlocked, RelativeSource={RelativeSource AncestorType=UserControl}}" Value="True">
+                                    <Setter Property="Foreground" Value="{DynamicResource StmTextSecondaryBrush}"/>
+                                    <Setter Property="Opacity" Value="0.75"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+            </StackPanel>
+
+            <StackPanel Grid.Column="1"
+                        Orientation="Horizontal"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center">
+                <TextBlock Text="{Binding ActiveConnectionsText, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                           Style="{DynamicResource StmStatusBarText}"/>
+            </StackPanel>
+
+            <StackPanel Grid.Column="2"
+                        Orientation="Horizontal"
+                        VerticalAlignment="Center">
+                <TextBlock Text="{Binding VersionText, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                           Style="{DynamicResource StmStatusBarText}"
+                           Margin="0,0,12,0"
+                           Opacity="0.55"/>
+                <Button Content="{Binding VaultActionText, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                        Command="{Binding VaultActionCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                        Style="{DynamicResource StmStatusBarAction}"/>
+            </StackPanel>
+        </Grid>
+    </Border>
+</UserControl>

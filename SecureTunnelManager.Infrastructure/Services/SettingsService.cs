@@ -21,6 +21,7 @@ public class SettingsService : ISettingsService
     private const string LastAcknowledgedVersionKey = "LastAcknowledgedVersion";
     private const string UiLanguageKey = "UiLanguage";
     private const string UiThemeKey = "UiTheme";
+    private const string RdpCollapsedGroupsJsonKey = "RdpCollapsedGroupsJson";
 
     private readonly IDbContextFactory<AppDbContext> _dbFactory;
 
@@ -48,7 +49,8 @@ public class SettingsService : ISettingsService
             UiLanguage = dict.TryGetValue(UiLanguageKey, out var lang) && !string.IsNullOrWhiteSpace(lang) ? lang : "en",
             UiTheme = dict.TryGetValue(UiThemeKey, out var theme) && !string.IsNullOrWhiteSpace(theme)
                 ? AppThemeModes.Normalize(theme)
-                : AppThemeModes.Dark
+                : AppThemeModes.Dark,
+            RdpCollapsedGroupsJson = dict.GetValueOrDefault(RdpCollapsedGroupsJsonKey)
         };
     }
 
@@ -76,6 +78,15 @@ public class SettingsService : ISettingsService
 
         await UpsertAsync(db, UiLanguageKey, settings.UiLanguage, cancellationToken).ConfigureAwait(false);
         await UpsertAsync(db, UiThemeKey, AppThemeModes.Normalize(settings.UiTheme), cancellationToken).ConfigureAwait(false);
+
+        if (!string.IsNullOrWhiteSpace(settings.RdpCollapsedGroupsJson))
+            await UpsertAsync(db, RdpCollapsedGroupsJsonKey, settings.RdpCollapsedGroupsJson, cancellationToken).ConfigureAwait(false);
+        else
+        {
+            var existing = await db.Settings.FirstOrDefaultAsync(s => s.Key == RdpCollapsedGroupsJsonKey, cancellationToken).ConfigureAwait(false);
+            if (existing is not null)
+                db.Settings.Remove(existing);
+        }
 
         await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
     }

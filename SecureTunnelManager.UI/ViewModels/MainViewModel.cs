@@ -1,9 +1,11 @@
 using System.Collections.ObjectModel;
+using System.Reflection;
 
 using CommunityToolkit.Mvvm.ComponentModel;
 
 using CommunityToolkit.Mvvm.Input;
 
+using SecureTunnelManager.Core;
 using SecureTunnelManager.Core.Models;
 
 using SecureTunnelManager.Core.Services;
@@ -86,6 +88,12 @@ public partial class MainViewModel : ObservableObject
 
         _localization.LanguageChanged += (_, _) => RefreshLocalizedText();
 
+        Rdp.PropertyChanged += (_, e) =>
+        {
+            if (e.PropertyName is nameof(RdpViewModel.ConnectedCount))
+                RefreshStatusBar();
+        };
+
 
 
         _tunnelManager.TunnelStateChanged += OnTunnelStateChanged;
@@ -95,6 +103,8 @@ public partial class MainViewModel : ObservableObject
         _vaultService.VaultUnlocked += (_, _) => RefreshVaultState();
 
         _vaultService.VaultReset += (_, _) => _ = LoadAsync();
+
+        RefreshFilterSegments();
 
     }
 
@@ -156,6 +166,8 @@ public partial class MainViewModel : ObservableObject
 
     public int ReconnectingCount => Tunnels.Count(t => t.Status == TunnelStatus.Connecting);
 
+    public int ErrorCount => Tunnels.Count(t => t.Status == TunnelStatus.Error);
+
     public string TunnelCountLabel => TotalTunnelCount == 1
         ? _localization.Get("Tunnels.TunnelCountOne")
         : _localization.Format("Tunnels.TunnelCountMany", TotalTunnelCount);
@@ -165,6 +177,23 @@ public partial class MainViewModel : ObservableObject
     public string StoppedSummary => _localization.Get("Tunnels.Stopped");
 
     public string ReconnectingSummary => _localization.Get("Tunnels.Reconnecting");
+
+    public string ErrorSummary => _localization.Get("Tunnels.Error");
+
+    public string TotalSummary => _localization.Get("Tunnels.Stats.Total");
+
+    public ObservableCollection<FilterSegmentItem> TunnelFilterSegments { get; private set; } = new();
+
+    public int ActiveConnectionsCount => ConnectedCount + Rdp.ConnectedCount;
+
+    public string ActiveConnectionsText =>
+        _localization.Format("StatusBar.ActiveConnections", ActiveConnectionsCount);
+
+    public string VersionText =>
+        AppVersion.ToLabel(Assembly.GetExecutingAssembly().GetName().Version ?? new Version(1, 0, 0));
+
+    public string VaultActionText =>
+        _localization.Get(IsVaultUnlocked ? "Tunnels.LockVault" : "Tunnels.UnlockVault");
 
 
 
@@ -334,8 +363,22 @@ public partial class MainViewModel : ObservableObject
 
         OnPropertyChanged(nameof(ReconnectingCount));
 
+        OnPropertyChanged(nameof(ErrorCount));
+
+        RefreshStatusBar();
+
         RefreshLocalizedText();
 
+    }
+
+
+
+    private void RefreshStatusBar()
+    {
+        OnPropertyChanged(nameof(ActiveConnectionsCount));
+        OnPropertyChanged(nameof(ActiveConnectionsText));
+        OnPropertyChanged(nameof(VersionText));
+        OnPropertyChanged(nameof(VaultActionText));
     }
 
 
@@ -352,8 +395,29 @@ public partial class MainViewModel : ObservableObject
 
         OnPropertyChanged(nameof(ReconnectingSummary));
 
+        OnPropertyChanged(nameof(ErrorSummary));
+
+        OnPropertyChanged(nameof(TotalSummary));
+
+        RefreshFilterSegments();
+
         RefreshVaultState();
 
+    }
+
+
+
+    private void RefreshFilterSegments()
+    {
+        TunnelFilterSegments = new ObservableCollection<FilterSegmentItem>(
+        [
+            new FilterSegmentItem(_localization.Get("Tunnels.FilterAll"), TunnelListFilter.All),
+            new FilterSegmentItem(_localization.Get("Tunnels.FilterConnected"), TunnelListFilter.Connected),
+            new FilterSegmentItem(_localization.Get("Tunnels.FilterStopped"), TunnelListFilter.Stopped),
+            new FilterSegmentItem(_localization.Get("Tunnels.FilterReconnecting"), TunnelListFilter.Reconnecting),
+            new FilterSegmentItem(_localization.Get("Tunnels.FilterError"), TunnelListFilter.Error)
+        ]);
+        OnPropertyChanged(nameof(TunnelFilterSegments));
     }
 
 
@@ -629,7 +693,6 @@ public partial class MainViewModel : ObservableObject
 
 
     [RelayCommand]
-
     private async Task UnlockVaultAsync()
 
     {
@@ -640,6 +703,28 @@ public partial class MainViewModel : ObservableObject
             await LoadAsync().ConfigureAwait(true);
         }
 
+    }
+
+
+
+    [RelayCommand]
+    private async Task VaultStatusClickAsync()
+    {
+        if (IsVaultUnlocked)
+            LockVault();
+        else
+            await UnlockVaultAsync().ConfigureAwait(true);
+    }
+
+
+
+    [RelayCommand]
+    private async Task VaultActionAsync()
+    {
+        if (IsVaultUnlocked)
+            LockVault();
+        else
+            await UnlockVaultAsync().ConfigureAwait(true);
     }
 
 
@@ -845,6 +930,9 @@ public partial class MainViewModel : ObservableObject
         IsVaultUnlocked = _vaultService.IsUnlocked;
 
         VaultStatusText = _localization.Get(IsVaultUnlocked ? "Tunnels.VaultUnlocked" : "Tunnels.VaultLocked");
+
+        RefreshStatusBar();
+
     }
 
 

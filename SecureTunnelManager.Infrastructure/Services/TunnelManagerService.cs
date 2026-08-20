@@ -62,7 +62,12 @@ public class TunnelManagerService : ITunnelManagerService, IDisposable
     {
         var profiles = await _profileService.GetAllAsync(cancellationToken).ConfigureAwait(false);
         foreach (var profile in profiles)
+        {
+            if (_workers.ContainsKey(profile.Id))
+                continue;
+
             await StartTunnelAsync(profile.Id, cancellationToken).ConfigureAwait(false);
+        }
     }
 
     public async Task StopAllAsync(CancellationToken cancellationToken = default)

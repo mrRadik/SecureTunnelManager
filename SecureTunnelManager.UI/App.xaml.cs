@@ -52,6 +52,8 @@ public partial class App : System.Windows.Application
                 services.AddSingleton<ILocalizationService, LocalizationService>();
                 services.AddSingleton<IThemeService, ThemeService>();
                 services.AddSingleton<IDialogService, DialogService>();
+                services.AddSingleton<INotificationService, NotificationService>();
+                services.AddSingleton<NotificationCenterViewModel>();
                 services.AddSingleton<UpdatePromptService>();
                 services.AddSingleton<WhatsNewService>();
                 services.AddSingleton<TrayIconService>();
@@ -62,6 +64,7 @@ public partial class App : System.Windows.Application
                 services.AddTransient<UnlockVaultViewModel>();
                 services.AddTransient<TunnelEditorViewModel>();
                 services.AddTransient<RdpEditorViewModel>();
+                services.AddTransient<ShareWizardViewModel>();
             })
             .Build();
 

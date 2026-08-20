@@ -1,7 +1,7 @@
 namespace SecureTunnelManager.Core.Models;
 
 /// <summary>
-/// Encrypted export payload for .stm files (tunnels only, no secrets).
+/// Encrypted export payload for .stm files (topology only, no vault secrets).
 /// </summary>
 public class TunnelExportDto
 {
@@ -26,6 +26,19 @@ public class TunnelExportDto
     public bool StartWithWindows { get; set; }
 }
 
+public class RdpExportDto
+{
+    public string Name { get; set; } = string.Empty;
+    public string Description { get; set; } = string.Empty;
+    public string IconKey { get; set; } = string.Empty;
+    public string? GroupName { get; set; }
+    public List<JumpHostHopExportDto> JumpHosts { get; set; } = new();
+    public string RdpHost { get; set; } = string.Empty;
+    public int RdpPort { get; set; }
+    public int LocalPort { get; set; }
+    public string LocalBindAddress { get; set; } = "127.0.0.1";
+}
+
 public class JumpHostHopExportDto
 {
     public string Host { get; set; } = string.Empty;
@@ -35,9 +48,16 @@ public class JumpHostHopExportDto
     public string? PrivateKeyPath { get; set; }
 }
 
+public class ConnectionShareBundle
+{
+    public List<TunnelExportDto> Tunnels { get; set; } = new();
+
+    public List<RdpExportDto> RdpTargets { get; set; } = new();
+}
+
 public class EncryptedExportFile
 {
-    public int Version { get; set; } = 1;
+    public int Version { get; set; } = 2;
     public string Salt { get; set; } = string.Empty;
     public string Iv { get; set; } = string.Empty;
     public string Payload { get; set; } = string.Empty;

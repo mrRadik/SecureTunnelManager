@@ -4,6 +4,17 @@ namespace SecureTunnelManager.Core.Services;
 
 public interface IExportImportService
 {
-    Task ExportToEncryptedFileAsync(IEnumerable<int> profileIds, string filePath, string exportPassword, CancellationToken cancellationToken = default);
-    Task<IReadOnlyList<TunnelProfile>> ImportFromEncryptedFileAsync(string filePath, string exportPassword, CancellationToken cancellationToken = default);
+    Task ExportConnectionsAsync(
+        IReadOnlyList<int> tunnelIds,
+        IReadOnlyList<int> rdpIds,
+        string filePath,
+        CancellationToken cancellationToken = default);
+
+    Task<ConnectionShareBundle> ReadBundleFromFileAsync(
+        string filePath,
+        CancellationToken cancellationToken = default);
+
+    Task<ShareImportResult> ImportConnectionsAsync(
+        ConnectionShareBundle bundle,
+        CancellationToken cancellationToken = default);
 }

@@ -41,6 +41,7 @@ public partial class RdpComputerTile : System.Windows.Controls.UserControl
                 "Connect" => Localization.Get("Rdp.Menu.Connect"),
                 "Disconnect" => Localization.Get("Rdp.Menu.Disconnect"),
                 "MoveToGroup" => Localization.Get("Rdp.Menu.MoveToGroup"),
+                "Duplicate" => Localization.Get("Menu.Duplicate"),
                 "Edit" => Localization.Get("Menu.Edit"),
                 "Delete" => Localization.Get("Menu.Delete"),
                 _ => item.Tag?.ToString() ?? string.Empty
@@ -81,6 +82,12 @@ public partial class RdpComputerTile : System.Windows.Controls.UserControl
     {
         if (Row is null || RdpVm is null) return;
         await RdpVm.MoveToGroupCommand.ExecuteAsync(Row);
+    }
+
+    private async void OnDuplicateClick(object sender, RoutedEventArgs e)
+    {
+        if (Row is null || RdpVm is null) return;
+        await RdpVm.DuplicateCommand.ExecuteAsync(Row);
     }
 
     private async void OnEditClick(object sender, RoutedEventArgs e)

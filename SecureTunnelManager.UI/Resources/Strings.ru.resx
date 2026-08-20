@@ -56,6 +56,31 @@
   <data name="Nav.Tunnels" xml:space="preserve"><value>Туннели</value></data>
   <data name="Nav.Rdp" xml:space="preserve"><value>RDP</value></data>
   <data name="Nav.Settings" xml:space="preserve"><value>Настройки</value></data>
+  <data name="Nav.Share" xml:space="preserve"><value>Поделиться</value></data>
+  <data name="Share.Title" xml:space="preserve"><value>Обмен соединениями</value></data>
+  <data name="Share.Subtitle" xml:space="preserve"><value>Экспорт или импорт профилей туннелей и RDP. Пароли не включаются.</value></data>
+  <data name="Share.ExportTab" xml:space="preserve"><value>Экспорт</value></data>
+  <data name="Share.ImportTab" xml:space="preserve"><value>Импорт</value></data>
+  <data name="Share.ExportHint" xml:space="preserve"><value>Выберите соединения для экспорта:</value></data>
+  <data name="Share.ImportHint" xml:space="preserve"><value>Выберите соединения для импорта:</value></data>
+  <data name="Share.SectionTunnels" xml:space="preserve"><value>Туннели ({0})</value></data>
+  <data name="Share.SectionRdp" xml:space="preserve"><value>RDP ({0})</value></data>
+  <data name="Share.ImportSummary" xml:space="preserve"><value>Выбрано: {0} тунн., {1} RDP</value></data>
+  <data name="Share.TypeTunnel" xml:space="preserve"><value>Туннель</value></data>
+  <data name="Share.TypeRdp" xml:space="preserve"><value>RDP</value></data>
+  <data name="Share.SelectAll" xml:space="preserve"><value>Выбрать все</value></data>
+  <data name="Share.ClearSelection" xml:space="preserve"><value>Снять</value></data>
+  <data name="Share.ExportButton" xml:space="preserve"><value>Экспорт…</value></data>
+  <data name="Share.ImportButton" xml:space="preserve"><value>Импорт</value></data>
+  <data name="Share.Browse" xml:space="preserve"><value>Обзор…</value></data>
+  <data name="Share.NoConnections" xml:space="preserve"><value>Нет соединений для экспорта</value></data>
+  <data name="Share.ImportNoFile" xml:space="preserve"><value>Выберите файл .stm для просмотра</value></data>
+  <data name="Share.NothingSelected" xml:space="preserve"><value>Выберите хотя бы одно соединение</value></data>
+  <data name="Share.ExportSuccess" xml:space="preserve"><value>Соединения успешно экспортированы</value></data>
+  <data name="Share.ExportFailed" xml:space="preserve"><value>Ошибка экспорта: {0}</value></data>
+  <data name="Share.ImportFailed" xml:space="preserve"><value>Ошибка импорта: {0}</value></data>
+  <data name="Share.ImportEmpty" xml:space="preserve"><value>Файл не содержит соединений</value></data>
+  <data name="Share.FileFilter" xml:space="preserve"><value>Secure Tunnel Manager (*.stm)|*.stm</value></data>
   <data name="Settings.Title" xml:space="preserve"><value>Настройки</value></data>
   <data name="Settings.Subtitle" xml:space="preserve"><value>Параметры приложения и безопасность</value></data>
   <data name="Settings.Security" xml:space="preserve"><value>Безопасность</value></data>
@@ -131,6 +156,8 @@
   <data name="Tunnels.EmptySubtitle" xml:space="preserve"><value>Создайте туннель для проброса локального порта через jump host к удалённому сервису.</value></data>
   <data name="Tunnels.NoResultsTitle" xml:space="preserve"><value>Ничего не найдено</value></data>
   <data name="Tunnels.NoResultsSubtitle" xml:space="preserve"><value>Попробуйте другой запрос или фильтр.</value></data>
+  <data name="Tunnels.DeleteTitle" xml:space="preserve"><value>Удалить туннель</value></data>
+  <data name="Tunnels.DeleteConfirm" xml:space="preserve"><value>Удалить «{0}»?</value></data>
   <data name="Route.Local" xml:space="preserve"><value>Локально</value></data>
   <data name="Route.JumpHost" xml:space="preserve"><value>Jump host</value></data>
   <data name="Route.Target" xml:space="preserve"><value>Цель</value></data>
@@ -211,5 +238,40 @@
   <data name="Editor.IconHint" xml:space="preserve"><value>Выберите иконку для отображения на карточке.</value></data>
   <data name="Common.ClearSearch" xml:space="preserve"><value>Очистить поиск</value></data>
   <data name="Common.Cancel" xml:space="preserve"><value>Отмена</value></data>
+  <data name="Common.Yes" xml:space="preserve"><value>Да</value></data>
+  <data name="Common.No" xml:space="preserve"><value>Нет</value></data>
+  <data name="Menu.Duplicate" xml:space="preserve"><value>Дублировать</value></data>
+  <data name="StatusBar.NotificationsTooltip" xml:space="preserve"><value>Уведомления</value></data>
+  <data name="Notification.Title" xml:space="preserve"><value>Уведомления</value></data>
+  <data name="Notification.Empty" xml:space="preserve"><value>Уведомлений пока нет</value></data>
+  <data name="Notification.MarkAllRead" xml:space="preserve"><value>Отметить все прочитанными</value></data>
+  <data name="Notification.ClearAll" xml:space="preserve"><value>Очистить все</value></data>
+  <data name="Notification.ClearTitle" xml:space="preserve"><value>Очистить уведомления</value></data>
+  <data name="Notification.ClearConfirm" xml:space="preserve"><value>Удалить все уведомления?</value></data>
+  <data name="Notification.OpenCenter" xml:space="preserve"><value>Все уведомления</value></data>
+  <data name="Notification.Edit" xml:space="preserve"><value>Редактировать</value></data>
+  <data name="Notification.TunnelConnected" xml:space="preserve"><value>Туннель подключён: {0}</value></data>
+  <data name="Notification.TunnelReconnected" xml:space="preserve"><value>Туннель переподключён: {0}</value></data>
+  <data name="Notification.TunnelStopped" xml:space="preserve"><value>Туннель остановлен: {0}</value></data>
+  <data name="Notification.TunnelError" xml:space="preserve"><value>Ошибка туннеля ({0}): {1}</value></data>
+  <data name="Notification.TunnelImportSuccess" xml:space="preserve"><value>Импортировано туннелей: {0}</value></data>
+  <data name="Notification.TunnelImportFailed" xml:space="preserve"><value>Ошибка импорта: {0}</value></data>
+  <data name="Notification.ShareImportSuccess" xml:space="preserve"><value>Импортировано: {0} тунн., {1} RDP</value></data>
+  <data name="Notification.ShareExportSuccess" xml:space="preserve"><value>Экспортировано: {0} тунн., {1} RDP</value></data>
+  <data name="Notification.VaultAutoLocked" xml:space="preserve"><value>Хранилище заблокировано из‑за бездействия</value></data>
+  <data name="Notification.UnlockVault" xml:space="preserve"><value>Разблокировать</value></data>
+  <data name="Notification.UpdateAvailable" xml:space="preserve"><value>Доступно обновление {0} (текущая: {1})</value></data>
+  <data name="Notification.ViewUpdate" xml:space="preserve"><value>Открыть настройки</value></data>
+  <data name="Notification.RdpConnected" xml:space="preserve"><value>RDP подключён: {0}</value></data>
+  <data name="Notification.RdpDisconnected" xml:space="preserve"><value>RDP отключён: {0}</value></data>
+  <data name="Notification.RdpError" xml:space="preserve"><value>Ошибка RDP ({0}): {1}</value></data>
+  <data name="Notification.RdpConnectFailed" xml:space="preserve"><value>Не удалось подключиться: {0}</value></data>
+  <data name="Notification.TunnelDuplicated" xml:space="preserve"><value>Туннель скопирован: {0}</value></data>
+  <data name="Notification.RdpDuplicated" xml:space="preserve"><value>Компьютер скопирован: {0}</value></data>
+  <data name="Notification.DuplicateFailed" xml:space="preserve"><value>Не удалось скопировать: {0}</value></data>
+  <data name="Notification.Time.JustNow" xml:space="preserve"><value>Только что</value></data>
+  <data name="Notification.Time.MinutesAgo" xml:space="preserve"><value>{0} мин назад</value></data>
+  <data name="Notification.Time.Yesterday" xml:space="preserve"><value>Вчера</value></data>
+  <data name="Notification.Close" xml:space="preserve"><value>Закрыть</value></data>
   <data name="Common.Ok" xml:space="preserve"><value>OK</value></data>
 </root>

@@ -146,6 +146,41 @@
         </Setter>
     </Style>
 
+    <Style x:Key="StmSidebarMenuButton" TargetType="Button">
+        <Setter Property="FontFamily" Value="Segoe UI"/>
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="Foreground" Value="{DynamicResource StmTextPrimaryBrush}"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Padding" Value="10,5"/>
+        <Setter Property="Margin" Value="4,0"/>
+        <Setter Property="MinHeight" Value="{StaticResource StmNavItemHeight}"/>
+        <Setter Property="HorizontalContentAlignment" Value="Left"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="border"
+                            Background="{TemplateBinding Background}"
+                            CornerRadius="6"
+                            Padding="{TemplateBinding Padding}"
+                            Margin="{TemplateBinding Margin}">
+                        <ContentPresenter VerticalAlignment="Center"
+                                          TextElement.Foreground="{TemplateBinding Foreground}"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="border" Property="Background" Value="{DynamicResource StmHoverBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="border" Property="Background" Value="{DynamicResource StmAccentSubtleBrush}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
     <Style x:Key="StmStatusBar" TargetType="Border">
         <Setter Property="Background" Value="{DynamicResource StmBackgroundBrush}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource StmBorderBrush}"/>
@@ -171,6 +206,165 @@
             <Trigger Property="IsMouseOver" Value="True">
                 <Setter Property="Foreground" Value="{DynamicResource StmTextPrimaryBrush}"/>
             </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style x:Key="StmStatusBarIconButton" TargetType="Button" BasedOn="{StaticResource StmStatusBarAction}">
+        <Setter Property="FontFamily" Value="{StaticResource StmIconFontFamily}"/>
+        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="MinWidth" Value="24"/>
+        <Setter Property="MinHeight" Value="22"/>
+        <Setter Property="Padding" Value="4,1"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderBrush" Value="Transparent"/>
+        <Setter Property="Margin" Value="0,0,8,0"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="border"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="4"
+                            Padding="{TemplateBinding Padding}">
+                        <ContentPresenter HorizontalAlignment="Center"
+                                          VerticalAlignment="Center"
+                                          TextElement.Foreground="{TemplateBinding Foreground}"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="border" Property="Background" Value="{DynamicResource StmHoverBrush}"/>
+                            <Setter Property="Foreground" Value="{DynamicResource StmTextPrimaryBrush}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="StmNotificationPanel" TargetType="Border">
+        <Setter Property="Background" Value="{DynamicResource StmCardBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource StmBorderBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="8"/>
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="Effect">
+            <Setter.Value>
+                <DropShadowEffect BlurRadius="16"
+                                  ShadowDepth="2"
+                                  Opacity="0.18"
+                                  Color="#000000"/>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="StmNotificationHeaderText" TargetType="TextBlock" BasedOn="{StaticResource StmStatusBarText}">
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Foreground" Value="{DynamicResource StmTextPrimaryBrush}"/>
+        <Setter Property="Opacity" Value="1"/>
+    </Style>
+
+    <Style x:Key="StmNotificationItemBorder" TargetType="Border">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource StmBorderBrush}"/>
+        <Setter Property="BorderThickness" Value="0,0,0,1"/>
+        <Setter Property="Padding" Value="12,10"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="{DynamicResource StmHoverBrush}"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style x:Key="StmNotificationMessageText" TargetType="TextBlock" BasedOn="{StaticResource StmFontBase}">
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="Foreground" Value="{DynamicResource StmTextPrimaryBrush}"/>
+        <Setter Property="TextWrapping" Value="Wrap"/>
+    </Style>
+
+    <Style x:Key="StmNotificationMetaText" TargetType="TextBlock" BasedOn="{StaticResource StmStatusBarText}">
+        <Setter Property="FontSize" Value="10"/>
+        <Setter Property="Opacity" Value="0.65"/>
+        <Setter Property="Margin" Value="0,4,0,0"/>
+    </Style>
+
+    <Style x:Key="StmNotificationActionLink" TargetType="Button" BasedOn="{StaticResource StmStatusBarAction}">
+        <Setter Property="MinHeight" Value="18"/>
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="Margin" Value="0,4,0,0"/>
+        <Setter Property="HorizontalAlignment" Value="Left"/>
+        <Setter Property="Foreground" Value="{DynamicResource StmAccentBrush}"/>
+        <Setter Property="FontSize" Value="11"/>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Foreground" Value="{DynamicResource StmAccentHoverBrush}"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style x:Key="StmNotificationUnreadDot" TargetType="Ellipse">
+        <Setter Property="Width" Value="6"/>
+        <Setter Property="Height" Value="6"/>
+        <Setter Property="Fill" Value="{DynamicResource StmAccentBrush}"/>
+        <Setter Property="VerticalAlignment" Value="Top"/>
+        <Setter Property="Margin" Value="0,4,8,0"/>
+    </Style>
+
+    <Style x:Key="StmNotificationBadge" TargetType="Border">
+        <Setter Property="MinWidth" Value="14"/>
+        <Setter Property="Height" Value="14"/>
+        <Setter Property="CornerRadius" Value="7"/>
+        <Setter Property="Background" Value="{DynamicResource StmAccentBrush}"/>
+        <Setter Property="Padding" Value="3,0"/>
+        <Setter Property="HorizontalAlignment" Value="Right"/>
+        <Setter Property="VerticalAlignment" Value="Top"/>
+        <Setter Property="Margin" Value="0,-4,-4,0"/>
+    </Style>
+
+    <Style x:Key="StmNotificationBadgeText" TargetType="TextBlock" BasedOn="{StaticResource StmFontBase}">
+        <Setter Property="FontSize" Value="9"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="HorizontalAlignment" Value="Center"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="TextAlignment" Value="Center"/>
+    </Style>
+
+    <Style x:Key="StmNotificationToast" TargetType="Border">
+        <Setter Property="Background" Value="{DynamicResource StmCardBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource StmAccentBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="8"/>
+        <Setter Property="Padding" Value="12,10"/>
+        <Setter Property="MaxWidth" Value="320"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="Effect">
+            <Setter.Value>
+                <DropShadowEffect BlurRadius="14"
+                                  ShadowDepth="2"
+                                  Opacity="0.22"
+                                  Color="#000000"/>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="StmNotificationToastText" TargetType="TextBlock" BasedOn="{StaticResource StmFontBase}">
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="Foreground" Value="{DynamicResource StmTextPrimaryBrush}"/>
+        <Setter Property="TextWrapping" Value="Wrap"/>
+    </Style>
+
+    <Style x:Key="StmStatusBarBellButton" TargetType="Button" BasedOn="{StaticResource StmStatusBarIconButton}">
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding IsToastVisible}" Value="True">
+                <Setter Property="Foreground" Value="{DynamicResource StmAccentBrush}"/>
+                <Setter Property="Background" Value="{DynamicResource StmStatusConnectedBgBrush}"/>
+                <Setter Property="BorderBrush" Value="{DynamicResource StmAccentBrush}"/>
+                <Setter Property="BorderThickness" Value="1"/>
+            </DataTrigger>
         </Style.Triggers>
     </Style>
 

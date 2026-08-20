@@ -106,7 +106,7 @@ public sealed class RdpSessionService : IRdpSessionService, IDisposable
         }
     }
 
-    private void OnVaultLocked(object? sender, EventArgs e) =>
+    private void OnVaultLocked(object? sender, VaultLockedEventArgs e) =>
         _ = DisconnectAllAsync();
 
     private void EnsureState(RdpTarget target)

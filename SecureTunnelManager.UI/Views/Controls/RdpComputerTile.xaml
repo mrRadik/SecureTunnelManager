@@ -86,6 +86,7 @@
                 <MenuItem Tag="Disconnect" Click="OnDisconnectClick"/>
                 <Separator/>
                 <MenuItem Tag="MoveToGroup" Click="OnMoveToGroupClick"/>
+                <MenuItem Tag="Duplicate" Click="OnDuplicateClick"/>
                 <MenuItem Tag="Edit" Click="OnEditClick"/>
                 <MenuItem Tag="Delete" Click="OnDeleteClick"/>
             </ContextMenu>

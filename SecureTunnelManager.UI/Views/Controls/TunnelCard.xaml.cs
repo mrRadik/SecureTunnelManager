@@ -30,6 +30,7 @@ public partial class TunnelCard : System.Windows.Controls.UserControl
                 "Start" => Localization.Get("Menu.Start"),
                 "Stop" => Localization.Get("Menu.Stop"),
                 "Restart" => Localization.Get("Menu.Restart"),
+                "Duplicate" => Localization.Get("Menu.Duplicate"),
                 "Edit" => Localization.Get("Menu.Edit"),
                 "Delete" => Localization.Get("Menu.Delete"),
                 _ => item.Tag?.ToString() ?? string.Empty
@@ -63,6 +64,12 @@ public partial class TunnelCard : System.Windows.Controls.UserControl
     {
         if (Row is null || MainVm is null) return;
         await MainVm.RestartTunnelCommand.ExecuteAsync(Row);
+    }
+
+    private async void OnDuplicateClick(object sender, RoutedEventArgs e)
+    {
+        if (Row is null || MainVm is null) return;
+        await MainVm.DuplicateTunnelCommand.ExecuteAsync(Row);
     }
 
     private async void OnEditClick(object sender, RoutedEventArgs e)

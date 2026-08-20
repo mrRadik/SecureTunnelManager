@@ -61,7 +61,7 @@ public sealed class TrayIconService : IDisposable
         menu.Items.Add(_localization.Get("Tray.StartAll"), null, async (_, _) => await _tunnelManager.StartAllAsync().ConfigureAwait(false));
         menu.Items.Add(_localization.Get("Tray.StopAll"), null, async (_, _) => await _tunnelManager.StopAllAsync().ConfigureAwait(false));
         menu.Items.Add(new System.Windows.Forms.ToolStripSeparator());
-        menu.Items.Add(_localization.Get("Tray.LockVault"), null, (_, _) => _vaultService.Lock());
+        menu.Items.Add(_localization.Get("Tray.LockVault"), null, (_, _) => _vaultService.Lock(manual: true));
         menu.Items.Add(new System.Windows.Forms.ToolStripSeparator());
         menu.Items.Add(_localization.Get("Tray.Exit"), null, (_, _) => ExitRequested?.Invoke(this, EventArgs.Empty));
 

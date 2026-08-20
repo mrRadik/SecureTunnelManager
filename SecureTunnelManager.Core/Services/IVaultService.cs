@@ -1,3 +1,5 @@
+using SecureTunnelManager.Core.Models;
+
 namespace SecureTunnelManager.Core.Services;
 
 /// <summary>
@@ -8,13 +10,13 @@ public interface IVaultService
     bool IsInitialized { get; }
     bool IsUnlocked { get; }
 
-    event EventHandler? VaultLocked;
+    event EventHandler<VaultLockedEventArgs>? VaultLocked;
     event EventHandler? VaultUnlocked;
 
     Task<bool> IsVaultInitializedAsync(CancellationToken cancellationToken = default);
     Task InitializeVaultAsync(string masterPassword, CancellationToken cancellationToken = default);
     Task<bool> UnlockAsync(string masterPassword, CancellationToken cancellationToken = default);
-    void Lock();
+    void Lock(bool manual = false);
     void NotifyActivity();
 
     Task<string> EncryptSecretAsync(string plainText, CancellationToken cancellationToken = default);

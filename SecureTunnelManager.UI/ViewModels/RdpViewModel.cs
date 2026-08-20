@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Text.Json;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using SecureTunnelManager.Core;
 using SecureTunnelManager.Core.Models;
 using SecureTunnelManager.Core.Services;
 using SecureTunnelManager.UI.Helpers;
@@ -18,7 +19,9 @@ public partial class RdpViewModel : ObservableObject
     private readonly IDialogService _dialogService;
     private readonly ISettingsService _settingsService;
     private readonly ILocalizationService _localization;
+    private readonly INotificationService _notificationService;
     private HashSet<string> _collapsedGroupKeys = new(StringComparer.OrdinalIgnoreCase);
+    private readonly Dictionary<int, RdpSessionStatus> _sessionStatuses = new();
 
     public RdpViewModel(
         IRdpTargetService targetService,
@@ -26,7 +29,8 @@ public partial class RdpViewModel : ObservableObject
         IVaultService vaultService,
         IDialogService dialogService,
         ISettingsService settingsService,
-        ILocalizationService localization)
+        ILocalizationService localization,
+        INotificationService notificationService)
     {
         _targetService = targetService;
         _sessionService = sessionService;
@@ -34,6 +38,7 @@ public partial class RdpViewModel : ObservableObject
         _dialogService = dialogService;
         _settingsService = settingsService;
         _localization = localization;
+        _notificationService = notificationService;
 
         _sessionService.SessionStateChanged += OnSessionStateChanged;
         _vaultService.VaultLocked += (_, _) => RefreshVaultState();
@@ -306,12 +311,61 @@ public partial class RdpViewModel : ObservableObject
             row.ApplyRuntime(state);
             RefreshGroupHeadersForComputer(row);
             RefreshStatistics();
+            PublishSessionStatusNotification(state);
         }
 
         if (System.Windows.Application.Current?.Dispatcher.CheckAccess() == true)
             Apply();
         else
             System.Windows.Application.Current?.Dispatcher.Invoke(Apply);
+    }
+
+    private void PublishSessionStatusNotification(RdpRuntimeState state)
+    {
+        if (!_sessionStatuses.TryGetValue(state.TargetId, out var previous))
+        {
+            _sessionStatuses[state.TargetId] = state.Status;
+            return;
+        }
+
+        if (previous == state.Status)
+            return;
+
+        _sessionStatuses[state.TargetId] = state.Status;
+
+        switch (state.Status)
+        {
+            case RdpSessionStatus.Connected:
+                _notificationService.Publish(new AppNotification
+                {
+                    Severity = NotificationSeverity.Success,
+                    MessageKey = "Notification.RdpConnected",
+                    MessageArgs = [state.Name]
+                });
+                break;
+
+            case RdpSessionStatus.Error:
+                _notificationService.Publish(new AppNotification
+                {
+                    Severity = NotificationSeverity.Error,
+                    MessageKey = "Notification.RdpError",
+                    MessageArgs = [state.Name, state.ErrorMessage ?? string.Empty],
+                    ActionKind = NotificationActionKind.EditRdpTarget,
+                    ResourceId = state.TargetId,
+                    ActionLabelKey = "Notification.Edit"
+                });
+                break;
+
+            case RdpSessionStatus.Disconnected
+                when previous is RdpSessionStatus.Connected or RdpSessionStatus.Connecting or RdpSessionStatus.Error:
+                _notificationService.Publish(new AppNotification
+                {
+                    Severity = NotificationSeverity.Info,
+                    MessageKey = "Notification.RdpDisconnected",
+                    MessageArgs = [state.Name]
+                });
+                break;
+        }
     }
 
     [RelayCommand]
@@ -337,7 +391,12 @@ public partial class RdpViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            _dialogService.ShowError(ex.Message);
+            _notificationService.Publish(new AppNotification
+            {
+                Severity = NotificationSeverity.Error,
+                MessageKey = "Notification.RdpConnectFailed",
+                MessageArgs = [ex.Message]
+            });
         }
     }
 
@@ -368,6 +427,64 @@ public partial class RdpViewModel : ObservableObject
         if (await _dialogService.ShowRdpEditorAsync(target).ConfigureAwait(true))
         {
             var updated = await _targetService.GetByIdAsync(row.TargetId).ConfigureAwait(true);
+            if (updated is not null)
+                _sessionService.SyncTargetMetadata(updated);
+
+            await LoadAsync().ConfigureAwait(true);
+        }
+    }
+
+    [RelayCommand]
+    private async Task DuplicateAsync(RdpTargetRowViewModel? row)
+    {
+        if (row is null) return;
+        if (!await EnsureVaultUnlockedAsync().ConfigureAwait(true))
+            return;
+
+        var source = await _targetService.GetByIdAsync(row.TargetId).ConfigureAwait(true);
+        if (source is null) return;
+
+        var all = await _targetService.GetAllAsync().ConfigureAwait(true);
+        var clone = ResourceCloneHelper.CloneRdpTarget(source);
+        clone.Name = ResourceCloneHelper.GenerateCopyName(source.Name, all.Select(t => t.Name));
+
+        try
+        {
+            var newId = await _targetService.CreateAsync(clone).ConfigureAwait(true);
+            await LoadAsync().ConfigureAwait(true);
+
+            _notificationService.Publish(new AppNotification
+            {
+                Severity = NotificationSeverity.Success,
+                MessageKey = "Notification.RdpDuplicated",
+                MessageArgs = [clone.Name],
+                ActionKind = NotificationActionKind.EditRdpTarget,
+                ResourceId = newId,
+                ActionLabelKey = "Notification.Edit"
+            });
+        }
+        catch (Exception ex)
+        {
+            _notificationService.Publish(new AppNotification
+            {
+                Severity = NotificationSeverity.Error,
+                MessageKey = "Notification.DuplicateFailed",
+                MessageArgs = [ex.Message]
+            });
+        }
+    }
+
+    public async Task EditByIdAsync(int targetId)
+    {
+        if (!await EnsureVaultUnlockedAsync().ConfigureAwait(true))
+            return;
+
+        var target = await _targetService.GetByIdAsync(targetId).ConfigureAwait(true);
+        if (target is null) return;
+
+        if (await _dialogService.ShowRdpEditorAsync(target).ConfigureAwait(true))
+        {
+            var updated = await _targetService.GetByIdAsync(targetId).ConfigureAwait(true);
             if (updated is not null)
                 _sessionService.SyncTargetMetadata(updated);
 

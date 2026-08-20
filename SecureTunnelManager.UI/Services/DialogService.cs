@@ -80,41 +80,15 @@ public class DialogService : IDialogService
         return Task.FromResult(result == true ? window.Password : null);
     }
 
-    public Task<(string Path, string Password)?> PromptExportAsync(IReadOnlyList<TunnelListItemViewModel> selected)
+    public async Task<ShareImportResult?> ShowShareWizardAsync()
     {
-        var dialog = new Microsoft.Win32.SaveFileDialog
-        {
-            Filter = "Secure Tunnel Manager (*.stm)|*.stm",
-            FileName = "tunnels.stm"
-        };
+        var vm = _serviceProvider.GetRequiredService<ShareWizardViewModel>();
+        await vm.InitializeAsync().ConfigureAwait(true);
 
-        if (dialog.ShowDialog() != true)
-            return Task.FromResult<(string, string)?>(null);
-
-        var passwordWindow = new ExportPasswordWindow(isExport: true);
-        PrepareDialog(passwordWindow);
-        if (passwordWindow.ShowDialog() != true || string.IsNullOrWhiteSpace(passwordWindow.Password))
-            return Task.FromResult<(string, string)?>(null);
-
-        return Task.FromResult<(string, string)?>((dialog.FileName, passwordWindow.Password));
-    }
-
-    public Task<(string Path, string Password)?> PromptImportAsync()
-    {
-        var dialog = new Microsoft.Win32.OpenFileDialog
-        {
-            Filter = "Secure Tunnel Manager (*.stm)|*.stm"
-        };
-
-        if (dialog.ShowDialog() != true)
-            return Task.FromResult<(string, string)?>(null);
-
-        var passwordWindow = new ExportPasswordWindow(isExport: false);
-        PrepareDialog(passwordWindow);
-        if (passwordWindow.ShowDialog() != true || string.IsNullOrWhiteSpace(passwordWindow.Password))
-            return Task.FromResult<(string, string)?>(null);
-
-        return Task.FromResult<(string, string)?>((dialog.FileName, passwordWindow.Password));
+        var window = new ShareWizardWindow { DataContext = vm };
+        PrepareDialog(window);
+        await ShowModalAsync(vm, window).ConfigureAwait(true);
+        return vm.DialogResult ? vm.ImportResult : null;
     }
 
     public void ShowError(string message) =>
@@ -123,8 +97,18 @@ public class DialogService : IDialogService
     public void ShowInfo(string message) =>
         System.Windows.MessageBox.Show(message, "Secure Tunnel Manager", MessageBoxButton.OK, MessageBoxImage.Information);
 
-    public bool ShowConfirm(string message, string title) =>
-        System.Windows.MessageBox.Show(message, title, MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes;
+    public bool ShowConfirm(string message, string title, bool destructiveConfirm = false)
+    {
+        var localization = GetLocalization();
+        var window = new ConfirmWindow(
+            title,
+            message,
+            localization.Get("Common.Yes"),
+            localization.Get("Common.No"),
+            useDestructiveConfirm: destructiveConfirm);
+        PrepareDialog(window);
+        return window.ShowDialog() == true;
+    }
 
     public void ShowWhatsNew(string version, string releaseNotes)
     {
@@ -157,6 +141,9 @@ public class DialogService : IDialogService
         => ShowModalAsync(window, () => vm.DialogResult, h => vm.RequestClose += h);
 
     private static Task<bool> ShowModalAsync(RdpEditorViewModel vm, RdpEditorWindow window)
+        => ShowModalAsync(window, () => vm.DialogResult, h => vm.RequestClose += h);
+
+    private static Task<bool> ShowModalAsync(ShareWizardViewModel vm, ShareWizardWindow window)
         => ShowModalAsync(window, () => vm.DialogResult, h => vm.RequestClose += h);
 
     private static Task<bool> ShowModalAsync(

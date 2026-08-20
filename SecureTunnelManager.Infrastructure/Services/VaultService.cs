@@ -1,6 +1,7 @@
 using System.Security.Cryptography;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using SecureTunnelManager.Core.Models;
 using SecureTunnelManager.Core.Services;
 using SecureTunnelManager.Data;
 using SecureTunnelManager.Infrastructure.Security;
@@ -36,7 +37,7 @@ public class VaultService : IVaultService
     public bool IsInitialized { get; private set; }
     public bool IsUnlocked => _derivedKey is not null;
 
-    public event EventHandler? VaultLocked;
+    public event EventHandler<VaultLockedEventArgs>? VaultLocked;
     public event EventHandler? VaultUnlocked;
     public event EventHandler? VaultReset;
 
@@ -80,7 +81,7 @@ public class VaultService : IVaultService
         return true;
     }
 
-    public void Lock()
+    public void Lock(bool manual = false)
     {
         lock (_lock)
         {
@@ -92,7 +93,7 @@ public class VaultService : IVaultService
         }
 
         _logger.LogInformation("Password vault locked");
-        VaultLocked?.Invoke(this, EventArgs.Empty);
+        VaultLocked?.Invoke(this, new VaultLockedEventArgs(manual));
     }
 
     public void NotifyActivity() => _lastActivityUtc = DateTime.UtcNow;

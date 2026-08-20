@@ -28,19 +28,25 @@ public partial class MainViewModel : ObservableObject
 
     private readonly IVaultService _vaultService;
 
-    private readonly IExportImportService _exportImportService;
-
     private readonly IDialogService _dialogService;
 
     private readonly ISettingsService _settingsService;
 
     private readonly ILocalizationService _localization;
 
+    private readonly INotificationService _notificationService;
 
+    private bool _tunnelAutoStartAttempted;
+
+    private readonly HashSet<int> _startupQuietProfiles = new();
+
+    private readonly Dictionary<int, TunnelStatus> _tunnelStatuses = new();
 
     public SettingsViewModel Settings { get; }
 
     public RdpViewModel Rdp { get; }
+
+    public NotificationCenterViewModel Notifications { get; }
 
 
 
@@ -52,13 +58,15 @@ public partial class MainViewModel : ObservableObject
 
         IVaultService vaultService,
 
-        IExportImportService exportImportService,
-
         IDialogService dialogService,
 
         ISettingsService settingsService,
 
         ILocalizationService localization,
+
+        INotificationService notificationService,
+
+        NotificationCenterViewModel notifications,
 
         SettingsViewModel settings,
 
@@ -72,13 +80,15 @@ public partial class MainViewModel : ObservableObject
 
         _vaultService = vaultService;
 
-        _exportImportService = exportImportService;
-
         _dialogService = dialogService;
 
         _settingsService = settingsService;
 
         _localization = localization;
+
+        _notificationService = notificationService;
+
+        Notifications = notifications;
 
         Settings = settings;
 
@@ -98,7 +108,7 @@ public partial class MainViewModel : ObservableObject
 
         _tunnelManager.TunnelStateChanged += OnTunnelStateChanged;
 
-        _vaultService.VaultLocked += (_, _) => RefreshVaultState();
+        _vaultService.VaultLocked += OnVaultLocked;
 
         _vaultService.VaultUnlocked += (_, _) => RefreshVaultState();
 
@@ -247,7 +257,27 @@ public partial class MainViewModel : ObservableObject
 
             NotifyTunnelListChanged();
 
+            SyncTunnelStatusBaselines();
+
+            var settings = await _settingsService.GetSettingsAsync().ConfigureAwait(true);
+
+            var willAutoStart = !_tunnelAutoStartAttempted
+
+                && settings.StartAllTunnelsOnAppStart
+
+                && _vaultService.IsUnlocked
+
+                && Tunnels.Count > 0;
+
+            if (willAutoStart)
+
+                BeginStartupQuietPeriod();
+
             await TryStartAllTunnelsOnAppStartAsync().ConfigureAwait(true);
+
+            if (willAutoStart)
+
+                FinalizeStartupQuietPeriod();
 
         }
 
@@ -258,6 +288,36 @@ public partial class MainViewModel : ObservableObject
             IsBusy = false;
 
         }
+
+    }
+
+
+
+    private async Task RefreshTunnelListAsync()
+
+    {
+
+        var profiles = await _profileService.GetAllAsync().ConfigureAwait(true);
+
+        Tunnels.Clear();
+
+
+
+        foreach (var profile in profiles)
+
+        {
+
+            var runtime = _tunnelManager.GetRuntimeState(profile.Id);
+
+            Tunnels.Add(TunnelRowViewModel.FromProfile(profile, runtime));
+
+        }
+
+
+
+        ApplyFilter();
+
+        NotifyTunnelListChanged();
 
     }
 
@@ -426,11 +486,33 @@ public partial class MainViewModel : ObservableObject
 
     {
 
-        var settings = await _settingsService.GetSettingsAsync().ConfigureAwait(true);
-
-        if (!settings.StartAllTunnelsOnAppStart || !_vaultService.IsUnlocked || Tunnels.Count == 0)
+        if (_tunnelAutoStartAttempted)
 
             return;
+
+
+
+        var settings = await _settingsService.GetSettingsAsync().ConfigureAwait(true);
+
+        if (!settings.StartAllTunnelsOnAppStart)
+
+        {
+
+            _tunnelAutoStartAttempted = true;
+
+            return;
+
+        }
+
+
+
+        if (!_vaultService.IsUnlocked || Tunnels.Count == 0)
+
+            return;
+
+
+
+        _tunnelAutoStartAttempted = true;
 
         await _tunnelManager.StartAllAsync().ConfigureAwait(true);
 
@@ -504,7 +586,109 @@ public partial class MainViewModel : ObservableObject
 
         if (await _dialogService.ShowTunnelEditorAsync(profile).ConfigureAwait(true))
 
-            await LoadAsync().ConfigureAwait(true);
+            await RefreshTunnelListAsync().ConfigureAwait(true);
+
+    }
+
+
+
+    [RelayCommand(CanExecute = nameof(CanOperateOnRow))]
+
+    private async Task DuplicateTunnelAsync(TunnelRowViewModel? row)
+
+    {
+
+        if (row is null) return;
+
+        if (!await EnsureVaultUnlockedAsync().ConfigureAwait(true)) return;
+
+
+
+        var profile = await _profileService.GetByIdAsync(row.ProfileId).ConfigureAwait(true);
+
+        if (profile is null) return;
+
+
+
+        var all = await _profileService.GetAllAsync().ConfigureAwait(true);
+
+        var clone = ResourceCloneHelper.CloneTunnel(profile);
+
+        clone.Name = ResourceCloneHelper.GenerateCopyName(profile.Name, all.Select(p => p.Name));
+
+        clone.LocalPort = ResourceCloneHelper.ResolveTunnelLocalPort(clone.LocalPort, clone.LocalBindAddress, all);
+
+
+
+        try
+
+        {
+
+            var newId = await _profileService.CreateAsync(clone).ConfigureAwait(true);
+
+            await RefreshTunnelListAsync().ConfigureAwait(true);
+
+
+
+            _notificationService.Publish(new AppNotification
+
+            {
+
+                Severity = NotificationSeverity.Success,
+
+                MessageKey = "Notification.TunnelDuplicated",
+
+                MessageArgs = [clone.Name],
+
+                ActionKind = NotificationActionKind.EditTunnel,
+
+                ResourceId = newId,
+
+                ActionLabelKey = "Notification.Edit"
+
+            });
+
+        }
+
+        catch (Exception ex)
+
+        {
+
+            _notificationService.Publish(new AppNotification
+
+            {
+
+                Severity = NotificationSeverity.Error,
+
+                MessageKey = "Notification.DuplicateFailed",
+
+                MessageArgs = [ex.Message]
+
+            });
+
+        }
+
+    }
+
+
+
+    public async Task EditTunnelByIdAsync(int profileId)
+
+    {
+
+        if (!await EnsureVaultUnlockedAsync().ConfigureAwait(true)) return;
+
+
+
+        var profile = await _profileService.GetByIdAsync(profileId).ConfigureAwait(true);
+
+        if (profile is null) return;
+
+
+
+        if (await _dialogService.ShowTunnelEditorAsync(profile).ConfigureAwait(true))
+
+            await RefreshTunnelListAsync().ConfigureAwait(true);
 
     }
 
@@ -518,11 +702,17 @@ public partial class MainViewModel : ObservableObject
 
         if (row is null) return;
 
+        if (!_dialogService.ShowConfirm(
+                _localization.Format("Tunnels.DeleteConfirm", row.Name),
+                _localization.Get("Tunnels.DeleteTitle"),
+                destructiveConfirm: true))
+            return;
+
         await _tunnelManager.StopTunnelAsync(row.ProfileId).ConfigureAwait(true);
 
         await _profileService.DeleteAsync(row.ProfileId).ConfigureAwait(true);
 
-        await LoadAsync().ConfigureAwait(true);
+        await RefreshTunnelListAsync().ConfigureAwait(true);
 
     }
 
@@ -608,7 +798,7 @@ public partial class MainViewModel : ObservableObject
 
         if (await _dialogService.ShowTunnelEditorAsync().ConfigureAwait(true))
 
-            await LoadAsync().ConfigureAwait(true);
+            await RefreshTunnelListAsync().ConfigureAwait(true);
 
     }
 
@@ -681,14 +871,14 @@ public partial class MainViewModel : ObservableObject
 
     [RelayCommand]
     private void LockVault()
-
     {
-
-        _vaultService.Lock();
-
+        _vaultService.Lock(manual: true);
         RefreshVaultState();
-
     }
+
+
+
+    public Task PromptUnlockVaultAsync() => UnlockVaultAsync();
 
 
 
@@ -730,124 +920,25 @@ public partial class MainViewModel : ObservableObject
 
 
     [RelayCommand]
-
-    private async Task ExportTunnelsAsync()
-
+    private async Task OpenShareWizardAsync()
     {
-
-        if (Tunnels.Count == 0)
-
-        {
-
-            _dialogService.ShowInfo("No tunnels to export.");
-
+        if (!await EnsureVaultUnlockedAsync().ConfigureAwait(true))
             return;
 
-        }
+        var importResult = await _dialogService.ShowShareWizardAsync().ConfigureAwait(true);
+        if (importResult is null || importResult.TotalImported == 0)
+            return;
 
+        await RefreshTunnelListAsync().ConfigureAwait(true);
+        await Rdp.LoadAsync().ConfigureAwait(true);
 
-
-        var items = Tunnels.Select(t => new TunnelListItemViewModel
-
+        _notificationService.Publish(new AppNotification
         {
-
-            ProfileId = t.ProfileId,
-
-            Name = t.Name,
-
-            IsSelected = true
-
-        }).ToList();
-
-
-
-        var result = await _dialogService.PromptExportAsync(items).ConfigureAwait(true);
-
-        if (result is null) return;
-
-
-
-        try
-
-        {
-
-            await _exportImportService.ExportToEncryptedFileAsync(
-
-                items.Where(i => i.IsSelected).Select(i => i.ProfileId),
-
-                result.Value.Path,
-
-                result.Value.Password).ConfigureAwait(true);
-
-
-
-            _dialogService.ShowInfo("Tunnels exported successfully.");
-
-        }
-
-        catch (Exception ex)
-
-        {
-
-            _dialogService.ShowError($"Export failed: {ex.Message}");
-
-        }
-
+            Severity = NotificationSeverity.Success,
+            MessageKey = "Notification.ShareImportSuccess",
+            MessageArgs = [importResult.TunnelsImported, importResult.RdpImported]
+        });
     }
-
-
-
-    [RelayCommand]
-
-    private async Task ImportTunnelsAsync()
-
-    {
-
-        if (!await EnsureVaultUnlockedAsync().ConfigureAwait(true)) return;
-
-
-
-        var result = await _dialogService.PromptImportAsync().ConfigureAwait(true);
-
-        if (result is null) return;
-
-
-
-        try
-
-        {
-
-            var imported = await _exportImportService.ImportFromEncryptedFileAsync(
-
-                result.Value.Path,
-
-                result.Value.Password).ConfigureAwait(true);
-
-
-
-            foreach (var profile in imported)
-
-                await _profileService.CreateAsync(profile).ConfigureAwait(true);
-
-
-
-            await LoadAsync().ConfigureAwait(true);
-
-            _dialogService.ShowInfo($"Imported {imported.Count} tunnel(s).");
-
-        }
-
-        catch (Exception ex)
-
-        {
-
-            _dialogService.ShowError($"Import failed: {ex.Message}");
-
-        }
-
-    }
-
-
 
     private bool CanOperateTunnel() => SelectedTunnel is not null;
 
@@ -869,6 +960,24 @@ public partial class MainViewModel : ObservableObject
 
         DeleteSelectedCommand.NotifyCanExecuteChanged();
 
+    }
+
+
+
+    private void OnVaultLocked(object? sender, VaultLockedEventArgs e)
+    {
+        RefreshVaultState();
+
+        if (e.IsManual)
+            return;
+
+        _notificationService.Publish(new AppNotification
+        {
+            Severity = NotificationSeverity.Warning,
+            MessageKey = "Notification.VaultAutoLocked",
+            ActionKind = NotificationActionKind.UnlockVault,
+            ActionLabelKey = "Notification.UnlockVault"
+        });
     }
 
 
@@ -901,7 +1010,187 @@ public partial class MainViewModel : ObservableObject
 
             NotifyTunnelListChanged();
 
+            PublishTunnelStatusNotification(state);
+
         });
+
+    }
+
+
+
+    private void BeginStartupQuietPeriod()
+
+    {
+
+        _startupQuietProfiles.Clear();
+
+        foreach (var row in Tunnels)
+
+            _startupQuietProfiles.Add(row.ProfileId);
+
+    }
+
+
+
+    private void FinalizeStartupQuietPeriod()
+
+    {
+
+        SyncTunnelStatusBaselines();
+
+        foreach (var row in Tunnels)
+
+        {
+
+            var runtime = _tunnelManager.GetRuntimeState(row.ProfileId);
+
+            var status = runtime?.Status ?? TunnelStatus.Stopped;
+
+            if (IsStableTunnelStatus(status))
+
+                _startupQuietProfiles.Remove(row.ProfileId);
+
+        }
+
+    }
+
+
+
+    private static bool IsStableTunnelStatus(TunnelStatus status)
+
+        => status is TunnelStatus.Connected or TunnelStatus.Stopped or TunnelStatus.Error;
+
+
+
+    private void SyncTunnelStatusBaselines()
+
+    {
+
+        foreach (var row in Tunnels)
+
+        {
+
+            var runtime = _tunnelManager.GetRuntimeState(row.ProfileId);
+
+            _tunnelStatuses[row.ProfileId] = runtime?.Status ?? TunnelStatus.Stopped;
+
+        }
+
+    }
+
+
+
+    private void PublishTunnelStatusNotification(TunnelRuntimeState state)
+
+    {
+
+        if (_startupQuietProfiles.Contains(state.ProfileId))
+
+        {
+
+            _tunnelStatuses[state.ProfileId] = state.Status;
+
+            if (IsStableTunnelStatus(state.Status))
+
+                _startupQuietProfiles.Remove(state.ProfileId);
+
+            return;
+
+        }
+
+
+
+        if (!_tunnelStatuses.TryGetValue(state.ProfileId, out var previous))
+
+        {
+
+            _tunnelStatuses[state.ProfileId] = state.Status;
+
+            return;
+
+        }
+
+
+
+        if (previous == state.Status)
+
+            return;
+
+
+
+        _tunnelStatuses[state.ProfileId] = state.Status;
+
+
+
+        switch (state.Status)
+
+        {
+
+            case TunnelStatus.Connected:
+
+                _notificationService.Publish(new AppNotification
+
+                {
+
+                    Severity = NotificationSeverity.Success,
+
+                    MessageKey = previous == TunnelStatus.Error
+
+                        ? "Notification.TunnelReconnected"
+
+                        : "Notification.TunnelConnected",
+
+                    MessageArgs = [state.Name]
+
+                });
+
+                break;
+
+
+
+            case TunnelStatus.Error:
+
+                _notificationService.Publish(new AppNotification
+
+                {
+
+                    Severity = NotificationSeverity.Error,
+
+                    MessageKey = "Notification.TunnelError",
+
+                    MessageArgs = [state.Name, state.ErrorMessage ?? string.Empty],
+
+                    ActionKind = NotificationActionKind.EditTunnel,
+
+                    ResourceId = state.ProfileId,
+
+                    ActionLabelKey = "Notification.Edit"
+
+                });
+
+                break;
+
+
+
+            case TunnelStatus.Stopped
+
+                when previous is TunnelStatus.Connected or TunnelStatus.Connecting or TunnelStatus.Error:
+
+                _notificationService.Publish(new AppNotification
+
+                {
+
+                    Severity = NotificationSeverity.Info,
+
+                    MessageKey = "Notification.TunnelStopped",
+
+                    MessageArgs = [state.Name]
+
+                });
+
+                break;
+
+        }
 
     }
 

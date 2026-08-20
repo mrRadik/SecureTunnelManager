@@ -25,6 +25,39 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <SupportedOSPlatformVersion>7.0</SupportedOSPlatformVersion>
+    <ShareKeyFile>$(MSBuildThisFileDirectory)..\secrets\share-key.txt</ShareKeyFile>
+    <GenerateShareKeyScript>$(MSBuildThisFileDirectory)..\build\GenerateShareKey.ps1</GenerateShareKeyScript>
+    <GeneratedShareKeyFile>$(IntermediateOutputPath)ShareFileCrypto.Key.generated.cs</GeneratedShareKeyFile>
   </PropertyGroup>
+
+  <Target Name="GenerateShareFileKey" BeforeTargets="CoreCompile">
+    <ReadLinesFromFile File="$(ShareKeyFile)" Condition="Exists('$(ShareKeyFile)')">
+      <Output TaskParameter="Lines" ItemName="_ShareKeyLines" />
+    </ReadLinesFromFile>
+
+    <PropertyGroup>
+      <ShareEncryptionKey Condition="'$(STM_SHARE_ENCRYPTION_KEY)' != ''">$(STM_SHARE_ENCRYPTION_KEY)</ShareEncryptionKey>
+      <ShareEncryptionKey Condition="'$(ShareEncryptionKey)' == '' and '@(_ShareKeyLines)' != ''">@(_ShareKeyLines)</ShareEncryptionKey>
+    </PropertyGroup>
+
+    <Error
+      Condition="'$(ShareEncryptionKey)' == '' and !Exists('$(ShareKeyFile)')"
+      Text="Share encryption key is missing. Set STM_SHARE_ENCRYPTION_KEY or create secrets/share-key.txt (see secrets/share-key.example.txt)." />
+    <Error
+      Condition="'$(ShareEncryptionKey)' == '' and Exists('$(ShareKeyFile)')"
+      Text="Share encryption key file is empty: $(ShareKeyFile)" />
+
+    <Exec
+      Condition="'$(ShareEncryptionKey)' != ''"
+      Command="powershell -NoProfile -ExecutionPolicy Bypass -File &quot;$(GenerateShareKeyScript)&quot; -OutputPath &quot;$(GeneratedShareKeyFile)&quot; -Key &quot;$(ShareEncryptionKey)&quot;" />
+    <Exec
+      Condition="'$(ShareEncryptionKey)' == '' and Exists('$(ShareKeyFile)')"
+      Command="powershell -NoProfile -ExecutionPolicy Bypass -File &quot;$(GenerateShareKeyScript)&quot; -OutputPath &quot;$(GeneratedShareKeyFile)&quot; -KeyFile &quot;$(ShareKeyFile)&quot;" />
+
+    <ItemGroup>
+      <Compile Include="$(GeneratedShareKeyFile)" />
+      <FileWrites Include="$(GeneratedShareKeyFile)" />
+    </ItemGroup>
+  </Target>
 
 </Project>

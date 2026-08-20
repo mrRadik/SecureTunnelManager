@@ -1,7 +1,8 @@
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Input;
-using System.Windows.Media;
+using SecureTunnelManager.UI.ViewModels;
 
 namespace SecureTunnelManager.UI.Views.Controls;
 
@@ -28,7 +29,17 @@ public partial class AppStatusBar : System.Windows.Controls.UserControl
     public static readonly DependencyProperty VaultClickCommandProperty =
         DependencyProperty.Register(nameof(VaultClickCommand), typeof(ICommand), typeof(AppStatusBar), new PropertyMetadata(null));
 
-    public AppStatusBar() => InitializeComponent();
+    public static readonly DependencyProperty NotificationCenterProperty =
+        DependencyProperty.Register(nameof(NotificationCenter), typeof(NotificationCenterViewModel), typeof(AppStatusBar), new PropertyMetadata(null));
+
+    public AppStatusBar()
+    {
+        InitializeComponent();
+        Loaded += OnLoaded;
+        Unloaded += OnUnloaded;
+    }
+
+    private Window? _ownerWindow;
 
     public string VaultStatusText
     {
@@ -72,9 +83,62 @@ public partial class AppStatusBar : System.Windows.Controls.UserControl
         set => SetValue(VaultClickCommandProperty, value);
     }
 
+    public NotificationCenterViewModel? NotificationCenter
+    {
+        get => (NotificationCenterViewModel?)GetValue(NotificationCenterProperty);
+        set => SetValue(NotificationCenterProperty, value);
+    }
+
+    private void OnLoaded(object sender, RoutedEventArgs e)
+    {
+        _ownerWindow = Window.GetWindow(this);
+        if (_ownerWindow is null)
+            return;
+
+        _ownerWindow.LocationChanged += OnOwnerWindowLayoutChanged;
+        _ownerWindow.SizeChanged += OnOwnerWindowLayoutChanged;
+    }
+
+    private void OnUnloaded(object sender, RoutedEventArgs e)
+    {
+        if (_ownerWindow is null)
+            return;
+
+        _ownerWindow.LocationChanged -= OnOwnerWindowLayoutChanged;
+        _ownerWindow.SizeChanged -= OnOwnerWindowLayoutChanged;
+        _ownerWindow = null;
+    }
+
+    private void OnOwnerWindowLayoutChanged(object? sender, EventArgs e) => RefreshOpenPopups();
+
+    private void RefreshOpenPopups()
+    {
+        RefreshPopupPlacement(NotificationToastPopup);
+        RefreshPopupPlacement(NotificationPopup);
+    }
+
+    private static void RefreshPopupPlacement(Popup popup)
+    {
+        if (!popup.IsOpen)
+            return;
+
+        popup.IsOpen = false;
+        popup.IsOpen = true;
+    }
+
     private void OnVaultStatusClick(object sender, MouseButtonEventArgs e)
     {
         if (VaultClickCommand?.CanExecute(null) == true)
             VaultClickCommand.Execute(null);
+    }
+
+    private void OnToastMouseEnter(object sender, System.Windows.Input.MouseEventArgs e)
+    {
+        NotificationCenter?.PauseToastTimerCommand.Execute(null);
+    }
+
+    private void OnToastMouseLeave(object sender, System.Windows.Input.MouseEventArgs e)
+    {
+        NotificationCenter?.ResumeToastTimerCommand.Execute(null);
     }
 }

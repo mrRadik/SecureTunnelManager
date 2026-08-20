@@ -231,4 +231,47 @@ internal static class EntityMapper
         profile.EnsureJumpHostsFromLegacy();
         return profile;
     }
+
+    public static RdpExportDto ToExportDto(RdpTarget target) => new()
+    {
+        Name = target.Name,
+        Description = target.Description,
+        IconKey = target.IconKey,
+        GroupName = target.GroupName,
+        JumpHosts = target.JumpHosts.Select(h => new JumpHostHopExportDto
+        {
+            Host = h.Host,
+            Port = h.Port,
+            Username = h.Username,
+            AuthMethod = h.AuthMethod,
+            PrivateKeyPath = h.PrivateKeyPath
+        }).ToList(),
+        RdpHost = target.RdpHost,
+        RdpPort = target.RdpPort,
+        LocalPort = target.LocalPort,
+        LocalBindAddress = target.LocalBindAddress
+    };
+
+    public static RdpTarget FromExportDto(RdpExportDto dto)
+    {
+        return new RdpTarget
+        {
+            Name = dto.Name,
+            Description = dto.Description,
+            IconKey = dto.IconKey,
+            GroupName = dto.GroupName,
+            RdpHost = dto.RdpHost,
+            RdpPort = dto.RdpPort,
+            LocalPort = dto.LocalPort,
+            LocalBindAddress = string.IsNullOrWhiteSpace(dto.LocalBindAddress) ? "127.0.0.1" : dto.LocalBindAddress,
+            JumpHosts = dto.JumpHosts?.Select(h => new JumpHostHop
+            {
+                Host = h.Host,
+                Port = h.Port,
+                Username = h.Username,
+                AuthMethod = h.AuthMethod,
+                PrivateKeyPath = h.PrivateKeyPath
+            }).ToList() ?? new List<JumpHostHop>()
+        };
+    }
 }

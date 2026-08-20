@@ -46,6 +46,19 @@
                                                  Section="{x:Static vm:NavigationSection.Rdp}"/>
 
                         <TextBlock Text="{loc:Loc Nav.System}" Style="{DynamicResource StmNavSectionHeader}"/>
+                        <Button Command="{Binding OpenShareWizardCommand}"
+                                Style="{DynamicResource StmSidebarMenuButton}"
+                                Margin="4,0">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="&#xE72D;"
+                                           Style="{DynamicResource StmIconGlyph}"
+                                           FontSize="16"
+                                           Width="20"
+                                           Margin="0,0,10,0"
+                                           VerticalAlignment="Center"/>
+                                <TextBlock Text="{loc:Loc Nav.Share}" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
                         <controls:NavigationItem IconGlyph="&#xE713;"
                                                  LocKey="Nav.Settings"
                                                  Section="{x:Static vm:NavigationSection.Settings}"/>
@@ -64,6 +77,7 @@
         </Grid>
 
         <controls:AppStatusBar Grid.Row="2"
+                               NotificationCenter="{Binding Notifications}"
                                VaultStatusText="{Binding VaultStatusText}"
                                IsVaultUnlocked="{Binding IsVaultUnlocked}"
                                ActiveConnectionsText="{Binding ActiveConnectionsText}"

@@ -45,6 +45,31 @@ function ConvertTo-MsiVersion {
     return ($parts[0..3] -join '.')
 }
 
+function Assert-ShareEncryptionKey {
+    param([string] $RootPath)
+
+    if (-not [string]::IsNullOrWhiteSpace($env:STM_SHARE_ENCRYPTION_KEY)) {
+        Write-Host '    Share key: STM_SHARE_ENCRYPTION_KEY (stable until you change it)' -ForegroundColor Gray
+        return
+    }
+
+    $keyFile = Join-Path $RootPath 'secrets\share-key.txt'
+    if (-not (Test-Path -LiteralPath $keyFile)) {
+        throw @"
+Share encryption key is missing.
+Create secrets\share-key.txt once (see secrets\share-key.example.txt) or set STM_SHARE_ENCRYPTION_KEY.
+Use the same key for every build until you decide to rotate it.
+"@
+    }
+
+    $key = (Get-Content -LiteralPath $keyFile -Raw).Trim()
+    if ($key.Length -lt 16) {
+        throw "Share encryption key in secrets\share-key.txt must be at least 16 characters."
+    }
+
+    Write-Host '    Share key: secrets\share-key.txt (stable until you change it)' -ForegroundColor Gray
+}
+
 Write-Host '==> Generating application icon...' -ForegroundColor Cyan
 & $GenerateIconScript
 
@@ -55,6 +80,7 @@ if ([string]::IsNullOrWhiteSpace($ProductVersion)) {
 $MsiVersion = ConvertTo-MsiVersion -Version $ProductVersion
 
 Write-Host "==> Publishing $Runtime ($Configuration, v$ProductVersion, self-contained)..." -ForegroundColor Cyan
+Assert-ShareEncryptionKey -RootPath $Root
 
 if (Test-Path $PublishDir) {
     Remove-Item $PublishDir -Recurse -Force

@@ -10,6 +10,7 @@ public sealed class UpdatePromptService
     private readonly ITunnelManagerService _tunnelManager;
     private readonly IDialogService _dialogService;
     private readonly ILocalizationService _localization;
+    private readonly INotificationService _notificationService;
     private readonly ILogger<UpdatePromptService> _logger;
     private int _installInProgress;
 
@@ -18,12 +19,14 @@ public sealed class UpdatePromptService
         ITunnelManagerService tunnelManager,
         IDialogService dialogService,
         ILocalizationService localization,
+        INotificationService notificationService,
         ILogger<UpdatePromptService> logger)
     {
         _updateService = updateService;
         _tunnelManager = tunnelManager;
         _dialogService = dialogService;
         _localization = localization;
+        _notificationService = notificationService;
         _logger = logger;
     }
 
@@ -62,6 +65,19 @@ public sealed class UpdatePromptService
             if (!silentWhenUpToDate)
                 _dialogService.ShowInfo(_localization.Format("Updates.UpToDate", CurrentVersion));
 
+            return;
+        }
+
+        if (silentWhenUpToDate)
+        {
+            _notificationService.Publish(new AppNotification
+            {
+                Severity = NotificationSeverity.Info,
+                MessageKey = "Notification.UpdateAvailable",
+                MessageArgs = [manifest.Version, CurrentVersion],
+                ActionKind = NotificationActionKind.OpenSettings,
+                ActionLabelKey = "Notification.ViewUpdate"
+            });
             return;
         }
 

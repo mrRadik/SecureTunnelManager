@@ -1,0 +1,94 @@
+<UserControl x:Class="SecureTunnelManager.UI.Views.Controls.NotificationPanel"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:loc="clr-namespace:SecureTunnelManager.UI.Localization"
+             xmlns:vm="clr-namespace:SecureTunnelManager.UI.ViewModels">
+
+    <Border Style="{DynamicResource StmNotificationPanel}" Width="320" MaxHeight="360">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <Border Grid.Row="0"
+                    BorderBrush="{DynamicResource StmBorderBrush}"
+                    BorderThickness="0,0,0,1"
+                    Padding="12,10">
+                <Grid>
+                    <TextBlock Text="{loc:Loc Notification.Title}"
+                               Style="{DynamicResource StmNotificationHeaderText}"/>
+                    <StackPanel Orientation="Horizontal"
+                                HorizontalAlignment="Right"
+                                VerticalAlignment="Center">
+                        <Button Content="{loc:Loc Notification.MarkAllRead}"
+                                Command="{Binding MarkAllReadCommand}"
+                                Style="{DynamicResource StmNotificationActionLink}"
+                                Margin="0,0,10,0"
+                                Visibility="{Binding UnreadCount, Converter={StaticResource IntGreaterThanZeroToVisibilityConverter}}"/>
+                        <Button Content="{loc:Loc Notification.ClearAll}"
+                                Command="{Binding ClearAllCommand}"
+                                Style="{DynamicResource StmNotificationActionLink}"
+                                Visibility="{Binding HasItems, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <ScrollViewer Grid.Row="1"
+                          VerticalScrollBarVisibility="Auto"
+                          Visibility="{Binding HasItems, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <ItemsControl ItemsSource="{Binding Items}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate DataType="{x:Type vm:NotificationItemViewModel}">
+                            <Border Style="{DynamicResource StmNotificationItemBorder}"
+                                    MouseLeftButtonUp="OnItemClick">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <Ellipse Grid.Column="0"
+                                             Style="{DynamicResource StmNotificationUnreadDot}"
+                                             Visibility="{Binding IsUnread, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+
+                                    <StackPanel Grid.Column="1">
+                                        <TextBlock Text="{Binding Message}"
+                                                   Style="{DynamicResource StmNotificationMessageText}"/>
+                                        <TextBlock Text="{Binding TimeText}"
+                                                   Style="{DynamicResource StmNotificationMetaText}"/>
+                                        <Button Content="{Binding ActionLabel}"
+                                                Command="{Binding DataContext.ExecuteActionCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                CommandParameter="{Binding}"
+                                                Style="{DynamicResource StmNotificationActionLink}"
+                                                Visibility="{Binding HasAction, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+
+            <Border Grid.Row="1"
+                    Padding="16,24"
+                    Visibility="{Binding ShowEmptyState, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <TextBlock Text="{loc:Loc Notification.Empty}"
+                           Style="{DynamicResource StmNotificationMetaText}"
+                           HorizontalAlignment="Center"
+                           TextAlignment="Center"/>
+            </Border>
+
+            <Border Grid.Row="2"
+                    BorderBrush="{DynamicResource StmBorderBrush}"
+                    BorderThickness="0,1,0,0"
+                    Padding="8,6">
+                <Button Content="{loc:Loc Notification.Close}"
+                        Command="{Binding ClosePanelCommand}"
+                        Style="{DynamicResource StmStatusBarAction}"
+                        HorizontalAlignment="Right"/>
+            </Border>
+        </Grid>
+    </Border>
+</UserControl>

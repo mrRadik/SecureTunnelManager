@@ -61,7 +61,7 @@ public partial class PasswordVaultViewModel : ObservableObject
     [RelayCommand]
     private void LockVault()
     {
-        _vaultService.Lock();
+        _vaultService.Lock(manual: true);
         RefreshState();
         Credentials.Clear();
     }

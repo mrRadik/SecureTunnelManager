@@ -26,3 +26,8 @@ Desktop.ini
 # Debug
 crash.err
 crash.out
+
+# Build-time secrets (see secrets/share-key.example.txt)
+secrets/share-key.txt
+secrets/share-key.example.txt
+build/GenerateShareKey.ps1

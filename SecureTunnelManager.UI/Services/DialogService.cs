@@ -20,12 +20,13 @@ public class DialogService : IDialogService
         return ShowModalAsync(vm, window);
     }
 
-    public Task<bool> ShowUnlockVaultAsync()
+    public async Task<bool> ShowUnlockVaultAsync()
     {
         var vm = _serviceProvider.GetRequiredService<UnlockVaultViewModel>();
+        await vm.InitializeAsync().ConfigureAwait(true);
         var window = new UnlockVaultWindow { DataContext = vm };
         PrepareDialog(window);
-        return ShowModalAsync(vm, window);
+        return await ShowModalAsync(vm, window).ConfigureAwait(true);
     }
 
     public async Task<bool> ShowTunnelEditorAsync(TunnelProfile? profile = null)

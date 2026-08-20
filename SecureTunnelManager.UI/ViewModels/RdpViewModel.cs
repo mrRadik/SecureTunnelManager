@@ -583,6 +583,12 @@ public partial class RdpViewModel : ObservableObject
     private async Task<bool> EnsureVaultUnlockedAsync()
     {
         if (_vaultService.IsUnlocked)
+        {
+            _vaultService.NotifyActivity();
+            return true;
+        }
+
+        if (await _vaultService.TryUnlockFromCacheAsync().ConfigureAwait(true))
             return true;
 
         return await _dialogService.ShowUnlockVaultAsync().ConfigureAwait(true);

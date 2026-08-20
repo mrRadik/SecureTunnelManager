@@ -1,10 +1,12 @@
 using Microsoft.EntityFrameworkCore;
+using System.IO;
 using Microsoft.Extensions.DependencyInjection;
 using SecureTunnelManager.Core.Services;
 using SecureTunnelManager.Data;
 using SecureTunnelManager.Infrastructure.Hosting;
 using SecureTunnelManager.Infrastructure.Logging;
 using SecureTunnelManager.Infrastructure.Services;
+using SecureTunnelManager.Infrastructure.Security;
 using SecureTunnelManager.Infrastructure.Ssh;
 
 namespace SecureTunnelManager.Infrastructure;
@@ -25,6 +27,8 @@ public static class DependencyInjection
             options.UseSqlite($"Data Source={databasePath}"), ServiceLifetime.Scoped);
 
         services.AddSingleton<ISettingsService, SettingsService>();
+        services.AddSingleton<IVaultUnlockCacheService>(_ =>
+            new VaultUnlockCacheService(Path.Combine(Path.GetDirectoryName(databasePath)!, "vault-unlock.dat")));
         services.AddSingleton<IVaultService, VaultService>();
         services.AddSingleton<ICredentialService, CredentialService>();
         services.AddSingleton<ITunnelProfileService, TunnelProfileService>();

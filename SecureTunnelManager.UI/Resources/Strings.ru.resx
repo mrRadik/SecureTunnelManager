@@ -86,6 +86,8 @@
   <data name="Settings.Security" xml:space="preserve"><value>Безопасность</value></data>
   <data name="Settings.VaultAutoLockEnabled" xml:space="preserve"><value>Блокировать хранилище при бездействии</value></data>
   <data name="Settings.VaultAutoLock" xml:space="preserve"><value>Автоблокировка хранилища (минуты)</value></data>
+  <data name="Settings.RememberVaultOnThisDevice" xml:space="preserve"><value>Запоминать разблокировку на этом компьютере</value></data>
+  <data name="Settings.ForgetSavedUnlock" xml:space="preserve"><value>Забыть сохранённый ключ</value></data>
   <data name="Settings.Tunnels" xml:space="preserve"><value>Туннели</value></data>
   <data name="Settings.ReconnectInterval" xml:space="preserve"><value>Интервал реконнекта</value></data>
   <data name="Settings.CircuitBreakerPause" xml:space="preserve"><value>Таймаут circuit breaker</value></data>
@@ -174,6 +176,7 @@
   <data name="Vault.ConfirmMasterPassword" xml:space="preserve"><value>Подтверждение мастер-пароля</value></data>
   <data name="Vault.CreateVault" xml:space="preserve"><value>Создать хранилище</value></data>
   <data name="Vault.Unlock" xml:space="preserve"><value>Разблокировать</value></data>
+  <data name="Vault.RememberOnThisDevice" xml:space="preserve"><value>Запомнить на этом компьютере</value></data>
   <data name="Vault.Back" xml:space="preserve"><value>Назад</value></data>
   <data name="Vault.CreateNewTitle" xml:space="preserve"><value>Новый мастер-пароль</value></data>
   <data name="Tray.Open" xml:space="preserve"><value>Открыть</value></data>

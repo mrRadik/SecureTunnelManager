@@ -55,6 +55,7 @@ public partial class SettingsViewModel : ObservableObject
     private readonly ILocalizationService _localization;
     private readonly IThemeService _themeService;
     private readonly UpdatePromptService _updatePromptService;
+    private readonly IVaultService _vaultService;
     private bool _isLoading;
 
     public SettingsViewModel(
@@ -62,13 +63,15 @@ public partial class SettingsViewModel : ObservableObject
         IAutoStartService autoStartService,
         ILocalizationService localization,
         IThemeService themeService,
-        UpdatePromptService updatePromptService)
+        UpdatePromptService updatePromptService,
+        IVaultService vaultService)
     {
         _settingsService = settingsService;
         _autoStartService = autoStartService;
         _localization = localization;
         _themeService = themeService;
         _updatePromptService = updatePromptService;
+        _vaultService = vaultService;
     }
 
     [ObservableProperty]
@@ -76,6 +79,9 @@ public partial class SettingsViewModel : ObservableObject
 
     [ObservableProperty]
     private int _vaultAutoLockMinutes = 15;
+
+    [ObservableProperty]
+    private bool _rememberVaultOnThisDevice;
 
     [ObservableProperty]
     private int _reconnectIntervalSeconds = 15;
@@ -119,6 +125,7 @@ public partial class SettingsViewModel : ObservableObject
             var settings = await _settingsService.GetSettingsAsync().ConfigureAwait(true);
             VaultAutoLockEnabled = settings.VaultAutoLockEnabled;
             VaultAutoLockMinutes = settings.VaultAutoLockMinutes;
+            RememberVaultOnThisDevice = settings.RememberVaultOnThisDevice;
             ReconnectIntervalSeconds = settings.ReconnectIntervalSeconds;
             CircuitBreakerBreakSeconds = settings.CircuitBreakerBreakSeconds;
             StartAllTunnelsOnAppStart = settings.StartAllTunnelsOnAppStart;
@@ -159,6 +166,13 @@ public partial class SettingsViewModel : ObservableObject
 
     partial void OnVaultAutoLockEnabledChanged(bool value) => _ = PersistAsync();
     partial void OnVaultAutoLockMinutesChanged(int value) => _ = PersistAsync();
+    partial void OnRememberVaultOnThisDeviceChanged(bool value)
+    {
+        if (_isLoading)
+            return;
+
+        _ = ApplyRememberSettingAsync();
+    }
     partial void OnReconnectIntervalSecondsChanged(int value) => _ = PersistAsync();
     partial void OnCircuitBreakerBreakSecondsChanged(int value) => _ = PersistAsync();
     partial void OnStartAllTunnelsOnAppStartChanged(bool value) => _ = PersistAsync();
@@ -211,6 +225,7 @@ public partial class SettingsViewModel : ObservableObject
         var settings = await _settingsService.GetSettingsAsync().ConfigureAwait(true);
         settings.VaultAutoLockEnabled = VaultAutoLockEnabled;
         settings.VaultAutoLockMinutes = Math.Clamp(VaultAutoLockMinutes, 1, 1440);
+        settings.RememberVaultOnThisDevice = RememberVaultOnThisDevice;
         settings.ReconnectIntervalSeconds = Math.Clamp(ReconnectIntervalSeconds, 5, 300);
         settings.CircuitBreakerBreakSeconds = Math.Clamp(CircuitBreakerBreakSeconds, 30, 600);
         settings.StartAllTunnelsOnAppStart = StartAllTunnelsOnAppStart;
@@ -219,5 +234,30 @@ public partial class SettingsViewModel : ObservableObject
         settings.UiLanguage = UiLanguage;
         settings.UiTheme = AppThemeModes.Normalize(UiTheme);
         await _settingsService.SaveSettingsAsync(settings).ConfigureAwait(true);
+    }
+
+    private async Task ApplyRememberSettingAsync()
+    {
+        if (_isLoading)
+            return;
+
+        if (RememberVaultOnThisDevice)
+        {
+            if (_vaultService.IsUnlocked)
+                await _vaultService.ApplyRememberUnlockAsync(true).ConfigureAwait(true);
+            else
+                await PersistAsync().ConfigureAwait(true);
+
+            return;
+        }
+
+        await _vaultService.ClearRememberUnlockAsync().ConfigureAwait(true);
+    }
+
+    [RelayCommand]
+    private async Task ForgetSavedUnlockAsync()
+    {
+        RememberVaultOnThisDevice = false;
+        await _vaultService.ClearRememberUnlockAsync().ConfigureAwait(true);
     }
 }

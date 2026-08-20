@@ -1242,6 +1242,12 @@ public partial class MainViewModel : ObservableObject
 
 
 
+        if (await _vaultService.TryUnlockFromCacheAsync().ConfigureAwait(true))
+
+            return true;
+
+
+
         return await _dialogService.ShowUnlockVaultAsync().ConfigureAwait(true);
 
     }

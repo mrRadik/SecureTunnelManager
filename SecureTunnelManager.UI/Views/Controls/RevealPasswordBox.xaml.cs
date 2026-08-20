@@ -1,10 +1,14 @@
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
+using System.Windows.Threading;
 
 namespace SecureTunnelManager.UI.Views.Controls;
 
 public partial class RevealPasswordBox : System.Windows.Controls.UserControl
 {
+    private const int SavedPasswordMaskLength = 8;
+
     public static readonly DependencyProperty PasswordProperty =
         DependencyProperty.Register(
             nameof(Password),
@@ -14,6 +18,13 @@ public partial class RevealPasswordBox : System.Windows.Controls.UserControl
 
     public static readonly DependencyProperty IsRevealedProperty =
         DependencyProperty.Register(nameof(IsRevealed), typeof(bool), typeof(RevealPasswordBox), new PropertyMetadata(false));
+
+    public static readonly DependencyProperty ShowSavedPasswordMaskProperty =
+        DependencyProperty.Register(
+            nameof(ShowSavedPasswordMask),
+            typeof(bool),
+            typeof(RevealPasswordBox),
+            new PropertyMetadata(false, OnShowSavedPasswordMaskChanged));
 
     private bool _isSyncing;
 
@@ -31,15 +42,29 @@ public partial class RevealPasswordBox : System.Windows.Controls.UserControl
         set => SetValue(IsRevealedProperty, value);
     }
 
+    public bool ShowSavedPasswordMask
+    {
+        get => (bool)GetValue(ShowSavedPasswordMaskProperty);
+        set => SetValue(ShowSavedPasswordMaskProperty, value);
+    }
+
     private static void OnPasswordPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
         if (d is RevealPasswordBox box)
             box.SyncFromProperty();
     }
 
+    private static void OnShowSavedPasswordMaskChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {
+        if (d is RevealPasswordBox box)
+            box.ApplySavedPasswordMask();
+    }
+
     private void SyncFromProperty()
     {
-        if (_isSyncing) return;
+        if (_isSyncing || ShowSavedPasswordMask)
+            return;
+
         _isSyncing = true;
         try
         {
@@ -54,9 +79,46 @@ public partial class RevealPasswordBox : System.Windows.Controls.UserControl
         }
     }
 
+    private void ApplySavedPasswordMask()
+    {
+        if (_isSyncing)
+            return;
+
+        _isSyncing = true;
+        try
+        {
+            if (ShowSavedPasswordMask)
+            {
+                var mask = new string('\u2022', SavedPasswordMaskLength);
+                HiddenBox.Password = new string('0', SavedPasswordMaskLength);
+                VisibleBox.Text = mask;
+                return;
+            }
+
+            if (string.IsNullOrEmpty(Password))
+            {
+                HiddenBox.Password = string.Empty;
+                VisibleBox.Text = string.Empty;
+            }
+            else
+            {
+                SyncFromProperty();
+            }
+        }
+        finally
+        {
+            _isSyncing = false;
+        }
+    }
+
     private void OnPasswordChanged(object sender, RoutedEventArgs e)
     {
-        if (_isSyncing || IsRevealed) return;
+        if (_isSyncing || IsRevealed)
+            return;
+
+        if (ShowSavedPasswordMask)
+            SetCurrentValue(ShowSavedPasswordMaskProperty, false);
+
         _isSyncing = true;
         try
         {
@@ -71,7 +133,12 @@ public partial class RevealPasswordBox : System.Windows.Controls.UserControl
 
     private void OnTextChanged(object sender, TextChangedEventArgs e)
     {
-        if (_isSyncing || !IsRevealed) return;
+        if (_isSyncing || !IsRevealed)
+            return;
+
+        if (ShowSavedPasswordMask)
+            SetCurrentValue(ShowSavedPasswordMaskProperty, false);
+
         _isSyncing = true;
         try
         {
@@ -88,6 +155,20 @@ public partial class RevealPasswordBox : System.Windows.Controls.UserControl
     {
         IsRevealed = !IsRevealed;
         RevealGlyph.Text = IsRevealed ? "\uED1B" : "\uED1A";
-        SyncFromProperty();
+
+        if (ShowSavedPasswordMask)
+            ApplySavedPasswordMask();
+        else
+            SyncFromProperty();
+    }
+
+    public void FocusInput()
+    {
+        Dispatcher.BeginInvoke(() =>
+        {
+            var target = (UIElement)(IsRevealed ? VisibleBox : HiddenBox);
+            target.Focus();
+            Keyboard.Focus(target);
+        }, DispatcherPriority.Input);
     }
 }

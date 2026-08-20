@@ -18,6 +18,7 @@ public class VaultService : IVaultService
     private const string MasterPasswordSaltKey = "MasterPasswordSalt";
 
     private readonly ISettingsService _settingsService;
+    private readonly IVaultUnlockCacheService _unlockCache;
     private readonly IDbContextFactory<AppDbContext> _dbFactory;
     private readonly ILogger<VaultService> _logger;
     private byte[]? _derivedKey;
@@ -26,10 +27,12 @@ public class VaultService : IVaultService
 
     public VaultService(
         ISettingsService settingsService,
+        IVaultUnlockCacheService unlockCache,
         IDbContextFactory<AppDbContext> dbFactory,
         ILogger<VaultService> logger)
     {
         _settingsService = settingsService;
+        _unlockCache = unlockCache;
         _dbFactory = dbFactory;
         _logger = logger;
     }
@@ -79,6 +82,84 @@ public class VaultService : IVaultService
         UnlockInternal(masterPassword, salt);
         _logger.LogInformation("Password vault unlocked");
         return true;
+    }
+
+    public async Task<bool> TryUnlockFromCacheAsync(CancellationToken cancellationToken = default)
+    {
+        var settings = await _settingsService.GetSettingsAsync(cancellationToken).ConfigureAwait(false);
+        if (!settings.RememberVaultOnThisDevice
+            || !settings.VaultInitialized
+            || settings.MasterPasswordHash is null)
+        {
+            return false;
+        }
+
+        var derivedKey = await _unlockCache.TryLoadAsync(settings.MasterPasswordHash, cancellationToken).ConfigureAwait(false);
+        if (derivedKey is null)
+        {
+            await DisableRememberUnlockAsync(cancellationToken).ConfigureAwait(false);
+            return false;
+        }
+
+        UnlockInternalFromKey(derivedKey);
+        _logger.LogInformation("Password vault unlocked from device cache");
+        return true;
+    }
+
+    public async Task<bool> HasCachedUnlockKeyAsync(CancellationToken cancellationToken = default)
+    {
+        var settings = await _settingsService.GetSettingsAsync(cancellationToken).ConfigureAwait(false);
+        if (!settings.RememberVaultOnThisDevice
+            || !settings.VaultInitialized
+            || settings.MasterPasswordHash is null)
+        {
+            return false;
+        }
+
+        return _unlockCache.HasMatchingCache(settings.MasterPasswordHash);
+    }
+
+    public async Task ApplyRememberUnlockAsync(bool remember, CancellationToken cancellationToken = default)
+    {
+        var settings = await _settingsService.GetSettingsAsync(cancellationToken).ConfigureAwait(false);
+        settings.RememberVaultOnThisDevice = remember;
+        await _settingsService.SaveSettingsAsync(settings, cancellationToken).ConfigureAwait(false);
+
+        if (!remember)
+        {
+            _unlockCache.Clear();
+            return;
+        }
+
+        if (_derivedKey is null || settings.MasterPasswordHash is null)
+            return;
+
+        byte[] keyCopy;
+        lock (_lock)
+        {
+            keyCopy = _derivedKey.ToArray();
+        }
+
+        try
+        {
+            await _unlockCache.SaveAsync(settings.MasterPasswordHash, keyCopy, cancellationToken).ConfigureAwait(false);
+            _logger.LogInformation("Vault unlock key saved for this device");
+        }
+        finally
+        {
+            CryptographicOperations.ZeroMemory(keyCopy);
+        }
+    }
+
+    public async Task ClearRememberUnlockAsync(CancellationToken cancellationToken = default)
+    {
+        _unlockCache.Clear();
+        var settings = await _settingsService.GetSettingsAsync(cancellationToken).ConfigureAwait(false);
+        if (!settings.RememberVaultOnThisDevice)
+            return;
+
+        settings.RememberVaultOnThisDevice = false;
+        await _settingsService.SaveSettingsAsync(settings, cancellationToken).ConfigureAwait(false);
     }
 
     public void Lock(bool manual = false)
@@ -135,7 +216,6 @@ public class VaultService : IVaultService
         if (!await UnlockAsync(currentPassword, cancellationToken).ConfigureAwait(false))
             throw new InvalidOperationException("Current master password is incorrect.");
 
-        // Re-encryption of all credentials must be done by CredentialService caller after password change.
         var newSalt = AesEncryptionService.GenerateSalt();
         var newHash = AesEncryptionService.HashPassword(newPassword, newSalt);
 
@@ -146,6 +226,11 @@ public class VaultService : IVaultService
 
         UnlockInternal(newPassword, newSalt);
         _logger.LogInformation("Master password changed");
+
+        if (settings.RememberVaultOnThisDevice)
+            await ApplyRememberUnlockAsync(true, cancellationToken).ConfigureAwait(false);
+        else
+            _unlockCache.Clear();
     }
 
     public async Task ResetVaultAsync(string newMasterPassword, CancellationToken cancellationToken = default)
@@ -153,6 +238,7 @@ public class VaultService : IVaultService
         ArgumentException.ThrowIfNullOrWhiteSpace(newMasterPassword);
 
         Lock();
+        await ClearRememberUnlockAsync(cancellationToken).ConfigureAwait(false);
 
         await using var db = await _dbFactory.CreateDbContextAsync(cancellationToken).ConfigureAwait(false);
         await db.Credentials.ExecuteDeleteAsync(cancellationToken).ConfigureAwait(false);
@@ -173,13 +259,34 @@ public class VaultService : IVaultService
 
     private void UnlockInternal(string masterPassword, byte[] salt)
     {
+        var derivedKey = AesEncryptionService.DeriveKey(masterPassword, salt);
+        UnlockInternalFromKey(derivedKey);
+    }
+
+    private void UnlockInternalFromKey(byte[] derivedKey)
+    {
         lock (_lock)
         {
-            _derivedKey = AesEncryptionService.DeriveKey(masterPassword, salt);
+            if (_derivedKey is not null)
+                CryptographicOperations.ZeroMemory(_derivedKey);
+
+            _derivedKey = derivedKey;
             _lastActivityUtc = DateTime.UtcNow;
         }
 
         VaultUnlocked?.Invoke(this, EventArgs.Empty);
+    }
+
+    private async Task DisableRememberUnlockAsync(CancellationToken cancellationToken = default)
+    {
+        _unlockCache.Clear();
+
+        var settings = await _settingsService.GetSettingsAsync(cancellationToken).ConfigureAwait(false);
+        if (!settings.RememberVaultOnThisDevice)
+            return;
+
+        settings.RememberVaultOnThisDevice = false;
+        await _settingsService.SaveSettingsAsync(settings, cancellationToken).ConfigureAwait(false);
     }
 
     private void EnsureUnlocked()

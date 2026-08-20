@@ -65,11 +65,16 @@ public partial class UnlockVaultViewModel : ObservableObject
 {
     private readonly IVaultService _vaultService;
     private readonly ITunnelManagerService _tunnelManager;
+    private readonly ISettingsService _settingsService;
 
-    public UnlockVaultViewModel(IVaultService vaultService, ITunnelManagerService tunnelManager)
+    public UnlockVaultViewModel(
+        IVaultService vaultService,
+        ITunnelManagerService tunnelManager,
+        ISettingsService settingsService)
     {
         _vaultService = vaultService;
         _tunnelManager = tunnelManager;
+        _settingsService = settingsService;
     }
 
     [ObservableProperty]
@@ -90,13 +95,37 @@ public partial class UnlockVaultViewModel : ObservableObject
     [ObservableProperty]
     private bool _isConfirmResetMode;
 
+    [ObservableProperty]
+    private bool _rememberOnThisDevice;
+
+    [ObservableProperty]
+    private bool _showSavedPasswordMask;
+
     public bool IsUnlockMode => !IsResetMode && !IsConfirmResetMode;
+
+    public async Task InitializeAsync()
+    {
+        var settings = await _settingsService.GetSettingsAsync().ConfigureAwait(true);
+        RememberOnThisDevice = settings.RememberVaultOnThisDevice;
+        await UpdateSavedPasswordMaskAsync().ConfigureAwait(true);
+    }
+
+    partial void OnRememberOnThisDeviceChanged(bool value) => _ = UpdateSavedPasswordMaskAsync();
 
     partial void OnIsResetModeChanged(bool value) => OnPropertyChanged(nameof(IsUnlockMode));
 
     partial void OnIsConfirmResetModeChanged(bool value) => OnPropertyChanged(nameof(IsUnlockMode));
 
     partial void OnMasterPasswordChanged(string value) => ErrorMessage = string.Empty;
+
+    private async Task UpdateSavedPasswordMaskAsync()
+    {
+        ShowSavedPasswordMask = RememberOnThisDevice
+            && await _vaultService.HasCachedUnlockKeyAsync().ConfigureAwait(true);
+
+        if (!ShowSavedPasswordMask)
+            MasterPassword = string.Empty;
+    }
 
     public bool DialogResult { get; private set; }
 
@@ -107,6 +136,16 @@ public partial class UnlockVaultViewModel : ObservableObject
 
         if (string.IsNullOrWhiteSpace(MasterPassword))
         {
+            if (RememberOnThisDevice
+                && (ShowSavedPasswordMask || await _vaultService.HasCachedUnlockKeyAsync().ConfigureAwait(true))
+                && await _vaultService.TryUnlockFromCacheAsync().ConfigureAwait(true))
+            {
+                await _vaultService.ApplyRememberUnlockAsync(true).ConfigureAwait(true);
+                DialogResult = true;
+                RequestClose?.Invoke(this, EventArgs.Empty);
+                return;
+            }
+
             ErrorMessage = "Password required.";
             return;
         }
@@ -117,6 +156,8 @@ public partial class UnlockVaultViewModel : ObservableObject
             ErrorMessage = "Incorrect master password. Please try again.";
             return;
         }
+
+        await _vaultService.ApplyRememberUnlockAsync(RememberOnThisDevice).ConfigureAwait(true);
 
         DialogResult = true;
         RequestClose?.Invoke(this, EventArgs.Empty);
@@ -136,6 +177,7 @@ public partial class UnlockVaultViewModel : ObservableObject
     {
         IsConfirmResetMode = false;
         OnPropertyChanged(nameof(IsUnlockMode));
+        _ = UpdateSavedPasswordMaskAsync();
     }
 
     [RelayCommand]
@@ -158,6 +200,7 @@ public partial class UnlockVaultViewModel : ObservableObject
         IsResetMode = false;
         IsConfirmResetMode = false;
         OnPropertyChanged(nameof(IsUnlockMode));
+        _ = UpdateSavedPasswordMaskAsync();
     }
 
     [RelayCommand]

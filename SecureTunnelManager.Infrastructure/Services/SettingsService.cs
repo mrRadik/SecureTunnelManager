@@ -13,6 +13,7 @@ public class SettingsService : ISettingsService
     private const string MasterPasswordSaltKey = "MasterPasswordSalt";
     private const string VaultAutoLockEnabledKey = "VaultAutoLockEnabled";
     private const string VaultAutoLockMinutesKey = "VaultAutoLockMinutes";
+    private const string RememberVaultOnThisDeviceKey = "RememberVaultOnThisDevice";
     private const string ReconnectIntervalSecondsKey = "ReconnectIntervalSeconds";
     private const string CircuitBreakerBreakSecondsKey = "CircuitBreakerBreakSeconds";
     private const string StartAllTunnelsKey = "StartAllTunnelsOnAppStart";
@@ -40,6 +41,7 @@ public class SettingsService : ISettingsService
             MasterPasswordSalt = dict.GetValueOrDefault(MasterPasswordSaltKey),
             VaultAutoLockEnabled = !dict.TryGetValue(VaultAutoLockEnabledKey, out var lockEnabled) || bool.Parse(lockEnabled),
             VaultAutoLockMinutes = dict.TryGetValue(VaultAutoLockMinutesKey, out var lockMin) ? int.Parse(lockMin) : 15,
+            RememberVaultOnThisDevice = dict.TryGetValue(RememberVaultOnThisDeviceKey, out var rememberVault) && bool.Parse(rememberVault),
             ReconnectIntervalSeconds = dict.TryGetValue(ReconnectIntervalSecondsKey, out var reconnect) ? int.Parse(reconnect) : 15,
             CircuitBreakerBreakSeconds = dict.TryGetValue(CircuitBreakerBreakSecondsKey, out var breaker) ? int.Parse(breaker) : 90,
             StartAllTunnelsOnAppStart = dict.TryGetValue(StartAllTunnelsKey, out var startAll) && bool.Parse(startAll),
@@ -67,6 +69,7 @@ public class SettingsService : ISettingsService
 
         await UpsertAsync(db, VaultAutoLockEnabledKey, settings.VaultAutoLockEnabled.ToString(), cancellationToken).ConfigureAwait(false);
         await UpsertAsync(db, VaultAutoLockMinutesKey, settings.VaultAutoLockMinutes.ToString(), cancellationToken).ConfigureAwait(false);
+        await UpsertAsync(db, RememberVaultOnThisDeviceKey, settings.RememberVaultOnThisDevice.ToString(), cancellationToken).ConfigureAwait(false);
         await UpsertAsync(db, ReconnectIntervalSecondsKey, settings.ReconnectIntervalSeconds.ToString(), cancellationToken).ConfigureAwait(false);
         await UpsertAsync(db, CircuitBreakerBreakSecondsKey, settings.CircuitBreakerBreakSeconds.ToString(), cancellationToken).ConfigureAwait(false);
         await UpsertAsync(db, StartAllTunnelsKey, settings.StartAllTunnelsOnAppStart.ToString(), cancellationToken).ConfigureAwait(false);

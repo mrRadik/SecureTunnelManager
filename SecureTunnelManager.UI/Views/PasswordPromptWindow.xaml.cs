@@ -1,3 +1,4 @@
+using System.Windows.Input;
 using SecureTunnelManager.UI.Views.Controls;
 using SecureTunnelManager.UI.Windows;
 
@@ -11,6 +12,11 @@ public partial class PasswordPromptWindow : StmChromeWindow
         Title = title;
         TitleBar.Title = title;
         MessageText.Text = message;
+        ContentRendered += (_, _) =>
+        {
+            PasswordBox.Focus();
+            Keyboard.Focus(PasswordBox);
+        };
     }
 
     public string Password => PasswordBox.Password;

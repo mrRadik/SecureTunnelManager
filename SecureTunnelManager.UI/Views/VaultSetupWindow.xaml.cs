@@ -4,5 +4,9 @@ namespace SecureTunnelManager.UI.Views;
 
 public partial class VaultSetupWindow : StmChromeWindow
 {
-    public VaultSetupWindow() => InitializeComponent();
+    public VaultSetupWindow()
+    {
+        InitializeComponent();
+        ContentRendered += (_, _) => MasterPasswordBox.FocusInput();
+    }
 }

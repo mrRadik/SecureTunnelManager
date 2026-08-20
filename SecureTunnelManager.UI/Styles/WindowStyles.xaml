@@ -40,6 +40,53 @@
         <Setter Property="FontSize" Value="14"/>
         <Setter Property="Foreground" Value="{DynamicResource StmTextPrimaryBrush}"/>
         <Setter Property="Margin" Value="0,4,0,0"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="CheckBox">
+                    <StackPanel Orientation="Horizontal">
+                        <Border x:Name="Box"
+                                Width="18"
+                                Height="18"
+                                CornerRadius="4"
+                                Background="{DynamicResource StmCardBrush}"
+                                BorderBrush="{DynamicResource StmBorderBrush}"
+                                BorderThickness="1"
+                                SnapsToDevicePixels="True">
+                            <TextBlock x:Name="CheckMark"
+                                       Text="&#xE73E;"
+                                       Style="{DynamicResource StmIconGlyph}"
+                                       FontSize="11"
+                                       Foreground="{DynamicResource StmTextPrimaryBrush}"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       Visibility="Collapsed"/>
+                        </Border>
+                        <ContentPresenter Margin="10,0,0,0"
+                                          VerticalAlignment="Center"
+                                          RecognizesAccessKey="True"/>
+                    </StackPanel>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Box" Property="BorderBrush" Value="{DynamicResource StmAccentBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="Box" Property="Background" Value="{DynamicResource StmAccentBrush}"/>
+                            <Setter TargetName="Box" Property="BorderBrush" Value="{DynamicResource StmAccentBrush}"/>
+                            <Setter TargetName="CheckMark" Property="Visibility" Value="Visible"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Opacity" Value="0.55"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="StmSettingsCheckBox" TargetType="CheckBox" BasedOn="{StaticResource StmCheckBox}">
+        <Setter Property="Margin" Value="0"/>
     </Style>
 
     <Style x:Key="StmRadioButton" TargetType="RadioButton">

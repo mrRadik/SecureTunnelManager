@@ -16,7 +16,7 @@
 
         Width="420"
 
-        Height="320"
+        Height="360"
 
         WindowStartupLocation="CenterOwner">
 
@@ -60,7 +60,14 @@
 
             <TextBlock Text="{loc:Loc Vault.MasterPassword}" Style="{DynamicResource StmLabel}"/>
 
-            <controls:RevealPasswordBox Password="{Binding MasterPassword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+            <controls:RevealPasswordBox x:Name="MasterPasswordBox"
+                                        Password="{Binding MasterPassword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                        ShowSavedPasswordMask="{Binding ShowSavedPasswordMask, Mode=TwoWay}"/>
+
+            <CheckBox Content="{loc:Loc Vault.RememberOnThisDevice}"
+                      IsChecked="{Binding RememberOnThisDevice, Mode=TwoWay}"
+                      Style="{DynamicResource StmCheckBox}"
+                      Margin="0,12,0,0"/>
 
             <TextBlock Text="{Binding ErrorMessage}"
 
@@ -106,7 +113,8 @@
 
                 <TextBlock Text="{loc:Loc Vault.NewMasterPassword}" Style="{DynamicResource StmLabel}"/>
 
-                <controls:RevealPasswordBox Password="{Binding NewMasterPassword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                <controls:RevealPasswordBox x:Name="NewMasterPasswordBox"
+                                            Password="{Binding NewMasterPassword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
 
                 <TextBlock Text="{loc:Loc Vault.ConfirmNewPassword}" Style="{DynamicResource StmLabel}"/>
 

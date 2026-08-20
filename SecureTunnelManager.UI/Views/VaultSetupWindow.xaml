@@ -58,7 +58,8 @@
 
             <TextBlock Text="{loc:Loc Vault.MasterPassword}" Style="{DynamicResource StmLabel}"/>
 
-            <controls:RevealPasswordBox Password="{Binding MasterPassword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+            <controls:RevealPasswordBox x:Name="MasterPasswordBox"
+                                        Password="{Binding MasterPassword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
 
             <TextBlock Text="{loc:Loc Vault.ConfirmMasterPassword}" Style="{DynamicResource StmLabel}"/>
 

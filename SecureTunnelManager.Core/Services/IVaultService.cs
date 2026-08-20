@@ -16,6 +16,10 @@ public interface IVaultService
     Task<bool> IsVaultInitializedAsync(CancellationToken cancellationToken = default);
     Task InitializeVaultAsync(string masterPassword, CancellationToken cancellationToken = default);
     Task<bool> UnlockAsync(string masterPassword, CancellationToken cancellationToken = default);
+    Task<bool> TryUnlockFromCacheAsync(CancellationToken cancellationToken = default);
+    Task<bool> HasCachedUnlockKeyAsync(CancellationToken cancellationToken = default);
+    Task ApplyRememberUnlockAsync(bool remember, CancellationToken cancellationToken = default);
+    Task ClearRememberUnlockAsync(CancellationToken cancellationToken = default);
     void Lock(bool manual = false);
     void NotifyActivity();
 

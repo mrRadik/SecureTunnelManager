@@ -10,6 +10,7 @@ public class AppSettings
     public string? MasterPasswordSalt { get; set; }
     public bool VaultAutoLockEnabled { get; set; } = true;
     public int VaultAutoLockMinutes { get; set; } = 15;
+    public bool RememberVaultOnThisDevice { get; set; }
     public int ReconnectIntervalSeconds { get; set; } = 15;
     public int CircuitBreakerBreakSeconds { get; set; } = 90;
     public bool StartAllTunnelsOnAppStart { get; set; }

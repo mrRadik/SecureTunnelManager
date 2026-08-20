@@ -123,6 +123,17 @@
                                 <TextBlock Text="{loc:Loc Settings.UnitMinutes}"
                                            Style="{DynamicResource StmSettingsUnit}"/>
                             </StackPanel>
+                            <CheckBox Content="{loc:Loc Settings.RememberVaultOnThisDevice}"
+                                      IsChecked="{Binding Settings.RememberVaultOnThisDevice}"
+                                      Style="{DynamicResource StmSettingsCheckBox}"
+                                      Margin="0,12,0,0"/>
+                            <Button Content="{loc:Loc Settings.ForgetSavedUnlock}"
+                                    Command="{Binding Settings.ForgetSavedUnlockCommand}"
+                                    Style="{DynamicResource StmGhostButton}"
+                                    HorizontalAlignment="Left"
+                                    Margin="0,8,0,0"
+                                    Padding="0,4"
+                                    Visibility="{Binding Settings.RememberVaultOnThisDevice, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                         </StackPanel>
                     </Border>
                 </StackPanel>

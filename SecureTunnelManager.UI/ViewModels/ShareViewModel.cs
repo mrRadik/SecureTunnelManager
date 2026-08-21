@@ -8,7 +8,7 @@ using SecureTunnelManager.UI.Services;
 
 namespace SecureTunnelManager.UI.ViewModels;
 
-public partial class ShareWizardViewModel : ObservableObject
+public partial class ShareViewModel : ObservableObject
 {
     private readonly ITunnelProfileService _tunnelProfileService;
     private readonly IRdpTargetService _rdpTargetService;
@@ -19,7 +19,7 @@ public partial class ShareWizardViewModel : ObservableObject
 
     private ConnectionShareBundle? _importBundle;
 
-    public ShareWizardViewModel(
+    public ShareViewModel(
         ITunnelProfileService tunnelProfileService,
         IRdpTargetService rdpTargetService,
         IExportImportService exportImportService,
@@ -75,26 +75,17 @@ public partial class ShareWizardViewModel : ObservableObject
 
     [ObservableProperty] private bool _isBusy;
 
-    public bool DialogResult { get; private set; }
-
-    public ShareImportResult? ImportResult { get; private set; }
-
-    public event EventHandler? RequestClose;
-
     public bool HasExportItems => HasExportTunnelItems || HasExportRdpItems;
+
+    public event EventHandler<ShareImportResult>? ImportCompleted;
 
     private bool CanImport() => HasImportPreview && !IsBusy;
 
-    public async Task InitializeAsync()
+    public async Task LoadAsync()
     {
         ExportTunnelItems.Clear();
         ExportRdpItems.Clear();
-        ImportTunnelItems.Clear();
-        ImportRdpItems.Clear();
-        HasImportPreview = false;
-        ImportFileName = string.Empty;
-        ImportSummary = string.Empty;
-        _importBundle = null;
+        ResetImportState();
 
         var tunnels = await _tunnelProfileService.GetAllAsync().ConfigureAwait(true);
         foreach (var tunnel in tunnels.OrderBy(t => t.Name))
@@ -144,38 +135,60 @@ public partial class ShareWizardViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void SelectAllExport()
+    private void SelectAllExportTunnels()
     {
         foreach (var item in ExportTunnelItems)
             item.IsSelected = true;
+    }
+
+    [RelayCommand]
+    private void ClearExportTunnelsSelection()
+    {
+        foreach (var item in ExportTunnelItems)
+            item.IsSelected = false;
+    }
+
+    [RelayCommand]
+    private void SelectAllExportRdp()
+    {
         foreach (var item in ExportRdpItems)
             item.IsSelected = true;
     }
 
     [RelayCommand]
-    private void ClearExportSelection()
+    private void ClearExportRdpSelection()
     {
-        foreach (var item in ExportTunnelItems)
-            item.IsSelected = false;
         foreach (var item in ExportRdpItems)
             item.IsSelected = false;
     }
 
     [RelayCommand]
-    private void SelectAllImport()
+    private void SelectAllImportTunnels()
     {
         foreach (var item in ImportTunnelItems)
             item.IsSelected = true;
+        RefreshSectionTitles();
+    }
+
+    [RelayCommand]
+    private void ClearImportTunnelsSelection()
+    {
+        foreach (var item in ImportTunnelItems)
+            item.IsSelected = false;
+        RefreshSectionTitles();
+    }
+
+    [RelayCommand]
+    private void SelectAllImportRdp()
+    {
         foreach (var item in ImportRdpItems)
             item.IsSelected = true;
         RefreshSectionTitles();
     }
 
     [RelayCommand]
-    private void ClearImportSelection()
+    private void ClearImportRdpSelection()
     {
-        foreach (var item in ImportTunnelItems)
-            item.IsSelected = false;
         foreach (var item in ImportRdpItems)
             item.IsSelected = false;
         RefreshSectionTitles();
@@ -215,9 +228,6 @@ public partial class ShareWizardViewModel : ObservableObject
                 MessageKey = "Notification.ShareExportSuccess",
                 MessageArgs = [selectedTunnels.Count, selectedRdp.Count]
             });
-
-            DialogResult = true;
-            RequestClose?.Invoke(this, EventArgs.Empty);
         }
         catch (Exception ex)
         {
@@ -282,13 +292,7 @@ public partial class ShareWizardViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            _importBundle = null;
-            HasImportPreview = false;
-            ImportFileName = string.Empty;
-            ImportSummary = string.Empty;
-            ImportTunnelItems.Clear();
-            ImportRdpItems.Clear();
-            RefreshSectionTitles();
+            ResetImportState();
             _dialogService.ShowError(_localization.Format("Share.ImportFailed", ex.Message));
         }
         finally
@@ -320,9 +324,11 @@ public partial class ShareWizardViewModel : ObservableObject
         IsBusy = true;
         try
         {
-            ImportResult = await _exportImportService.ImportConnectionsAsync(bundle).ConfigureAwait(true);
-            DialogResult = true;
-            RequestClose?.Invoke(this, EventArgs.Empty);
+            var result = await _exportImportService.ImportConnectionsAsync(bundle).ConfigureAwait(true);
+            ImportCompleted?.Invoke(this, result);
+            ResetImportState();
+            IsExportMode = true;
+            await LoadAsync().ConfigureAwait(true);
         }
         catch (Exception ex)
         {
@@ -334,12 +340,15 @@ public partial class ShareWizardViewModel : ObservableObject
         }
     }
 
-    [RelayCommand]
-    private void Cancel()
+    private void ResetImportState()
     {
-        DialogResult = false;
-        ImportResult = null;
-        RequestClose?.Invoke(this, EventArgs.Empty);
+        _importBundle = null;
+        HasImportPreview = false;
+        ImportFileName = string.Empty;
+        ImportSummary = string.Empty;
+        ImportTunnelItems.Clear();
+        ImportRdpItems.Clear();
+        RefreshSectionTitles();
     }
 
     private void RefreshSectionTitles()

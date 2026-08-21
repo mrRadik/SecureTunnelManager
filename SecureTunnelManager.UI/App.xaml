@@ -14,6 +14,7 @@
                 <ResourceDictionary Source="Styles/StatusBadge.xaml"/>
                 <ResourceDictionary Source="Styles/Typography.xaml"/>
                 <ResourceDictionary Source="Styles/Buttons.xaml"/>
+                <ResourceDictionary Source="Styles/Menus.xaml"/>
                 <ResourceDictionary Source="Styles/SegmentedControl.xaml"/>
                 <ResourceDictionary Source="Styles/Inputs.xaml"/>
                 <ResourceDictionary Source="Styles/Cards.xaml"/>

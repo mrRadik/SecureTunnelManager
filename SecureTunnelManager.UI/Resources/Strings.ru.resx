@@ -108,7 +108,7 @@
   <data name="Settings.Appearance" xml:space="preserve"><value>Интерфейс</value></data>
   <data name="Settings.Updates" xml:space="preserve"><value>Обновления</value></data>
   <data name="Settings.CurrentVersion" xml:space="preserve"><value>Текущая версия</value></data>
-  <data name="Settings.CheckForUpdatesOnStartup" xml:space="preserve"><value>Проверять обновления при запуске</value></data>
+  <data name="Settings.CheckForUpdatesOnStartup" xml:space="preserve"><value>Автоматически проверять обновления</value></data>
   <data name="Settings.CheckForUpdatesNow" xml:space="preserve"><value>Проверить обновления</value></data>
   <data name="Settings.UpdatesPortableHint" xml:space="preserve"><value>Автообновление доступно только для версии, установленной через MSI в Program Files.</value></data>
   <data name="Updates.Title" xml:space="preserve"><value>Обновление</value></data>
@@ -135,6 +135,10 @@
   <data name="Tunnels.NewTunnel" xml:space="preserve"><value>+ Новый туннель</value></data>
   <data name="Tunnels.StartAll" xml:space="preserve"><value>Запустить все</value></data>
   <data name="Tunnels.StopAll" xml:space="preserve"><value>Остановить все</value></data>
+  <data name="Tunnels.GlobalMenu.StartAll" xml:space="preserve"><value>Запустить все туннели</value></data>
+  <data name="Tunnels.GlobalMenu.StopAll" xml:space="preserve"><value>Остановить все туннели</value></data>
+  <data name="Tunnels.GlobalMenu.RestartAll" xml:space="preserve"><value>Перезапустить все туннели</value></data>
+  <data name="Tunnels.NewTunnelTooltip" xml:space="preserve"><value>Новый туннель</value></data>
   <data name="Tunnels.VaultUnlocked" xml:space="preserve"><value>Хранилище разблокировано</value></data>
   <data name="Tunnels.VaultLocked" xml:space="preserve"><value>Хранилище заблокировано</value></data>
   <data name="Tunnels.UnlockVault" xml:space="preserve"><value>Разблокировать</value></data>
@@ -167,6 +171,7 @@
   <data name="Vault.UnlockSubtitle" xml:space="preserve"><value>Введите мастер-пароль для доступа к сохранённым учётным данным.</value></data>
   <data name="Vault.MasterPassword" xml:space="preserve"><value>Мастер-пароль</value></data>
   <data name="Vault.ResetVault" xml:space="preserve"><value>Сбросить хранилище</value></data>
+  <data name="Vault.ResetVaultHint" xml:space="preserve"><value>Все сохранённые данные будут удалены, и потребуется заново настроить хранилище.</value></data>
   <data name="Vault.ResetConfirmTitle" xml:space="preserve"><value>Сбросить хранилище?</value></data>
   <data name="Vault.ResetConfirmBody" xml:space="preserve"><value>Все туннели будут безвозвратно удалены.&#x0a;Все сохранённые учётные данные будут безвозвратно удалены.&#x0a;Будет создан новый мастер-пароль.&#x0a;Это действие нельзя отменить.</value></data>
   <data name="Vault.NewMasterPassword" xml:space="preserve"><value>Новый мастер-пароль</value></data>
@@ -188,6 +193,7 @@
   <data name="Menu.Start" xml:space="preserve"><value>Запустить</value></data>
   <data name="Menu.Stop" xml:space="preserve"><value>Остановить</value></data>
   <data name="Menu.Restart" xml:space="preserve"><value>Перезапустить</value></data>
+  <data name="Menu.OpenTerminal" xml:space="preserve"><value>Открыть терминал</value></data>
   <data name="Menu.Edit" xml:space="preserve"><value>Изменить</value></data>
   <data name="Menu.Delete" xml:space="preserve"><value>Удалить</value></data>
   <data name="Tunnel.Test" xml:space="preserve"><value>Проверить туннель</value></data>
@@ -199,6 +205,7 @@
   <data name="Status.Connecting" xml:space="preserve"><value>Подключение</value></data>
   <data name="Status.Error" xml:space="preserve"><value>Ошибка</value></data>
   <data name="Rdp.NewComputer" xml:space="preserve"><value>+ Новый компьютер</value></data>
+  <data name="Rdp.NewComputerTooltip" xml:space="preserve"><value>Новый компьютер</value></data>
   <data name="Rdp.Subtitle" xml:space="preserve"><value>Подключение к Windows через jump host встроенным Remote Desktop.</value></data>
   <data name="Rdp.EmptyTitle" xml:space="preserve"><value>Пока нет компьютеров</value></data>
   <data name="Rdp.EmptyText" xml:space="preserve"><value>Добавьте компьютер — двойной клик откроет Remote Desktop через SSH jump host.</value></data>
@@ -243,6 +250,8 @@
   <data name="Common.Cancel" xml:space="preserve"><value>Отмена</value></data>
   <data name="Common.Yes" xml:space="preserve"><value>Да</value></data>
   <data name="Common.No" xml:space="preserve"><value>Нет</value></data>
+  <data name="Common.Error" xml:space="preserve"><value>Ошибка</value></data>
+  <data name="Common.Information" xml:space="preserve"><value>Secure Tunnel Manager</value></data>
   <data name="Menu.Duplicate" xml:space="preserve"><value>Дублировать</value></data>
   <data name="StatusBar.NotificationsTooltip" xml:space="preserve"><value>Уведомления</value></data>
   <data name="Notification.Title" xml:space="preserve"><value>Уведомления</value></data>
@@ -264,6 +273,7 @@
   <data name="Notification.VaultAutoLocked" xml:space="preserve"><value>Хранилище заблокировано из‑за бездействия</value></data>
   <data name="Notification.UnlockVault" xml:space="preserve"><value>Разблокировать</value></data>
   <data name="Notification.UpdateAvailable" xml:space="preserve"><value>Доступно обновление {0} (текущая: {1})</value></data>
+  <data name="Notification.InstallUpdate" xml:space="preserve"><value>Установить</value></data>
   <data name="Notification.ViewUpdate" xml:space="preserve"><value>Открыть настройки</value></data>
   <data name="Notification.RdpConnected" xml:space="preserve"><value>RDP подключён: {0}</value></data>
   <data name="Notification.RdpDisconnected" xml:space="preserve"><value>RDP отключён: {0}</value></data>
@@ -272,6 +282,7 @@
   <data name="Notification.TunnelDuplicated" xml:space="preserve"><value>Туннель скопирован: {0}</value></data>
   <data name="Notification.RdpDuplicated" xml:space="preserve"><value>Компьютер скопирован: {0}</value></data>
   <data name="Notification.DuplicateFailed" xml:space="preserve"><value>Не удалось скопировать: {0}</value></data>
+  <data name="Notification.OpenTerminalFailed" xml:space="preserve"><value>Не удалось открыть терминал: {0}</value></data>
   <data name="Notification.Time.JustNow" xml:space="preserve"><value>Только что</value></data>
   <data name="Notification.Time.MinutesAgo" xml:space="preserve"><value>{0} мин назад</value></data>
   <data name="Notification.Time.Yesterday" xml:space="preserve"><value>Вчера</value></data>

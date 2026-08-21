@@ -46,6 +46,14 @@ public partial class RdpGroupSection : System.Windows.Controls.UserControl
                 "Rename" => RdpGroupKey.IsUngrouped(Group.GroupKey) ? Visibility.Collapsed : Visibility.Visible,
                 _ => Visibility.Visible
             };
+
+            item.Icon = item.Tag switch
+            {
+                "Rename" => StmMenuIcons.Rename(),
+                "Expand" => StmMenuIcons.Expand(),
+                "Collapse" => StmMenuIcons.Collapse(),
+                _ => null
+            };
         }
     }
 

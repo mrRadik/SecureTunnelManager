@@ -44,21 +44,11 @@
                         <controls:NavigationItem IconGlyph="&#xE7F8;"
                                                  LocKey="Nav.Rdp"
                                                  Section="{x:Static vm:NavigationSection.Rdp}"/>
+                        <controls:NavigationItem IconGlyph="&#xE72D;"
+                                                 LocKey="Nav.Share"
+                                                 Section="{x:Static vm:NavigationSection.Share}"/>
 
                         <TextBlock Text="{loc:Loc Nav.System}" Style="{DynamicResource StmNavSectionHeader}"/>
-                        <Button Command="{Binding OpenShareWizardCommand}"
-                                Style="{DynamicResource StmSidebarMenuButton}"
-                                Margin="4,0">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="&#xE72D;"
-                                           Style="{DynamicResource StmIconGlyph}"
-                                           FontSize="16"
-                                           Width="20"
-                                           Margin="0,0,10,0"
-                                           VerticalAlignment="Center"/>
-                                <TextBlock Text="{loc:Loc Nav.Share}" VerticalAlignment="Center"/>
-                            </StackPanel>
-                        </Button>
                         <controls:NavigationItem IconGlyph="&#xE713;"
                                                  LocKey="Nav.Settings"
                                                  Section="{x:Static vm:NavigationSection.Settings}"/>
@@ -71,6 +61,8 @@
                     Visibility="{Binding SelectedSection, Converter={StaticResource NavigationSectionVisibilityConverter}, ConverterParameter=Tunnels}"/>
                 <controls:RdpView DataContext="{Binding Rdp}"
                     Visibility="{Binding DataContext.SelectedSection, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource NavigationSectionVisibilityConverter}, ConverterParameter=Rdp}"/>
+                <controls:ShareView DataContext="{Binding Share}"
+                    Visibility="{Binding DataContext.SelectedSection, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource NavigationSectionVisibilityConverter}, ConverterParameter=Share}"/>
                 <controls:SettingsView DataContext="{Binding}"
                     Visibility="{Binding SelectedSection, Converter={StaticResource NavigationSectionVisibilityConverter}, ConverterParameter=Settings}"/>
             </Grid>

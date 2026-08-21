@@ -36,15 +36,21 @@ public partial class MainViewModel : ObservableObject
 
     private readonly INotificationService _notificationService;
 
+    private readonly ISshTerminalLauncherService _terminalLauncher;
+
     private bool _tunnelAutoStartAttempted;
 
     private readonly HashSet<int> _startupQuietProfiles = new();
 
     private readonly Dictionary<int, TunnelStatus> _tunnelStatuses = new();
 
+    private NavigationSection _lastSection = NavigationSection.Tunnels;
+
     public SettingsViewModel Settings { get; }
 
     public RdpViewModel Rdp { get; }
+
+    public ShareViewModel Share { get; }
 
     public NotificationCenterViewModel Notifications { get; }
 
@@ -66,11 +72,15 @@ public partial class MainViewModel : ObservableObject
 
         INotificationService notificationService,
 
+        ISshTerminalLauncherService terminalLauncher,
+
         NotificationCenterViewModel notifications,
 
         SettingsViewModel settings,
 
-        RdpViewModel rdp)
+        RdpViewModel rdp,
+
+        ShareViewModel share)
 
     {
 
@@ -88,11 +98,33 @@ public partial class MainViewModel : ObservableObject
 
         _notificationService = notificationService;
 
+        _terminalLauncher = terminalLauncher;
+
         Notifications = notifications;
 
         Settings = settings;
 
         Rdp = rdp;
+
+        Share = share;
+
+
+
+        Share.ImportCompleted += async (_, result) =>
+        {
+            if (result.TotalImported == 0)
+                return;
+
+            await RefreshTunnelListAsync().ConfigureAwait(true);
+            await Rdp.LoadAsync().ConfigureAwait(true);
+
+            _notificationService.Publish(new AppNotification
+            {
+                Severity = NotificationSeverity.Success,
+                MessageKey = "Notification.ShareImportSuccess",
+                MessageArgs = [result.TunnelsImported, result.RdpImported]
+            });
+        };
 
 
 
@@ -568,6 +600,40 @@ public partial class MainViewModel : ObservableObject
 
     [RelayCommand(CanExecute = nameof(CanOperateOnRow))]
 
+    private async Task OpenTunnelTerminalAsync(TunnelRowViewModel? row)
+
+    {
+
+        if (row is null) return;
+
+        var profile = await _profileService.GetByIdAsync(row.ProfileId).ConfigureAwait(true);
+
+        if (profile is null) return;
+
+        var result = _terminalLauncher.Launch(profile);
+
+        if (result.Success)
+
+            return;
+
+        _notificationService.Publish(new AppNotification
+
+        {
+
+            Severity = NotificationSeverity.Error,
+
+            MessageKey = "Notification.OpenTerminalFailed",
+
+            MessageArgs = [result.ErrorMessage ?? string.Empty]
+
+        });
+
+    }
+
+
+
+    [RelayCommand(CanExecute = nameof(CanOperateOnRow))]
+
     private async Task EditTunnelAsync(TunnelRowViewModel? row)
 
     {
@@ -824,9 +890,29 @@ public partial class MainViewModel : ObservableObject
 
 
 
+    [RelayCommand]
+
+    private async Task RestartAllAsync()
+
+    {
+
+        if (!await EnsureVaultUnlockedAsync().ConfigureAwait(true)) return;
+
+        await _tunnelManager.RestartAllAsync().ConfigureAwait(true);
+
+    }
+
+
+
     partial void OnSelectedSectionChanged(NavigationSection value)
 
     {
+
+        if (value == NavigationSection.Share)
+        {
+            _ = LoadShareSectionAsync();
+            return;
+        }
 
         if (value == NavigationSection.Settings)
 
@@ -835,6 +921,32 @@ public partial class MainViewModel : ObservableObject
         else if (value == NavigationSection.Rdp)
 
             _ = Rdp.LoadAsync();
+
+        _lastSection = value;
+
+    }
+
+
+
+    private async Task LoadShareSectionAsync()
+
+    {
+
+        if (!await EnsureVaultUnlockedAsync().ConfigureAwait(true))
+
+        {
+
+            SelectedSection = _lastSection;
+
+            return;
+
+        }
+
+
+
+        _lastSection = NavigationSection.Share;
+
+        await Share.LoadAsync().ConfigureAwait(true);
 
     }
 
@@ -918,27 +1030,6 @@ public partial class MainViewModel : ObservableObject
     }
 
 
-
-    [RelayCommand]
-    private async Task OpenShareWizardAsync()
-    {
-        if (!await EnsureVaultUnlockedAsync().ConfigureAwait(true))
-            return;
-
-        var importResult = await _dialogService.ShowShareWizardAsync().ConfigureAwait(true);
-        if (importResult is null || importResult.TotalImported == 0)
-            return;
-
-        await RefreshTunnelListAsync().ConfigureAwait(true);
-        await Rdp.LoadAsync().ConfigureAwait(true);
-
-        _notificationService.Publish(new AppNotification
-        {
-            Severity = NotificationSeverity.Success,
-            MessageKey = "Notification.ShareImportSuccess",
-            MessageArgs = [importResult.TunnelsImported, importResult.RdpImported]
-        });
-    }
 
     private bool CanOperateTunnel() => SelectedTunnel is not null;
 

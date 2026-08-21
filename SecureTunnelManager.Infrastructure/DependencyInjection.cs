@@ -42,6 +42,7 @@ public static class DependencyInjection
         services.AddSingleton<IExportImportService, ExportImportService>();
         services.AddSingleton<IAutoStartService, AutoStartService>();
         services.AddSingleton<ISshTunnelTestService, SshTunnelTestService>();
+        services.AddSingleton<ISshTerminalLauncherService, SshTerminalLauncherService>();
         services.AddSingleton(_ =>
         {
             var client = new HttpClient

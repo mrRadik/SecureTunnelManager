@@ -6,59 +6,86 @@
              xmlns:loc="clr-namespace:SecureTunnelManager.UI.Localization"
              Background="Transparent">
 
+    <UserControl.Resources>
+        <ContextMenu x:Key="TunnelsGlobalMenu"
+                     Style="{DynamicResource StmContextMenu}">
+            <MenuItem Header="{loc:Loc Tunnels.GlobalMenu.StartAll}"
+                      Command="{Binding StartAllCommand}">
+                <MenuItem.Icon>
+                    <TextBlock Text="&#xE768;"
+                               FontFamily="{StaticResource StmIconFontFamily}"
+                               FontSize="12"
+                               Foreground="{DynamicResource StmStatusConnectedDotBrush}"/>
+                </MenuItem.Icon>
+            </MenuItem>
+            <MenuItem Header="{loc:Loc Tunnels.GlobalMenu.StopAll}"
+                      Command="{Binding StopAllCommand}">
+                <MenuItem.Icon>
+                    <TextBlock Text="&#xE71A;"
+                               FontFamily="{StaticResource StmIconFontFamily}"
+                               FontSize="12"
+                               Foreground="{DynamicResource StmDestructiveBrush}"/>
+                </MenuItem.Icon>
+            </MenuItem>
+            <Separator Style="{StaticResource StmMenuSeparator}"/>
+            <MenuItem Header="{loc:Loc Tunnels.GlobalMenu.RestartAll}"
+                      Command="{Binding RestartAllCommand}">
+                <MenuItem.Icon>
+                    <TextBlock Text="&#xE777;"
+                               FontFamily="{StaticResource StmIconFontFamily}"
+                               FontSize="12"
+                               Foreground="{DynamicResource StmStatusReconnectingDotBrush}"/>
+                </MenuItem.Icon>
+            </MenuItem>
+        </ContextMenu>
+    </UserControl.Resources>
+
     <Grid Style="{DynamicResource StmPageLayout}">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- Page header -->
-        <controls:PageHeader Grid.Row="0">
-            <controls:PageHeader.PrimaryActions>
-                <StackPanel Orientation="Horizontal">
-                    <Button Content="{loc:Loc Tunnels.NewTunnel}"
-                            Command="{Binding AddTunnelCommand}"
-                            Style="{DynamicResource StmPrimaryButton}"
-                            Margin="0,0,8,0"/>
-                    <Button Content="{loc:Loc Tunnels.StartAll}"
-                            Command="{Binding StartAllCommand}"
-                            Style="{DynamicResource StmToolbarButton}"
-                            Margin="0,0,8,0"/>
-                    <Button Content="{loc:Loc Tunnels.StopAll}"
-                            Command="{Binding StopAllCommand}"
-                            Style="{DynamicResource StmToolbarButton}"/>
-                </StackPanel>
-            </controls:PageHeader.PrimaryActions>
-        </controls:PageHeader>
+        <!-- Compact stats row -->
+        <Grid Grid.Row="0" Style="{DynamicResource StmPageStatsRow}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
 
-        <!-- Summary statistics -->
-        <controls:SummaryStats Grid.Row="1" Margin="{DynamicResource StmSummaryStatsMargin}">
-            <controls:SummaryStatItem Count="{Binding TotalTunnelCount, Mode=OneWay}"
-                                      Label="{Binding TotalSummary, Mode=OneWay}"
-                                      ShowSymbol="False"
-                                      IsEmphasized="True"/>
-            <controls:SummaryStatItem Count="{Binding ConnectedCount, Mode=OneWay}"
-                                      Label="{Binding ConnectedSummary, Mode=OneWay}"
-                                      SymbolBrush="{DynamicResource StmStatusConnectedDotBrush}"/>
-            <controls:SummaryStatItem Count="{Binding StoppedCount, Mode=OneWay}"
-                                      Label="{Binding StoppedSummary, Mode=OneWay}"
-                                      Symbol="○"
-                                      SymbolBrush="{DynamicResource StmStatusStoppedDotBrush}"/>
-            <controls:SummaryStatItem Count="{Binding ReconnectingCount, Mode=OneWay}"
-                                      Label="{Binding ReconnectingSummary, Mode=OneWay}"
-                                      Symbol="↻"
-                                      SymbolBrush="{DynamicResource StmStatusReconnectingDotBrush}"/>
-            <controls:SummaryStatItem Count="{Binding ErrorCount, Mode=OneWay}"
-                                      Label="{Binding ErrorSummary, Mode=OneWay}"
-                                      Symbol="×"
-                                      SymbolBrush="{DynamicResource StmStatusErrorDotBrush}"
-                                      Margin="0"/>
-        </controls:SummaryStats>
+            <controls:SummaryStats Grid.Column="0" VerticalAlignment="Center">
+                <controls:SummaryStatItem Count="{Binding TotalTunnelCount, Mode=OneWay}"
+                                          Label="{Binding TotalSummary, Mode=OneWay}"
+                                          ShowSymbol="False"
+                                          IsEmphasized="True"/>
+                <controls:SummaryStatItem Count="{Binding ConnectedCount, Mode=OneWay}"
+                                          Label="{Binding ConnectedSummary, Mode=OneWay}"
+                                          SymbolBrush="{DynamicResource StmStatusConnectedDotBrush}"/>
+                <controls:SummaryStatItem Count="{Binding StoppedCount, Mode=OneWay}"
+                                          Label="{Binding StoppedSummary, Mode=OneWay}"
+                                          Symbol="○"
+                                          SymbolBrush="{DynamicResource StmStatusStoppedDotBrush}"/>
+                <controls:SummaryStatItem Count="{Binding ReconnectingCount, Mode=OneWay}"
+                                          Label="{Binding ReconnectingSummary, Mode=OneWay}"
+                                          Symbol="↻"
+                                          SymbolBrush="{DynamicResource StmStatusReconnectingDotBrush}"/>
+                <controls:SummaryStatItem Count="{Binding ErrorCount, Mode=OneWay}"
+                                          Label="{Binding ErrorSummary, Mode=OneWay}"
+                                          Symbol="×"
+                                          SymbolBrush="{DynamicResource StmStatusErrorDotBrush}"
+                                          Margin="0"/>
+            </controls:SummaryStats>
+
+            <Button x:Name="GlobalMenuButton"
+                    Grid.Column="1"
+                    VerticalAlignment="Center"
+                    Style="{DynamicResource StmOverflowMenuButton}"
+                    Click="OnGlobalMenuClick"/>
+        </Grid>
 
         <!-- Search and filters -->
-        <controls:FilterToolbar Grid.Row="2">
+        <controls:FilterToolbar Grid.Row="1">
             <controls:FilterToolbar.SearchContent>
                 <controls:SearchBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
                                     Placeholder="{loc:Loc Tunnels.SearchPlaceholder}"/>
@@ -71,7 +98,7 @@
         </controls:FilterToolbar>
 
         <!-- Main content -->
-        <Grid Grid.Row="3">
+        <Grid Grid.Row="2">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center"
                         Visibility="{Binding IsBusy, Converter={StaticResource BooleanToVisibilityConverter}}">
                 <ProgressBar Style="{DynamicResource StmProgressBar}" Width="240" IsIndeterminate="True"/>
@@ -81,13 +108,7 @@
             <controls:EmptyState VerticalAlignment="Center" HorizontalAlignment="Center"
                                  Title="{loc:Loc Tunnels.EmptyTitle}"
                                  Subtitle="{loc:Loc Tunnels.EmptySubtitle}"
-                                 Visibility="{Binding ShowEmptyState, Converter={StaticResource BooleanToVisibilityConverter}}">
-                <controls:EmptyState.ActionContent>
-                    <Button Content="{loc:Loc Tunnels.NewTunnel}"
-                            Command="{Binding AddTunnelCommand}"
-                            Style="{DynamicResource StmPrimaryButton}"/>
-                </controls:EmptyState.ActionContent>
-            </controls:EmptyState>
+                                 Visibility="{Binding ShowEmptyState, Converter={StaticResource BooleanToVisibilityConverter}}"/>
 
             <controls:EmptyState VerticalAlignment="Center" HorizontalAlignment="Center"
                                  Title="{loc:Loc Tunnels.NoResultsTitle}"
@@ -96,7 +117,8 @@
 
             <ScrollViewer VerticalScrollBarVisibility="Auto"
                           Visibility="{Binding HasFilteredTunnels, Converter={StaticResource BooleanToVisibilityConverter}}">
-                <ItemsControl ItemsSource="{Binding FilteredTunnels}">
+                <ItemsControl ItemsSource="{Binding FilteredTunnels}"
+                              Margin="{StaticResource StmFabScrollPadding}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate DataType="{x:Type vm:TunnelRowViewModel}">
                             <controls:TunnelCard DataContext="{Binding}"/>
@@ -104,6 +126,11 @@
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
             </ScrollViewer>
+
+            <Button Content="+"
+                    Command="{Binding AddTunnelCommand}"
+                    Style="{DynamicResource StmFabButton}"
+                    ToolTip="{loc:Loc Tunnels.NewTunnelTooltip}"/>
         </Grid>
     </Grid>
 </UserControl>

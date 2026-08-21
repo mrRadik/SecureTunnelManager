@@ -14,6 +14,7 @@ public interface ITunnelManagerService
     Task RestartTunnelAsync(int profileId, CancellationToken cancellationToken = default);
     Task StartAllAsync(CancellationToken cancellationToken = default);
     Task StopAllAsync(CancellationToken cancellationToken = default);
+    Task RestartAllAsync(CancellationToken cancellationToken = default);
     IReadOnlyList<TunnelRuntimeState> GetRuntimeStates();
     TunnelRuntimeState? GetRuntimeState(int profileId);
 }

@@ -13,6 +13,7 @@ public sealed class UpdatePromptService
     private readonly INotificationService _notificationService;
     private readonly ILogger<UpdatePromptService> _logger;
     private int _installInProgress;
+    private string? _lastNotifiedAvailableVersion;
 
     public UpdatePromptService(
         IUpdateService updateService,
@@ -62,6 +63,8 @@ public sealed class UpdatePromptService
 
         if (manifest is null)
         {
+            _lastNotifiedAvailableVersion = null;
+
             if (!silentWhenUpToDate)
                 _dialogService.ShowInfo(_localization.Format("Updates.UpToDate", CurrentVersion));
 
@@ -70,14 +73,46 @@ public sealed class UpdatePromptService
 
         if (silentWhenUpToDate)
         {
+            if (string.Equals(_lastNotifiedAvailableVersion, manifest.Version, StringComparison.OrdinalIgnoreCase))
+                return;
+
+            _lastNotifiedAvailableVersion = manifest.Version;
             _notificationService.Publish(new AppNotification
             {
                 Severity = NotificationSeverity.Info,
                 MessageKey = "Notification.UpdateAvailable",
                 MessageArgs = [manifest.Version, CurrentVersion],
-                ActionKind = NotificationActionKind.OpenSettings,
-                ActionLabelKey = "Notification.ViewUpdate"
+                ActionKind = NotificationActionKind.InstallUpdate,
+                ActionLabelKey = "Notification.InstallUpdate"
             });
+            return;
+        }
+
+        await PromptInstallAsync(manifest, cancellationToken).ConfigureAwait(true);
+    }
+
+    public async Task InstallAvailableUpdateAsync(CancellationToken cancellationToken = default)
+    {
+        if (!CanCheckForUpdates)
+        {
+            _dialogService.ShowInfo(_localization.Get("Updates.NotInstalled"));
+            return;
+        }
+
+        UpdateManifest? manifest;
+        try
+        {
+            manifest = await _updateService.CheckForUpdateAsync(cancellationToken).ConfigureAwait(true);
+        }
+        catch
+        {
+            _dialogService.ShowError(_localization.Get("Updates.CheckFailed"));
+            return;
+        }
+
+        if (manifest is null)
+        {
+            _dialogService.ShowInfo(_localization.Format("Updates.UpToDate", CurrentVersion));
             return;
         }
 

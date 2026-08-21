@@ -1,6 +1,7 @@
 using System.Windows;
 using System.Windows.Controls;
 using Microsoft.Extensions.DependencyInjection;
+using SecureTunnelManager.UI.Helpers;
 using SecureTunnelManager.UI.Services;
 using SecureTunnelManager.UI.ViewModels;
 
@@ -30,10 +31,23 @@ public partial class TunnelCard : System.Windows.Controls.UserControl
                 "Start" => Localization.Get("Menu.Start"),
                 "Stop" => Localization.Get("Menu.Stop"),
                 "Restart" => Localization.Get("Menu.Restart"),
+                "OpenTerminal" => Localization.Get("Menu.OpenTerminal"),
                 "Duplicate" => Localization.Get("Menu.Duplicate"),
                 "Edit" => Localization.Get("Menu.Edit"),
                 "Delete" => Localization.Get("Menu.Delete"),
                 _ => item.Tag?.ToString() ?? string.Empty
+            };
+
+            item.Icon = item.Tag switch
+            {
+                "Start" => StmMenuIcons.Start(),
+                "Stop" => StmMenuIcons.Stop(),
+                "Restart" => StmMenuIcons.Restart(),
+                "OpenTerminal" => StmMenuIcons.Terminal(),
+                "Duplicate" => StmMenuIcons.Duplicate(),
+                "Edit" => StmMenuIcons.Edit(),
+                "Delete" => StmMenuIcons.Delete(),
+                _ => null
             };
         }
     }
@@ -64,6 +78,12 @@ public partial class TunnelCard : System.Windows.Controls.UserControl
     {
         if (Row is null || MainVm is null) return;
         await MainVm.RestartTunnelCommand.ExecuteAsync(Row);
+    }
+
+    private async void OnOpenTerminalClick(object sender, RoutedEventArgs e)
+    {
+        if (Row is null || MainVm is null) return;
+        await MainVm.OpenTunnelTerminalCommand.ExecuteAsync(Row);
     }
 
     private async void OnDuplicateClick(object sender, RoutedEventArgs e)

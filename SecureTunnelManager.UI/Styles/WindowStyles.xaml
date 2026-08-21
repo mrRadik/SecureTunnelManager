@@ -310,6 +310,7 @@
         <Setter Property="FontSize" Value="12"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
         <Setter Property="Foreground" Value="{DynamicResource StmTextPrimaryBrush}"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
         <Setter Property="Opacity" Value="1"/>
     </Style>
 
@@ -341,8 +342,9 @@
     <Style x:Key="StmNotificationActionLink" TargetType="Button" BasedOn="{StaticResource StmStatusBarAction}">
         <Setter Property="MinHeight" Value="18"/>
         <Setter Property="Padding" Value="0"/>
-        <Setter Property="Margin" Value="0,4,0,0"/>
+        <Setter Property="Margin" Value="0"/>
         <Setter Property="HorizontalAlignment" Value="Left"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
         <Setter Property="Foreground" Value="{DynamicResource StmAccentBrush}"/>
         <Setter Property="FontSize" Value="11"/>
         <Style.Triggers>

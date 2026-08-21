@@ -30,7 +30,7 @@
                                     CornerRadius="{StaticResource StmControlCornerRadius}"
                                     Background="Transparent"
                                     BorderBrush="{DynamicResource StmAccentBrush}"
-                                    BorderThickness="2">
+                                    BorderThickness="1.5">
                                 <ContentPresenter/>
                             </Border>
                             <ControlTemplate.Triggers>

@@ -57,14 +57,15 @@ public partial class App : System.Windows.Application
                 services.AddSingleton<UpdatePromptService>();
                 services.AddSingleton<WhatsNewService>();
                 services.AddSingleton<TrayIconService>();
+                services.AddHostedService<Hosting.UpdateCheckHostedService>();
                 services.AddSingleton<MainViewModel>();
                 services.AddSingleton<SettingsViewModel>();
                 services.AddSingleton<RdpViewModel>();
+                services.AddSingleton<ShareViewModel>();
                 services.AddTransient<VaultSetupViewModel>();
                 services.AddTransient<UnlockVaultViewModel>();
                 services.AddTransient<TunnelEditorViewModel>();
                 services.AddTransient<RdpEditorViewModel>();
-                services.AddTransient<ShareWizardViewModel>();
             })
             .Build();
 

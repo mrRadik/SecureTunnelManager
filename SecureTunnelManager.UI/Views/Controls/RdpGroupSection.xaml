@@ -11,7 +11,8 @@
                 Margin="0,0,0,8"
                 MouseLeftButtonUp="OnHeaderClick">
             <Border.ContextMenu>
-                <ContextMenu Opened="OnHeaderContextMenuOpened">
+                <ContextMenu Opened="OnHeaderContextMenuOpened"
+                             Style="{DynamicResource StmContextMenu}">
                     <MenuItem Tag="Rename" Click="OnRenameClick"/>
                     <MenuItem Tag="Expand" Click="OnExpandClick"/>
                     <MenuItem Tag="Collapse" Click="OnCollapseClick"/>

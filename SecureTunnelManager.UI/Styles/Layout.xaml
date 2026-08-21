@@ -5,8 +5,10 @@
     <!-- Spacing scale (4px base) -->
     <Thickness x:Key="StmPageMargin">24</Thickness>
     <Thickness x:Key="StmPageHeaderMargin">0,0,0,12</Thickness>
-    <Thickness x:Key="StmSummaryStatsMargin">0,0,0,12</Thickness>
+    <Thickness x:Key="StmSummaryStatsMargin">0,0,0,8</Thickness>
     <Thickness x:Key="StmFilterToolbarMargin">0,0,0,12</Thickness>
+    <Thickness x:Key="StmFabMargin">0,0,16,16</Thickness>
+    <Thickness x:Key="StmFabScrollPadding">0,0,0,56</Thickness>
     <sys:Double x:Key="StmSpacing4">4</sys:Double>
     <sys:Double x:Key="StmSpacing8">8</sys:Double>
     <sys:Double x:Key="StmSpacing12">12</sys:Double>
@@ -15,6 +17,8 @@
 
     <!-- Control dimensions -->
     <sys:Double x:Key="StmControlHeight">38</sys:Double>
+    <sys:Double x:Key="StmSummaryStatsRowHeight">30</sys:Double>
+    <sys:Double x:Key="StmFilterToolbarHeight">48</sys:Double>
     <sys:Double x:Key="StmSearchBoxMinWidth">240</sys:Double>
     <sys:Double x:Key="StmStatusBarHeight">28</sys:Double>
     <sys:Double x:Key="StmCardRadius">8</sys:Double>
@@ -23,6 +27,11 @@
     <CornerRadius x:Key="StmCardCornerRadius">8</CornerRadius>
     <CornerRadius x:Key="StmRdpCardCornerRadius">12</CornerRadius>
     <CornerRadius x:Key="StmControlCornerRadius">6</CornerRadius>
+
+    <Style x:Key="StmPageStatsRow" TargetType="Grid">
+        <Setter Property="MinHeight" Value="{StaticResource StmSummaryStatsRowHeight}"/>
+        <Setter Property="Margin" Value="{StaticResource StmSummaryStatsMargin}"/>
+    </Style>
 
     <Style x:Key="StmPageLayout" TargetType="Grid">
         <Setter Property="Margin" Value="{StaticResource StmPageMargin}"/>
@@ -41,6 +50,7 @@
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="CornerRadius" Value="{StaticResource StmControlCornerRadius}"/>
         <Setter Property="Padding" Value="6,4"/>
+        <Setter Property="MinHeight" Value="{StaticResource StmFilterToolbarHeight}"/>
     </Style>
 
     <Style x:Key="StmToolbarDivider" TargetType="Border">

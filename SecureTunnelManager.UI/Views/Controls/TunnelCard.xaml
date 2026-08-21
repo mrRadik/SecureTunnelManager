@@ -7,11 +7,14 @@
 
     <Border x:Name="CardBorder" Style="{DynamicResource StmTunnelCard}">
         <Border.ContextMenu>
-            <ContextMenu Opened="OnContextMenuOpened">
+            <ContextMenu Opened="OnContextMenuOpened"
+                         Style="{DynamicResource StmContextMenu}">
                 <MenuItem Tag="Start" Click="OnStartClick"/>
                 <MenuItem Tag="Stop" Click="OnStopClick"/>
                 <MenuItem Tag="Restart" Click="OnRestartClick"/>
-                <Separator/>
+                <Separator Style="{StaticResource StmMenuSeparator}"/>
+                <MenuItem Tag="OpenTerminal" Click="OnOpenTerminalClick"/>
+                <Separator Style="{StaticResource StmMenuSeparator}"/>
                 <MenuItem Tag="Duplicate" Click="OnDuplicateClick"/>
                 <MenuItem Tag="Edit" Click="OnEditClick"/>
                 <MenuItem Tag="Delete" Click="OnDeleteClick"/>

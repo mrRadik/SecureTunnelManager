@@ -75,9 +75,9 @@
     </Style>
 
     <Style x:Key="StmSummaryText" TargetType="TextBlock" BasedOn="{StaticResource StmFontBase}">
-        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="FontSize" Value="12"/>
         <Setter Property="Foreground" Value="{DynamicResource StmTextSecondaryBrush}"/>
-        <Setter Property="Margin" Value="0,0,16,0"/>
+        <Setter Property="Margin" Value="0,0,10,0"/>
     </Style>
 
     <Style x:Key="StmRouteLabel" TargetType="TextBlock" BasedOn="{StaticResource StmFontBase}">

@@ -16,11 +16,17 @@
                     BorderBrush="{DynamicResource StmBorderBrush}"
                     BorderThickness="0,0,0,1"
                     Padding="12,10">
-                <Grid>
-                    <TextBlock Text="{loc:Loc Notification.Title}"
-                               Style="{DynamicResource StmNotificationHeaderText}"/>
-                    <StackPanel Orientation="Horizontal"
-                                HorizontalAlignment="Right"
+                <Grid VerticalAlignment="Center">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0"
+                               Text="{loc:Loc Notification.Title}"
+                               Style="{DynamicResource StmNotificationHeaderText}"
+                               VerticalAlignment="Center"/>
+                    <StackPanel Grid.Column="1"
+                                Orientation="Horizontal"
                                 VerticalAlignment="Center">
                         <Button Content="{loc:Loc Notification.MarkAllRead}"
                                 Command="{Binding MarkAllReadCommand}"
@@ -62,6 +68,7 @@
                                                 Command="{Binding DataContext.ExecuteActionCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                 CommandParameter="{Binding}"
                                                 Style="{DynamicResource StmNotificationActionLink}"
+                                                Margin="0,4,0,0"
                                                 Visibility="{Binding HasAction, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                                     </StackPanel>
                                 </Grid>

@@ -121,7 +121,7 @@ public partial class JumpHostHopViewModel : ObservableObject
             valid = false;
         }
 
-        if (AuthMethod == AuthMethod.Password && !CredentialId.HasValue && string.IsNullOrEmpty(Password))
+        if (AuthMethod == AuthMethod.Password && string.IsNullOrEmpty(Password) && !CredentialId.HasValue)
         {
             CredentialError = "Password is required";
             valid = false;

@@ -2,6 +2,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using Microsoft.Extensions.DependencyInjection;
+using SecureTunnelManager.UI.Helpers;
 using SecureTunnelManager.UI.Services;
 using SecureTunnelManager.UI.ViewModels;
 
@@ -52,6 +53,17 @@ public partial class RdpComputerTile : System.Windows.Controls.UserControl
                 "Connect" => Row?.CanConnect == true,
                 "Disconnect" => Row?.CanDisconnect == true,
                 _ => true
+            };
+
+            item.Icon = item.Tag switch
+            {
+                "Connect" => StmMenuIcons.Connect(),
+                "Disconnect" => StmMenuIcons.Disconnect(),
+                "MoveToGroup" => StmMenuIcons.MoveToGroup(),
+                "Duplicate" => StmMenuIcons.Duplicate(),
+                "Edit" => StmMenuIcons.Edit(),
+                "Delete" => StmMenuIcons.Delete(),
+                _ => null
             };
         }
     }

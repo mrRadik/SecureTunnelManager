@@ -13,7 +13,8 @@ public enum NotificationActionKind
     EditTunnel,
     EditRdpTarget,
     UnlockVault,
-    OpenSettings
+    OpenSettings,
+    InstallUpdate
 }
 
 /// <summary>
@@ -28,6 +29,9 @@ public sealed class AppNotification
     public NotificationSeverity Severity { get; init; } = NotificationSeverity.Info;
 
     public string MessageKey { get; init; } = string.Empty;
+
+    /// <summary>Pre-localized text when no <see cref="MessageKey"/> is used.</summary>
+    public string? DirectMessage { get; init; }
 
     public object[] MessageArgs { get; init; } = Array.Empty<object>();
 

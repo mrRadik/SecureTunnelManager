@@ -81,10 +81,11 @@
             </Style>
         </Border.Style>
         <Border.ContextMenu>
-            <ContextMenu Opened="OnContextMenuOpened">
+            <ContextMenu Opened="OnContextMenuOpened"
+                         Style="{DynamicResource StmContextMenu}">
                 <MenuItem Tag="Connect" Click="OnConnectClick"/>
                 <MenuItem Tag="Disconnect" Click="OnDisconnectClick"/>
-                <Separator/>
+                <Separator Style="{StaticResource StmMenuSeparator}"/>
                 <MenuItem Tag="MoveToGroup" Click="OnMoveToGroupClick"/>
                 <MenuItem Tag="Duplicate" Click="OnDuplicateClick"/>
                 <MenuItem Tag="Edit" Click="OnEditClick"/>

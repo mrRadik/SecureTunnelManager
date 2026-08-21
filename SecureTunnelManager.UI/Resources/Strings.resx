@@ -108,7 +108,7 @@
   <data name="Settings.Appearance" xml:space="preserve"><value>Appearance</value></data>
   <data name="Settings.Updates" xml:space="preserve"><value>Updates</value></data>
   <data name="Settings.CurrentVersion" xml:space="preserve"><value>Current version</value></data>
-  <data name="Settings.CheckForUpdatesOnStartup" xml:space="preserve"><value>Check for updates on startup</value></data>
+  <data name="Settings.CheckForUpdatesOnStartup" xml:space="preserve"><value>Check for updates automatically</value></data>
   <data name="Settings.CheckForUpdatesNow" xml:space="preserve"><value>Check for updates</value></data>
   <data name="Settings.UpdatesPortableHint" xml:space="preserve"><value>Auto-update is available only for the MSI-installed version in Program Files.</value></data>
   <data name="Updates.Title" xml:space="preserve"><value>Software Update</value></data>
@@ -135,6 +135,10 @@ This update includes improvements and bug fixes.</value></data>
   <data name="Tunnels.NewTunnel" xml:space="preserve"><value>+ New Tunnel</value></data>
   <data name="Tunnels.StartAll" xml:space="preserve"><value>Start All</value></data>
   <data name="Tunnels.StopAll" xml:space="preserve"><value>Stop All</value></data>
+  <data name="Tunnels.GlobalMenu.StartAll" xml:space="preserve"><value>Start all tunnels</value></data>
+  <data name="Tunnels.GlobalMenu.StopAll" xml:space="preserve"><value>Stop all tunnels</value></data>
+  <data name="Tunnels.GlobalMenu.RestartAll" xml:space="preserve"><value>Restart all tunnels</value></data>
+  <data name="Tunnels.NewTunnelTooltip" xml:space="preserve"><value>New tunnel</value></data>
   <data name="Tunnels.VaultUnlocked" xml:space="preserve"><value>Vault unlocked</value></data>
   <data name="Tunnels.VaultLocked" xml:space="preserve"><value>Vault locked</value></data>
   <data name="Tunnels.UnlockVault" xml:space="preserve"><value>Unlock Vault</value></data>
@@ -167,6 +171,7 @@ This update includes improvements and bug fixes.</value></data>
   <data name="Vault.UnlockSubtitle" xml:space="preserve"><value>Enter your master password to access stored credentials.</value></data>
   <data name="Vault.MasterPassword" xml:space="preserve"><value>Master password</value></data>
   <data name="Vault.ResetVault" xml:space="preserve"><value>Reset Vault</value></data>
+  <data name="Vault.ResetVaultHint" xml:space="preserve"><value>This will remove all stored data and you will need to set up the vault again.</value></data>
   <data name="Vault.ResetConfirmTitle" xml:space="preserve"><value>Reset Secure Vault?</value></data>
   <data name="Vault.ResetConfirmBody" xml:space="preserve"><value>All tunnels will be permanently deleted.&#x0a;All stored credentials will be permanently deleted.&#x0a;You will create a new master password to continue.&#x0a;This action cannot be undone.</value></data>
   <data name="Vault.NewMasterPassword" xml:space="preserve"><value>New master password</value></data>
@@ -188,6 +193,7 @@ This update includes improvements and bug fixes.</value></data>
   <data name="Menu.Start" xml:space="preserve"><value>Start</value></data>
   <data name="Menu.Stop" xml:space="preserve"><value>Stop</value></data>
   <data name="Menu.Restart" xml:space="preserve"><value>Restart</value></data>
+  <data name="Menu.OpenTerminal" xml:space="preserve"><value>Open terminal</value></data>
   <data name="Menu.Edit" xml:space="preserve"><value>Edit</value></data>
   <data name="Menu.Delete" xml:space="preserve"><value>Delete</value></data>
   <data name="Tunnel.Test" xml:space="preserve"><value>Test Tunnel</value></data>
@@ -199,6 +205,7 @@ This update includes improvements and bug fixes.</value></data>
   <data name="Status.Connecting" xml:space="preserve"><value>Connecting</value></data>
   <data name="Status.Error" xml:space="preserve"><value>Error</value></data>
   <data name="Rdp.NewComputer" xml:space="preserve"><value>+ New computer</value></data>
+  <data name="Rdp.NewComputerTooltip" xml:space="preserve"><value>New computer</value></data>
   <data name="Rdp.Subtitle" xml:space="preserve"><value>Connect to Windows machines through a jump host using built-in Remote Desktop.</value></data>
   <data name="Rdp.EmptyTitle" xml:space="preserve"><value>No computers yet</value></data>
   <data name="Rdp.EmptyText" xml:space="preserve"><value>Add a computer to open Remote Desktop through your SSH jump host with a double-click.</value></data>
@@ -243,6 +250,8 @@ This update includes improvements and bug fixes.</value></data>
   <data name="Common.Cancel" xml:space="preserve"><value>Cancel</value></data>
   <data name="Common.Yes" xml:space="preserve"><value>Yes</value></data>
   <data name="Common.No" xml:space="preserve"><value>No</value></data>
+  <data name="Common.Error" xml:space="preserve"><value>Error</value></data>
+  <data name="Common.Information" xml:space="preserve"><value>Secure Tunnel Manager</value></data>
   <data name="Menu.Duplicate" xml:space="preserve"><value>Duplicate</value></data>
   <data name="StatusBar.NotificationsTooltip" xml:space="preserve"><value>Notifications</value></data>
   <data name="Notification.Title" xml:space="preserve"><value>Notifications</value></data>
@@ -264,6 +273,7 @@ This update includes improvements and bug fixes.</value></data>
   <data name="Notification.VaultAutoLocked" xml:space="preserve"><value>Vault locked due to inactivity</value></data>
   <data name="Notification.UnlockVault" xml:space="preserve"><value>Unlock</value></data>
   <data name="Notification.UpdateAvailable" xml:space="preserve"><value>Update {0} is available (current: {1})</value></data>
+  <data name="Notification.InstallUpdate" xml:space="preserve"><value>Install</value></data>
   <data name="Notification.ViewUpdate" xml:space="preserve"><value>View in Settings</value></data>
   <data name="Notification.RdpConnected" xml:space="preserve"><value>RDP connected: {0}</value></data>
   <data name="Notification.RdpDisconnected" xml:space="preserve"><value>RDP disconnected: {0}</value></data>
@@ -272,6 +282,7 @@ This update includes improvements and bug fixes.</value></data>
   <data name="Notification.TunnelDuplicated" xml:space="preserve"><value>Tunnel copied: {0}</value></data>
   <data name="Notification.RdpDuplicated" xml:space="preserve"><value>Computer copied: {0}</value></data>
   <data name="Notification.DuplicateFailed" xml:space="preserve"><value>Copy failed: {0}</value></data>
+  <data name="Notification.OpenTerminalFailed" xml:space="preserve"><value>Failed to open terminal: {0}</value></data>
   <data name="Notification.Time.JustNow" xml:space="preserve"><value>Just now</value></data>
   <data name="Notification.Time.MinutesAgo" xml:space="preserve"><value>{0} min ago</value></data>
   <data name="Notification.Time.Yesterday" xml:space="preserve"><value>Yesterday</value></data>

@@ -77,6 +77,13 @@ public class TunnelManagerService : ITunnelManagerService, IDisposable
             await StopTunnelAsync(id, cancellationToken).ConfigureAwait(false);
     }
 
+    public async Task RestartAllAsync(CancellationToken cancellationToken = default)
+    {
+        var ids = _workers.Keys.ToList();
+        foreach (var id in ids)
+            await RestartTunnelAsync(id, cancellationToken).ConfigureAwait(false);
+    }
+
     public IReadOnlyList<TunnelRuntimeState> GetRuntimeStates() => _states.Values.OrderBy(s => s.Name).ToList();
 
     public TunnelRuntimeState? GetRuntimeState(int profileId)

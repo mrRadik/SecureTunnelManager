@@ -1,6 +1,7 @@
 using System.Windows;
 using Microsoft.Extensions.DependencyInjection;
 using SecureTunnelManager.Core.Models;
+using SecureTunnelManager.Core.Services;
 using SecureTunnelManager.UI.ViewModels;
 using SecureTunnelManager.UI.Views;
 
@@ -11,6 +12,9 @@ public class DialogService : IDialogService
     private readonly IServiceProvider _serviceProvider;
 
     public DialogService(IServiceProvider serviceProvider) => _serviceProvider = serviceProvider;
+
+    private INotificationService Notifications =>
+        _serviceProvider.GetRequiredService<INotificationService>();
 
     public Task<bool> ShowVaultSetupAsync()
     {
@@ -81,22 +85,19 @@ public class DialogService : IDialogService
         return Task.FromResult(result == true ? window.Password : null);
     }
 
-    public async Task<ShareImportResult?> ShowShareWizardAsync()
-    {
-        var vm = _serviceProvider.GetRequiredService<ShareWizardViewModel>();
-        await vm.InitializeAsync().ConfigureAwait(true);
-
-        var window = new ShareWizardWindow { DataContext = vm };
-        PrepareDialog(window);
-        await ShowModalAsync(vm, window).ConfigureAwait(true);
-        return vm.DialogResult ? vm.ImportResult : null;
-    }
-
     public void ShowError(string message) =>
-        System.Windows.MessageBox.Show(message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+        Notifications.Publish(new AppNotification
+        {
+            Severity = NotificationSeverity.Error,
+            DirectMessage = message
+        });
 
     public void ShowInfo(string message) =>
-        System.Windows.MessageBox.Show(message, "Secure Tunnel Manager", MessageBoxButton.OK, MessageBoxImage.Information);
+        Notifications.Publish(new AppNotification
+        {
+            Severity = NotificationSeverity.Info,
+            DirectMessage = message
+        });
 
     public bool ShowConfirm(string message, string title, bool destructiveConfirm = false)
     {
@@ -142,9 +143,6 @@ public class DialogService : IDialogService
         => ShowModalAsync(window, () => vm.DialogResult, h => vm.RequestClose += h);
 
     private static Task<bool> ShowModalAsync(RdpEditorViewModel vm, RdpEditorWindow window)
-        => ShowModalAsync(window, () => vm.DialogResult, h => vm.RequestClose += h);
-
-    private static Task<bool> ShowModalAsync(ShareWizardViewModel vm, ShareWizardWindow window)
         => ShowModalAsync(window, () => vm.DialogResult, h => vm.RequestClose += h);
 
     private static Task<bool> ShowModalAsync(

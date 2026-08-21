@@ -25,7 +25,16 @@ public sealed partial class NotificationItemViewModel : ObservableObject
 
     public NotificationSeverity Severity => Source.Severity;
 
-    public bool HasAction => Source.ActionKind.HasValue && Source.ResourceId.HasValue;
+    public bool HasAction => Source.ActionKind switch
+    {
+        NotificationActionKind.EditTunnel or NotificationActionKind.EditRdpTarget
+            => Source.ResourceId.HasValue && !string.IsNullOrWhiteSpace(Source.ActionLabelKey),
+        NotificationActionKind.UnlockVault
+            or NotificationActionKind.OpenSettings
+            or NotificationActionKind.InstallUpdate
+            => !string.IsNullOrWhiteSpace(Source.ActionLabelKey),
+        _ => false
+    };
 
     [ObservableProperty] private string _message = string.Empty;
 
@@ -35,9 +44,11 @@ public sealed partial class NotificationItemViewModel : ObservableObject
 
     public void RefreshLocalizedText(ILocalizationService localization)
     {
-        Message = Source.MessageArgs.Length == 0
-            ? localization.Get(Source.MessageKey)
-            : localization.Format(Source.MessageKey, Source.MessageArgs);
+        Message = !string.IsNullOrWhiteSpace(Source.DirectMessage)
+            ? Source.DirectMessage
+            : Source.MessageArgs.Length == 0
+                ? localization.Get(Source.MessageKey)
+                : localization.Format(Source.MessageKey, Source.MessageArgs);
 
         TimeText = FormatTime(localization, Source.TimestampUtc);
         ActionLabel = string.IsNullOrWhiteSpace(Source.ActionLabelKey)
@@ -72,7 +83,6 @@ public partial class NotificationCenterViewModel : ObservableObject
 
     private readonly INotificationService _notificationService;
     private readonly ILocalizationService _localization;
-    private readonly IDialogService _dialogService;
     private readonly IServiceProvider _serviceProvider;
     private DispatcherTimer? _toastHideTimer;
     private NotificationItemViewModel? _toastItem;
@@ -80,12 +90,10 @@ public partial class NotificationCenterViewModel : ObservableObject
     public NotificationCenterViewModel(
         INotificationService notificationService,
         ILocalizationService localization,
-        IDialogService dialogService,
         IServiceProvider serviceProvider)
     {
         _notificationService = notificationService;
         _localization = localization;
-        _dialogService = dialogService;
         _serviceProvider = serviceProvider;
 
         _notificationService.Changed += (_, _) => RunOnUiThread(RefreshFromService);
@@ -128,15 +136,8 @@ public partial class NotificationCenterViewModel : ObservableObject
         if (!HasItems)
             return;
 
-        if (!_dialogService.ShowConfirm(
-                _localization.Get("Notification.ClearConfirm"),
-                _localization.Get("Notification.ClearTitle"),
-                destructiveConfirm: true))
-            return;
-
         HideToast();
         _notificationService.ClearAll();
-        IsPanelOpen = false;
     }
 
     [RelayCommand]
@@ -157,7 +158,7 @@ public partial class NotificationCenterViewModel : ObservableObject
     [RelayCommand]
     private async Task ExecuteActionAsync(NotificationItemViewModel? item)
     {
-        if (item?.Source.ActionKind is null || !item.Source.ResourceId.HasValue)
+        if (item is null || !item.HasAction)
             return;
 
         _notificationService.MarkRead(item.Id);
@@ -219,6 +220,12 @@ public partial class NotificationCenterViewModel : ObservableObject
 
             case NotificationActionKind.OpenSettings:
                 main.SelectedSection = NavigationSection.Settings;
+                break;
+
+            case NotificationActionKind.InstallUpdate:
+                await _serviceProvider.GetRequiredService<UpdatePromptService>()
+                    .InstallAvailableUpdateAsync()
+                    .ConfigureAwait(true);
                 break;
         }
     }

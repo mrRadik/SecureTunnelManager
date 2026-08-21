@@ -4,7 +4,7 @@
              Margin="{DynamicResource StmFilterToolbarMargin}">
 
     <Border Style="{DynamicResource StmPageToolbar}">
-        <Grid VerticalAlignment="Center">
+        <Grid VerticalAlignment="Center" MinHeight="{DynamicResource StmControlHeight}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" MinWidth="200"/>
                 <ColumnDefinition Width="Auto"/>

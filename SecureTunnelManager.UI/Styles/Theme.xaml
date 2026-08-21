@@ -5,7 +5,7 @@
 
     <SolidColorBrush x:Key="StmRowZebraBrush" Color="#14FFFFFF"/>
     <SolidColorBrush x:Key="StmRowHoverBrush" Color="#1FFFFFFF"/>
-    <SolidColorBrush x:Key="StmRouteConnectorBrush" Color="#9CA3AF"/>
+    <SolidColorBrush x:Key="StmRouteConnectorBrush" Color="#8B95A8"/>
 
     <Duration x:Key="StmTransitionDuration">0:0:0.15</Duration>
 

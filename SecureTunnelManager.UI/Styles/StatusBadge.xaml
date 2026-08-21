@@ -3,8 +3,8 @@
 
     <Color x:Key="StmStatusConnectedDotColor">#22C55E</Color>
     <Color x:Key="StmStatusConnectedBgColor">#3322C55E</Color>
-    <Color x:Key="StmStatusStoppedDotColor">#9CA3AF</Color>
-    <Color x:Key="StmStatusStoppedBgColor">#339CA3AF</Color>
+    <Color x:Key="StmStatusStoppedDotColor">#8B95A8</Color>
+    <Color x:Key="StmStatusStoppedBgColor">#338B95A8</Color>
     <Color x:Key="StmStatusReconnectingDotColor">#F59E0B</Color>
     <Color x:Key="StmStatusReconnectingBgColor">#33F59E0B</Color>
     <Color x:Key="StmStatusErrorDotColor">#EF4444</Color>

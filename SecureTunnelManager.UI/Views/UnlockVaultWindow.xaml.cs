@@ -34,6 +34,18 @@ public partial class UnlockVaultWindow : StmChromeWindow
         }
     }
 
+    private void OnPreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+    {
+        if (e.Key != System.Windows.Input.Key.Enter || _viewModel is null)
+            return;
+
+        if (_viewModel.IsUnlockMode && _viewModel.UnlockCommand.CanExecute(null))
+        {
+            _viewModel.UnlockCommand.Execute(null);
+            e.Handled = true;
+        }
+    }
+
     private void FocusActivePasswordField()
     {
         if (_viewModel is null || _viewModel.IsConfirmResetMode)

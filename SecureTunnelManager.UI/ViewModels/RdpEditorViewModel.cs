@@ -28,6 +28,8 @@ public partial class RdpEditorViewModel : ObservableObject
     public bool IsEditMode => TargetId > 0;
     public string WindowTitle => IsEditMode ? "Edit computer" : "New computer";
 
+    private int? _initialRdpCredentialId;
+
     [ObservableProperty] private int _currentStep;
 
     public bool IsFirstStep => CurrentStep == 0;
@@ -50,6 +52,7 @@ public partial class RdpEditorViewModel : ObservableObject
     public ObservableCollection<string> ExistingGroups { get; } = new();
 
     public ObservableCollection<JumpHostHopViewModel> JumpHosts { get; } = new();
+    public ObservableCollection<string> FlowJumpHosts { get; } = new();
 
     [ObservableProperty] private string _rdpHost = string.Empty;
     [ObservableProperty] private int _rdpPort = 3389;
@@ -70,6 +73,12 @@ public partial class RdpEditorViewModel : ObservableObject
     public bool DialogResult { get; private set; }
     public event EventHandler? RequestClose;
 
+    public string FlowMyComputer => LocalPort == 0
+        ? $"{LocalBindAddress}:auto"
+        : $"{LocalBindAddress}:{LocalPort}";
+
+    public string FlowRdpServer => FormatRdpEndpoint(RdpUsername, RdpHost, RdpPort, "RDP Server");
+
     public async Task InitializeAsync(RdpTarget? target)
     {
         ClearValidationErrors();
@@ -82,6 +91,7 @@ public partial class RdpEditorViewModel : ObservableObject
         if (target is null)
         {
             TargetId = 0;
+            _initialRdpCredentialId = null;
             CurrentStep = 0;
             Name = string.Empty;
             Description = string.Empty;
@@ -98,6 +108,7 @@ public partial class RdpEditorViewModel : ObservableObject
         else
         {
             TargetId = target.Id;
+            _initialRdpCredentialId = target.RdpCredentialId;
             CurrentStep = 0;
             Name = target.Name;
             Description = target.Description;
@@ -116,11 +127,50 @@ public partial class RdpEditorViewModel : ObservableObject
                 var cred = await _credentialService.GetByIdAsync(target.RdpCredentialId.Value).ConfigureAwait(true);
                 RdpUsername = cred?.Username ?? string.Empty;
             }
+
+            await LoadJumpHostCredentialUsernamesAsync().ConfigureAwait(true);
         }
 
         OnPropertyChanged(nameof(WindowTitle));
         OnPropertyChanged(nameof(IsEditMode));
         NotifyStepPropertiesChanged();
+        NotifyFlowDiagramChanged();
+    }
+
+    partial void OnRdpHostChanged(string value)
+    {
+        RdpHostError = string.Empty;
+        NotifyFlowDiagramChanged();
+    }
+
+    partial void OnRdpPortChanged(int value) => NotifyFlowDiagramChanged();
+
+    partial void OnLocalPortChanged(int value) => NotifyFlowDiagramChanged();
+
+    partial void OnLocalBindAddressChanged(string value) => NotifyFlowDiagramChanged();
+
+    partial void OnRdpUsernameChanged(string value)
+    {
+        RdpCredentialError = string.Empty;
+        NotifyFlowDiagramChanged();
+    }
+
+    private bool HasStoredRdpCredential =>
+        RdpCredentialId.HasValue || (IsEditMode && _initialRdpCredentialId.HasValue);
+
+    private async Task LoadJumpHostCredentialUsernamesAsync()
+    {
+        foreach (var hop in JumpHosts)
+        {
+            if (!hop.CredentialId.HasValue)
+                continue;
+
+            var cred = await _credentialService.GetByIdAsync(hop.CredentialId.Value).ConfigureAwait(true);
+            if (cred is null || !string.IsNullOrWhiteSpace(hop.Username))
+                continue;
+
+            hop.Username = cred.Username;
+        }
     }
 
     partial void OnCurrentStepChanged(int value) => NotifyStepPropertiesChanged();
@@ -159,6 +209,7 @@ public partial class RdpEditorViewModel : ObservableObject
         var hop = CreateJumpHostViewModel(new JumpHostHop { Port = 22 }, JumpHosts.Count);
         JumpHosts.Add(hop);
         RefreshJumpHostIndexes();
+        NotifyFlowDiagramChanged();
     }
 
     [RelayCommand]
@@ -169,6 +220,7 @@ public partial class RdpEditorViewModel : ObservableObject
 
         JumpHosts.Remove(hop);
         RefreshJumpHostIndexes();
+        NotifyFlowDiagramChanged();
     }
 
     [RelayCommand]
@@ -222,21 +274,20 @@ public partial class RdpEditorViewModel : ObservableObject
             }
 
             var username = RdpUsername.Trim();
-            int? rdpCredentialId = RdpCredentialId;
+            var rdpCredentialId = RdpCredentialId ?? (IsEditMode ? _initialRdpCredentialId : null);
 
             if (string.IsNullOrWhiteSpace(username))
             {
                 rdpCredentialId = null;
             }
-            else
+            else if (string.IsNullOrEmpty(RdpPassword) && !rdpCredentialId.HasValue)
             {
-                if (string.IsNullOrEmpty(RdpPassword) && !rdpCredentialId.HasValue)
-                {
-                    RdpCredentialError = "Password is required";
-                    CurrentStep = 2;
-                    return;
-                }
-
+                RdpCredentialError = "Password is required";
+                CurrentStep = 2;
+                return;
+            }
+            else if (!string.IsNullOrEmpty(RdpPassword) || rdpCredentialId.HasValue)
+            {
                 rdpCredentialId = await UpsertPasswordCredentialAsync(
                     rdpCredentialId,
                     BuildCredentialName("rdp"),
@@ -328,7 +379,7 @@ public partial class RdpEditorViewModel : ObservableObject
 
                 if (!string.IsNullOrWhiteSpace(RdpUsername)
                     && string.IsNullOrEmpty(RdpPassword)
-                    && !RdpCredentialId.HasValue)
+                    && !HasStoredRdpCredential)
                 {
                     RdpCredentialError = "Password is required when username is set";
                     valid = false;
@@ -369,7 +420,36 @@ public partial class RdpEditorViewModel : ObservableObject
     private JumpHostHopViewModel CreateJumpHostViewModel(JumpHostHop hop, int index)
     {
         var vm = JumpHostHopViewModel.FromModel(hop, index);
+        vm.FlowChanged += (_, _) => NotifyFlowDiagramChanged();
         return vm;
+    }
+
+    private void NotifyFlowDiagramChanged()
+    {
+        OnPropertyChanged(nameof(FlowMyComputer));
+        OnPropertyChanged(nameof(FlowRdpServer));
+
+        FlowJumpHosts.Clear();
+        foreach (var hop in JumpHosts)
+            FlowJumpHosts.Add(hop.FlowDisplay);
+    }
+
+    private static string FormatEndpoint(string username, string host, int port, string placeholder)
+    {
+        if (string.IsNullOrWhiteSpace(host))
+            return placeholder;
+
+        var label = string.IsNullOrWhiteSpace(username) ? host : $"{username}@{host}";
+        return port == 22 ? label : $"{label}:{port}";
+    }
+
+    private static string FormatRdpEndpoint(string username, string host, int port, string placeholder)
+    {
+        if (string.IsNullOrWhiteSpace(host))
+            return placeholder;
+
+        var label = string.IsNullOrWhiteSpace(username) ? host : $"{username}@{host}";
+        return $"{label}:{port}";
     }
 
     private void RefreshJumpHostIndexes()

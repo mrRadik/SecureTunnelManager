@@ -10,6 +10,7 @@ public enum NavigationSection
 {
     Tunnels,
     Rdp,
+    Share,
     Settings
 }
 

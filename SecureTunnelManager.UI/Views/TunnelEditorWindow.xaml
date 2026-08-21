@@ -13,261 +13,366 @@
         Height="760"
         WindowStartupLocation="CenterOwner">
 
+    <windows:StmChromeWindow.Resources>
+        <Style x:Key="StmWizardFieldLabel" TargetType="TextBlock" BasedOn="{StaticResource StmFontBase}">
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Foreground" Value="{DynamicResource StmTextSecondaryBrush}"/>
+            <Setter Property="Margin" Value="0,0,0,6"/>
+        </Style>
+
+        <Style x:Key="StmWizardHint" TargetType="TextBlock" BasedOn="{StaticResource StmFontBase}">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Foreground" Value="{DynamicResource StmTextSecondaryBrush}"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+            <Setter Property="Opacity" Value="0.85"/>
+            <Setter Property="Margin" Value="0,0,0,8"/>
+        </Style>
+
+        <Style x:Key="StmWizardStepIntro" TargetType="TextBlock" BasedOn="{StaticResource StmFontBase}">
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Foreground" Value="{DynamicResource StmTextSecondaryBrush}"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+            <Setter Property="Margin" Value="0,0,0,20"/>
+        </Style>
+
+        <Style x:Key="StmWizardDivider" TargetType="Border">
+            <Setter Property="Height" Value="1"/>
+            <Setter Property="Background" Value="{DynamicResource StmBorderBrush}"/>
+            <Setter Property="Opacity" Value="0.55"/>
+        </Style>
+
+        <Style x:Key="StmWizardPrimaryButton" TargetType="Button" BasedOn="{StaticResource StmPrimaryButton}">
+            <Setter Property="MinWidth" Value="88"/>
+            <Setter Property="MinHeight" Value="36"/>
+            <Setter Property="Padding" Value="16,6"/>
+            <Setter Property="FontSize" Value="13"/>
+        </Style>
+
+        <Style x:Key="StmWizardPlaceholder" TargetType="TextBlock" BasedOn="{StaticResource StmFontBase}">
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Foreground" Value="{DynamicResource StmTextSecondaryBrush}"/>
+            <Setter Property="Opacity" Value="0.55"/>
+            <Setter Property="IsHitTestVisible" Value="False"/>
+            <Setter Property="Visibility" Value="Collapsed"/>
+        </Style>
+    </windows:StmChromeWindow.Resources>
+
     <Grid Background="{DynamicResource StmBackgroundBrush}"
           SnapsToDevicePixels="True"
           UseLayoutRounding="True">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
 
-            <controls:WindowTitleBar Grid.Row="0" Title="{Binding WindowTitle}"/>
+        <controls:WindowTitleBar Grid.Row="0" Title="{Binding WindowTitle}"/>
 
-            <StackPanel Grid.Row="1" Margin="24,12,24,0">
-                <TextBlock Text="{Binding StepIndicator}" Style="{DynamicResource StmPageSubtitle}"/>
-                <TextBlock Text="{Binding CurrentStepTitle}" Style="{DynamicResource StmCardTitle}" Margin="0,4,0,0"/>
-            </StackPanel>
+        <StackPanel Grid.Row="1" Margin="28,16,28,0">
+            <TextBlock Text="{Binding StepIndicator}"
+                       FontSize="13"
+                       Foreground="{DynamicResource StmTextSecondaryBrush}"/>
+            <TextBlock Text="{Binding CurrentStepTitle}"
+                       FontSize="20"
+                       FontWeight="SemiBold"
+                       Margin="0,4,0,0"/>
+        </StackPanel>
 
-            <Grid Grid.Row="2" Margin="24,12,24,0">
+        <Grid Grid.Row="2" Margin="28,24,28,0">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="1.2*"/>
-                <ColumnDefinition Width="16"/>
+                <ColumnDefinition Width="1.15*"/>
+                <ColumnDefinition Width="60"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <!-- Wizard steps -->
             <ScrollViewer Grid.Column="0" VerticalScrollBarVisibility="Auto">
                 <StackPanel>
 
                     <!-- Step 1 -->
-                    <Border Style="{DynamicResource StmCard}" Margin="0,0,0,16"
-                            Visibility="{Binding CurrentStep, Converter={StaticResource IntEqualsConverter}, ConverterParameter=0}">
-                        <StackPanel>
-                            <TextBlock Text="Give this tunnel a recognizable name and optional notes."
-                                       Style="{DynamicResource StmPageSubtitle}" Margin="0,0,0,16"/>
-                            <TextBlock Text="Name" Style="{DynamicResource StmLabel}"/>
+                    <StackPanel Visibility="{Binding CurrentStep, Converter={StaticResource IntEqualsConverter}, ConverterParameter=0}">
+                        <TextBlock Text="Name" Style="{DynamicResource StmWizardFieldLabel}"/>
+                        <Grid Margin="0,0,0,20">
                             <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" Style="{DynamicResource StmInput}"/>
-                            <TextBlock Text="{Binding NameError}" Style="{DynamicResource StmValidationError}"
-                                       Visibility="{Binding NameError, Converter={StaticResource StringNotEmptyToVisibilityConverter}}"/>
-                            <TextBlock Text="Description" Style="{DynamicResource StmLabel}"/>
-                            <TextBox Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}" Style="{DynamicResource StmInput}"
-                                     MinHeight="72" AcceptsReturn="True" TextWrapping="Wrap" VerticalContentAlignment="Top"/>
-                            <TextBlock Text="{loc:Loc Editor.Icon}" Style="{DynamicResource StmLabel}" Margin="0,12,0,0"/>
-                            <TextBlock Text="{loc:Loc Editor.IconHint}"
-                                       Style="{DynamicResource StmPageSubtitle}"
-                                       Margin="0,0,0,8"/>
-                            <controls:ServiceIconPicker SelectedIconKey="{Binding IconKey, Mode=TwoWay}"
-                                                        FallbackKey="tunnel"/>
-                            <CheckBox Content="Connect automatically when Windows starts"
-                                      IsChecked="{Binding StartWithWindows}" Style="{DynamicResource StmCheckBox}" Margin="0,16,0,0"/>
-                        </StackPanel>
-                    </Border>
+                            <TextBlock Text="e.g. Production DB, Office Server"
+                                       Margin="12,0,12,4"
+                                       VerticalAlignment="Center">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock" BasedOn="{StaticResource StmWizardPlaceholder}">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Name}" Value="">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </Grid>
+                        <TextBlock Text="{Binding NameError}" Style="{DynamicResource StmValidationError}"
+                                   Margin="0,-16,0,20"
+                                   Visibility="{Binding NameError, Converter={StaticResource StringNotEmptyToVisibilityConverter}}"/>
+
+                        <TextBlock Text="Description (optional)" Style="{DynamicResource StmWizardFieldLabel}"/>
+                        <Grid Margin="0,0,0,20">
+                            <TextBox Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}"
+                                     AcceptsReturn="True"
+                                     TextWrapping="Wrap"
+                                     VerticalContentAlignment="Top"
+                                     Padding="10,8">
+                                <TextBox.Style>
+                                    <Style TargetType="TextBox" BasedOn="{StaticResource StmInput}">
+                                        <Setter Property="Height" Value="NaN"/>
+                                        <Setter Property="MinHeight" Value="88"/>
+                                        <Setter Property="MaxHeight" Value="100"/>
+                                    </Style>
+                                </TextBox.Style>
+                            </TextBox>
+                            <TextBlock Text="Add a description or notes about this tunnel..."
+                                       Margin="12,8,12,0"
+                                       VerticalAlignment="Top">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock" BasedOn="{StaticResource StmWizardPlaceholder}">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Description}" Value="">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </Grid>
+
+                        <TextBlock Text="{loc:Loc Editor.Icon}" Style="{DynamicResource StmWizardFieldLabel}"/>
+                        <TextBlock Text="{loc:Loc Editor.IconHint}" Style="{DynamicResource StmWizardHint}"/>
+                        <controls:ServiceIconPicker SelectedIconKey="{Binding IconKey, Mode=TwoWay}"
+                                                    FallbackKey="tunnel"
+                                                    Margin="0,0,0,20"/>
+
+                        <CheckBox Content="Connect automatically when Windows starts"
+                                  IsChecked="{Binding StartWithWindows}"
+                                  Style="{DynamicResource StmCheckBox}"
+                                  FontSize="13"/>
+                    </StackPanel>
 
                     <!-- Step 2 -->
-                    <Border Style="{DynamicResource StmCard}" Margin="0,0,0,16"
-                            Visibility="{Binding CurrentStep, Converter={StaticResource IntEqualsConverter}, ConverterParameter=1}">
-                        <StackPanel>
-                            <TextBlock Text="Intermediate servers between your PC and the target. Add more if your route uses multiple jump hosts."
-                                       Style="{DynamicResource StmPageSubtitle}" Margin="0,0,0,16"/>
+                    <StackPanel Visibility="{Binding CurrentStep, Converter={StaticResource IntEqualsConverter}, ConverterParameter=1}">
+                        <TextBlock Text="Intermediate servers between your PC and the target. Add more if your route uses multiple jump hosts."
+                                   Style="{DynamicResource StmWizardStepIntro}"/>
 
-                            <ItemsControl ItemsSource="{Binding JumpHosts}">
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate DataType="{x:Type vm:JumpHostHopViewModel}">
-                                        <controls:JumpHostHopEditor/>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
+                        <ItemsControl ItemsSource="{Binding JumpHosts}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate DataType="{x:Type vm:JumpHostHopViewModel}">
+                                    <controls:JumpHostHopEditor/>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
 
-                            <Button Content="+ Add jump host"
-                                    Command="{Binding AddJumpHostCommand}"
-                                    Style="{DynamicResource StmSecondaryButton}"
-                                    HorizontalAlignment="Left"/>
-                        </StackPanel>
-                    </Border>
+                        <Button Content="+ Add jump host"
+                                Command="{Binding AddJumpHostCommand}"
+                                Style="{DynamicResource StmSecondaryButton}"
+                                HorizontalAlignment="Left"
+                                FontSize="13"
+                                MinHeight="34"/>
+                    </StackPanel>
 
                     <!-- Step 3 -->
-                    <Border Style="{DynamicResource StmCard}" Margin="0,0,0,16"
-                            Visibility="{Binding CurrentStep, Converter={StaticResource IntEqualsConverter}, ConverterParameter=2}">
-                        <StackPanel>
-                            <TextBlock Text="The server and service you want to reach through the jump host."
-                                       Style="{DynamicResource StmPageSubtitle}" Margin="0,0,0,16"/>
+                    <StackPanel Visibility="{Binding CurrentStep, Converter={StaticResource IntEqualsConverter}, ConverterParameter=2}">
+                        <TextBlock Text="The server and service you want to reach through the jump host."
+                                   Style="{DynamicResource StmWizardStepIntro}"/>
+
+                        <Grid Margin="0,0,0,20">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="120"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0" Margin="0,0,12,0">
+                                <TextBlock Text="Host address" Style="{DynamicResource StmWizardFieldLabel}"/>
+                                <TextBox Text="{Binding TargetHost, UpdateSourceTrigger=PropertyChanged}" Style="{DynamicResource StmInput}"/>
+                                <TextBlock Text="{Binding TargetHostError}" Style="{DynamicResource StmValidationError}"
+                                           Visibility="{Binding TargetHostError, Converter={StaticResource StringNotEmptyToVisibilityConverter}}"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="1">
+                                <TextBlock Text="Port" Style="{DynamicResource StmWizardFieldLabel}"/>
+                                <TextBox Text="{Binding TargetPort, UpdateSourceTrigger=PropertyChanged}" Style="{DynamicResource StmInput}"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <TextBlock Text="Sign-in name" Style="{DynamicResource StmWizardFieldLabel}"/>
+                        <TextBox Text="{Binding TargetUsername, UpdateSourceTrigger=PropertyChanged}"
+                                 Style="{DynamicResource StmInput}"
+                                 Margin="0,0,0,20"/>
+                        <TextBlock Text="{Binding TargetUsernameError}" Style="{DynamicResource StmValidationError}"
+                                   Margin="0,-16,0,20"
+                                   Visibility="{Binding TargetUsernameError, Converter={StaticResource StringNotEmptyToVisibilityConverter}}"/>
+
+                        <TextBlock Text="Sign-in method" Style="{DynamicResource StmWizardFieldLabel}" Margin="0,0,0,8"/>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+                            <RadioButton Content="Password"
+                                         GroupName="TargetAuthMethod"
+                                         Style="{DynamicResource StmRadioButton}"
+                                         FontSize="13"
+                                         IsChecked="{Binding IsTargetPasswordAuth, Mode=TwoWay}"/>
+                            <RadioButton Content="Certificate (key file)"
+                                         GroupName="TargetAuthMethod"
+                                         Style="{DynamicResource StmRadioButton}"
+                                         FontSize="13"
+                                         IsChecked="{Binding IsTargetPrivateKeyAuth, Mode=TwoWay}"/>
+                        </StackPanel>
+
+                        <StackPanel Visibility="{Binding IsTargetPasswordAuth, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <TextBlock Text="Password" Style="{DynamicResource StmWizardFieldLabel}"/>
+                            <PasswordBox x:Name="TargetPasswordBox"
+                                         Style="{DynamicResource StmInputPassword}"
+                                         PasswordChanged="OnTargetPasswordChanged"/>
+                            <TextBlock Text="Leave blank when editing to keep the saved password."
+                                       Style="{DynamicResource StmWizardHint}"
+                                       Visibility="{Binding IsEditMode, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                            <TextBlock Text="{Binding TargetCredentialError}" Style="{DynamicResource StmValidationError}"
+                                       Visibility="{Binding TargetCredentialError, Converter={StaticResource StringNotEmptyToVisibilityConverter}}"/>
+                        </StackPanel>
+
+                        <StackPanel Visibility="{Binding IsTargetPrivateKeyAuth, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <TextBlock Text="Key file" Style="{DynamicResource StmWizardFieldLabel}"/>
                             <Grid Margin="0,0,0,4">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="120"/>
+                                    <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
-                                <StackPanel Grid.Column="0" Margin="0,0,12,0">
-                                    <TextBlock Text="Host address" Style="{DynamicResource StmLabel}"/>
-                                    <TextBox Text="{Binding TargetHost, UpdateSourceTrigger=PropertyChanged}" Style="{DynamicResource StmInput}"/>
-                                    <TextBlock Text="{Binding TargetHostError}" Style="{DynamicResource StmValidationError}"
-                                               Visibility="{Binding TargetHostError, Converter={StaticResource StringNotEmptyToVisibilityConverter}}"/>
-                                </StackPanel>
-                                <StackPanel Grid.Column="1">
-                                    <TextBlock Text="Port" Style="{DynamicResource StmLabel}"/>
-                                    <TextBox Text="{Binding TargetPort, UpdateSourceTrigger=PropertyChanged}" Style="{DynamicResource StmInput}"/>
-                                </StackPanel>
+                                <TextBox Grid.Column="0" Text="{Binding TargetPrivateKeyPath, UpdateSourceTrigger=PropertyChanged}" Style="{DynamicResource StmInput}"/>
+                                <Button Grid.Column="1" Content="Browse" Command="{Binding BrowseTargetKeyCommand}" Style="{DynamicResource StmSecondaryButton}" Margin="8,0,0,4" MinWidth="90"/>
                             </Grid>
-                            <TextBlock Text="Sign-in name" Style="{DynamicResource StmLabel}"/>
-                            <TextBox Text="{Binding TargetUsername, UpdateSourceTrigger=PropertyChanged}" Style="{DynamicResource StmInput}"/>
-                            <TextBlock Text="{Binding TargetUsernameError}" Style="{DynamicResource StmValidationError}"
-                                       Visibility="{Binding TargetUsernameError, Converter={StaticResource StringNotEmptyToVisibilityConverter}}"/>
-
-                            <TextBlock Text="Sign-in method" Style="{DynamicResource StmLabel}" Margin="0,16,0,8"/>
-                            <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
-                                <RadioButton Content="Password"
-                                             GroupName="TargetAuthMethod"
-                                             Style="{DynamicResource StmRadioButton}"
-                                             IsChecked="{Binding IsTargetPasswordAuth, Mode=TwoWay}"/>
-                                <RadioButton Content="Certificate (key file)"
-                                             GroupName="TargetAuthMethod"
-                                             Style="{DynamicResource StmRadioButton}"
-                                             IsChecked="{Binding IsTargetPrivateKeyAuth, Mode=TwoWay}"/>
-                            </StackPanel>
-
-                            <StackPanel Visibility="{Binding IsTargetPasswordAuth, Converter={StaticResource BoolToVisibilityConverter}}">
-                                <TextBlock Text="Password" Style="{DynamicResource StmLabel}"/>
-                                <PasswordBox x:Name="TargetPasswordBox"
-                                             Style="{DynamicResource StmInputPassword}"
-                                             PasswordChanged="OnTargetPasswordChanged"/>
-                                <TextBlock Text="Leave blank when editing to keep the saved password."
-                                           Style="{DynamicResource StmPageSubtitle}"
-                                           Visibility="{Binding IsEditMode, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-                                <TextBlock Text="{Binding TargetCredentialError}" Style="{DynamicResource StmValidationError}"
-                                           Visibility="{Binding TargetCredentialError, Converter={StaticResource StringNotEmptyToVisibilityConverter}}"/>
-                            </StackPanel>
-
-                            <StackPanel Visibility="{Binding IsTargetPrivateKeyAuth, Converter={StaticResource BoolToVisibilityConverter}}">
-                                <TextBlock Text="Key file" Style="{DynamicResource StmLabel}"/>
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBox Grid.Column="0" Text="{Binding TargetPrivateKeyPath, UpdateSourceTrigger=PropertyChanged}" Style="{DynamicResource StmInput}"/>
-                                    <Button Grid.Column="1" Content="Browse" Command="{Binding BrowseTargetKeyCommand}" Style="{DynamicResource StmSecondaryButton}" Margin="8,0,0,4" MinWidth="90"/>
-                                </Grid>
-                                <TextBlock Text="{Binding TargetPrivateKeyError}" Style="{DynamicResource StmValidationError}"
-                                           Visibility="{Binding TargetPrivateKeyError, Converter={StaticResource StringNotEmptyToVisibilityConverter}}"/>
-                                <TextBlock Text="Key passphrase (optional)" Style="{DynamicResource StmLabel}"/>
-                                <PasswordBox x:Name="TargetKeyPassphraseBox" Style="{DynamicResource StmInputPassword}"/>
-                            </StackPanel>
+                            <TextBlock Text="{Binding TargetPrivateKeyError}" Style="{DynamicResource StmValidationError}"
+                                       Visibility="{Binding TargetPrivateKeyError, Converter={StaticResource StringNotEmptyToVisibilityConverter}}"/>
+                            <TextBlock Text="Key passphrase (optional)" Style="{DynamicResource StmWizardFieldLabel}"/>
+                            <PasswordBox x:Name="TargetKeyPassphraseBox" Style="{DynamicResource StmInputPassword}"/>
                         </StackPanel>
-                    </Border>
+                    </StackPanel>
 
                     <!-- Step 4 -->
-                    <Border Style="{DynamicResource StmCard}" Margin="0,0,0,16"
-                            Visibility="{Binding CurrentStep, Converter={StaticResource IntEqualsConverter}, ConverterParameter=3}">
-                        <StackPanel>
-                            <TextBlock Text="Choose a local address and port on this PC, then the service port on the target server."
-                                       Style="{DynamicResource StmPageSubtitle}" Margin="0,0,0,16"/>
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="120"/>
-                                </Grid.ColumnDefinitions>
-                                <StackPanel Grid.Column="0" Margin="0,0,12,0">
-                                    <TextBlock Text="Local address" Style="{DynamicResource StmLabel}"/>
-                                    <TextBox Text="{Binding LocalBindAddress, UpdateSourceTrigger=PropertyChanged}" Style="{DynamicResource StmInput}"/>
-                                    <TextBlock Text="{Binding LocalBindAddressError}" Style="{DynamicResource StmValidationError}"
-                                               Visibility="{Binding LocalBindAddressError, Converter={StaticResource StringNotEmptyToVisibilityConverter}}"/>
-                                </StackPanel>
-                                <StackPanel Grid.Column="1">
-                                    <TextBlock Text="Local port" Style="{DynamicResource StmLabel}"/>
-                                    <TextBox Text="{Binding LocalPort, UpdateSourceTrigger=PropertyChanged}" Style="{DynamicResource StmInput}"/>
-                                    <TextBlock Text="{Binding LocalPortError}" Style="{DynamicResource StmValidationError}"
-                                               Visibility="{Binding LocalPortError, Converter={StaticResource StringNotEmptyToVisibilityConverter}}"/>
-                                </StackPanel>
-                            </Grid>
-                            <TextBlock Text="Service port on target" Style="{DynamicResource StmLabel}" Margin="0,12,0,6"/>
-                            <TextBox Text="{Binding RemotePort, UpdateSourceTrigger=PropertyChanged}" Style="{DynamicResource StmInput}" MaxWidth="200" HorizontalAlignment="Left"/>
+                    <StackPanel Visibility="{Binding CurrentStep, Converter={StaticResource IntEqualsConverter}, ConverterParameter=3}">
+                        <TextBlock Text="Choose a local address and port on this PC, then the service port on the target server."
+                                   Style="{DynamicResource StmWizardStepIntro}"/>
 
-                            <Border Margin="0,16,0,0"
-                                    Padding="12"
-                                    CornerRadius="6"
-                                    Background="{DynamicResource StmSurfaceBrush}"
-                                    BorderBrush="{DynamicResource StmBorderBrush}"
-                                    BorderThickness="1"
-                                    Visibility="{Binding HasTestResult, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                <TextBlock Text="{Binding TestMessage}" TextWrapping="Wrap">
-                                    <TextBlock.Style>
-                                        <Style TargetType="TextBlock" BasedOn="{StaticResource StmBody}">
-                                            <Setter Property="Foreground" Value="{DynamicResource StmTextPrimaryBrush}"/>
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding TestSucceeded}" Value="True">
-                                                    <Setter Property="Foreground" Value="{DynamicResource StmSuccessBrush}"/>
-                                                </DataTrigger>
-                                                <DataTrigger Binding="{Binding TestSucceeded}" Value="False">
-                                                    <Setter Property="Foreground" Value="{DynamicResource StmErrorBrush}"/>
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </TextBlock.Style>
-                                </TextBlock>
-                            </Border>
-                        </StackPanel>
-                    </Border>
+                        <Grid Margin="0,0,0,20">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="120"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0" Margin="0,0,12,0">
+                                <TextBlock Text="Local address" Style="{DynamicResource StmWizardFieldLabel}"/>
+                                <TextBox Text="{Binding LocalBindAddress, UpdateSourceTrigger=PropertyChanged}" Style="{DynamicResource StmInput}"/>
+                                <TextBlock Text="{Binding LocalBindAddressError}" Style="{DynamicResource StmValidationError}"
+                                           Visibility="{Binding LocalBindAddressError, Converter={StaticResource StringNotEmptyToVisibilityConverter}}"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="1">
+                                <TextBlock Text="Local port" Style="{DynamicResource StmWizardFieldLabel}"/>
+                                <TextBox Text="{Binding LocalPort, UpdateSourceTrigger=PropertyChanged}" Style="{DynamicResource StmInput}"/>
+                                <TextBlock Text="{Binding LocalPortError}" Style="{DynamicResource StmValidationError}"
+                                           Visibility="{Binding LocalPortError, Converter={StaticResource StringNotEmptyToVisibilityConverter}}"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <TextBlock Text="Service port on target" Style="{DynamicResource StmWizardFieldLabel}"/>
+                        <TextBox Text="{Binding RemotePort, UpdateSourceTrigger=PropertyChanged}"
+                                 Style="{DynamicResource StmInput}"
+                                 MaxWidth="200"
+                                 HorizontalAlignment="Left"
+                                 Margin="0,0,0,16"/>
+
+                        <TextBlock Text="{Binding TestMessage}"
+                                   TextWrapping="Wrap"
+                                   FontSize="13"
+                                   Margin="0,4,0,0"
+                                   Visibility="{Binding HasTestResult, Converter={StaticResource BooleanToVisibilityConverter}}">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock" BasedOn="{StaticResource StmFontBase}">
+                                    <Setter Property="Foreground" Value="{DynamicResource StmTextPrimaryBrush}"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding TestSucceeded}" Value="True">
+                                            <Setter Property="Foreground" Value="{DynamicResource StmSuccessBrush}"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding TestSucceeded}" Value="False">
+                                            <Setter Property="Foreground" Value="{DynamicResource StmErrorBrush}"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                    </StackPanel>
 
                 </StackPanel>
             </ScrollViewer>
 
-            <!-- Connection diagram -->
-            <Border Grid.Column="2" Style="{DynamicResource StmCard}" Margin="0" VerticalAlignment="Top">
-                <StackPanel>
-                    <TextBlock Text="Connection path" Style="{DynamicResource StmCardTitle}"/>
-                    <TextBlock Text="How traffic flows from your PC to the remote service."
-                               Style="{DynamicResource StmPageSubtitle}" Margin="0,-8,0,16"/>
+            <!-- Connection path -->
+            <StackPanel Grid.Column="2" VerticalAlignment="Top">
+                <TextBlock Text="Connection path"
+                           FontSize="15"
+                           FontWeight="SemiBold"/>
+                <TextBlock Text="How traffic flows from your PC to the remote service."
+                           FontSize="13"
+                           Foreground="{DynamicResource StmTextSecondaryBrush}"
+                           TextWrapping="Wrap"
+                           Margin="0,4,0,0"/>
 
-                    <Border Background="{DynamicResource StmSurfaceBrush}" CornerRadius="8" Padding="16,12" Margin="0,0,0,8">
-                        <StackPanel HorizontalAlignment="Center">
-                            <TextBlock Text="Local PC" Style="{DynamicResource StmLabel}" HorizontalAlignment="Center" Margin="0,0,0,4"/>
-                            <TextBlock Text="{Binding FlowMyComputer}" Style="{DynamicResource StmBody}" FontWeight="SemiBold" HorizontalAlignment="Center" FontFamily="Consolas"/>
-                        </StackPanel>
-                    </Border>
-                    <TextBlock Text="│" Style="{DynamicResource StmBody}" HorizontalAlignment="Center" Opacity="0.5"/>
+                <StackPanel Margin="0,20,0,0">
+                    <controls:ConnectionPathNode Label="Local PC"
+                                                 Value="{Binding FlowMyComputer}"
+                                                 IconGlyph="&#xE7F4;"
+                                                 AccentBrush="{DynamicResource StmAccentBrush}"
+                                                 UseMonospace="True"/>
+
                     <ItemsControl ItemsSource="{Binding FlowJumpHosts}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <StackPanel>
-                                    <Border Background="{DynamicResource StmSurfaceBrush}" CornerRadius="8" Padding="16,12" Margin="0,8">
-                                        <StackPanel HorizontalAlignment="Center">
-                                            <TextBlock Text="Jump Host" Style="{DynamicResource StmLabel}" HorizontalAlignment="Center" Margin="0,0,0,4"/>
-                                            <TextBlock Text="{Binding}" Style="{DynamicResource StmBody}" FontWeight="SemiBold" HorizontalAlignment="Center"/>
-                                        </StackPanel>
-                                    </Border>
-                                    <TextBlock Text="│" Style="{DynamicResource StmBody}" HorizontalAlignment="Center" Opacity="0.5"/>
-                                </StackPanel>
+                                <controls:ConnectionPathNode Label="Jump Host"
+                                                             Value="{Binding}"
+                                                             IconGlyph="&#xE968;"
+                                                             AccentBrush="{DynamicResource StmAccentBrush}"/>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
-                    <Border Background="{DynamicResource StmSurfaceBrush}" CornerRadius="8" Padding="16,12" Margin="0,8">
-                        <StackPanel HorizontalAlignment="Center">
-                            <TextBlock Text="Target Server" Style="{DynamicResource StmLabel}" HorizontalAlignment="Center" Margin="0,0,0,4"/>
-                            <TextBlock Text="{Binding FlowTargetServer}" Style="{DynamicResource StmBody}" FontWeight="SemiBold" HorizontalAlignment="Center"/>
-                        </StackPanel>
-                    </Border>
-                    <TextBlock Text="│" Style="{DynamicResource StmBody}" HorizontalAlignment="Center" Opacity="0.5"/>
-                    <Border Background="{DynamicResource StmSelectedBrush}" CornerRadius="8" Padding="16,12" Margin="0,8,0,0">
-                        <StackPanel HorizontalAlignment="Center">
-                            <TextBlock Text="Forwarded service" Style="{DynamicResource StmLabel}" HorizontalAlignment="Center" Margin="0,0,0,4"/>
-                            <TextBlock Text="{Binding FlowForwardedService}" Style="{DynamicResource StmBody}" FontWeight="SemiBold" HorizontalAlignment="Center" FontFamily="Consolas"/>
-                        </StackPanel>
-                    </Border>
+
+                    <controls:ConnectionPathNode Label="Target Server"
+                                                 Value="{Binding FlowTargetServer}"
+                                                 IconGlyph="&#xE753;"
+                                                 AccentBrush="{DynamicResource StmSuccessBrush}"/>
+
+                    <controls:ConnectionPathNode Label="Forwarded service"
+                                                 Value="{Binding FlowForwardedService}"
+                                                 IconGlyph="&#xE774;"
+                                                 AccentBrush="{DynamicResource StmAccentHoverBrush}"
+                                                 UseMonospace="True"
+                                                 ShowConnector="False"
+                                                 IsLast="True"/>
                 </StackPanel>
-            </Border>
+            </StackPanel>
         </Grid>
 
-        <Border Grid.Row="3" Style="{DynamicResource StmDialogFooter}">
-            <Grid>
+        <Grid Grid.Row="3" Margin="28,20,28,22">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <Border Grid.Row="0" Style="{DynamicResource StmWizardDivider}" Margin="0,0,0,16"/>
+
+            <Grid Grid.Row="1">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
-                    <Button Content="Back" Command="{Binding BackCommand}" Style="{DynamicResource StmGhostButton}"
+                    <Button Content="Back"
+                            Command="{Binding BackCommand}"
+                            Style="{DynamicResource StmGhostButton}"
+                            FontSize="13"
+                            Padding="0,4"
                             Visibility="{Binding IsFirstStep, Converter={StaticResource InverseBooleanToVisibilityConverter}}"/>
                     <Button Click="OnTestClick"
                             Visibility="{Binding IsLastStep, Converter={StaticResource BooleanToVisibilityConverter}}">
                         <Button.Style>
                             <Style TargetType="Button" BasedOn="{StaticResource StmSecondaryButton}">
                                 <Setter Property="Margin" Value="8,0,0,0"/>
+                                <Setter Property="FontSize" Value="13"/>
+                                <Setter Property="MinHeight" Value="36"/>
                                 <Setter Property="Content" Value="{Binding TestTunnelButtonText}"/>
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding IsTesting}" Value="True">
@@ -278,16 +383,34 @@
                         </Button.Style>
                     </Button>
                 </StackPanel>
-                <TextBlock Text="{Binding ErrorMessage}" Style="{DynamicResource StmValidationError}" VerticalAlignment="Center" HorizontalAlignment="Center"
+
+                <TextBlock Text="{Binding ErrorMessage}"
+                           Style="{DynamicResource StmValidationError}"
+                           VerticalAlignment="Center"
+                           HorizontalAlignment="Center"
                            Visibility="{Binding ErrorMessage, Converter={StaticResource StringNotEmptyToVisibilityConverter}}"/>
+
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                    <Button Content="Cancel" IsCancel="True" Style="{DynamicResource StmGhostButton}" Margin="0,0,8,0"/>
-                    <Button Content="Next" Click="OnNextClick" Style="{DynamicResource StmPrimaryButton}" Margin="0,0,8,0"
+                    <Button Content="Cancel"
+                            IsCancel="True"
+                            Style="{DynamicResource StmGhostButton}"
+                            FontSize="13"
+                            Padding="0,4"
+                            Margin="0,0,8,0"/>
+                    <Button Content="Next"
+                            Click="OnNextClick"
+                            Style="{DynamicResource StmWizardPrimaryButton}"
                             Visibility="{Binding IsLastStep, Converter={StaticResource InverseBooleanToVisibilityConverter}}"/>
-                    <Button Content="Save Tunnel" Click="OnSaveClick" Style="{DynamicResource StmSuccessButton}"
+                    <Button Content="Save Tunnel"
+                            Click="OnSaveClick"
+                            Style="{DynamicResource StmSuccessButton}"
+                            MinHeight="36"
+                            MinWidth="96"
+                            FontSize="13"
+                            Padding="16,6"
                             Visibility="{Binding IsLastStep, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                 </StackPanel>
             </Grid>
-        </Border>
+        </Grid>
     </Grid>
 </windows:StmChromeWindow>

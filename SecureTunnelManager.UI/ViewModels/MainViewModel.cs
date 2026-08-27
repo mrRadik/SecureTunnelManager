@@ -399,7 +399,7 @@ public partial class MainViewModel : ObservableObject
 
             {
 
-                var haystack = $"{tunnel.Name} {tunnel.LocalEndpoint} {tunnel.JumpHostDisplay} {tunnel.DestinationDisplay}";
+                var haystack = $"{tunnel.Name} {tunnel.Description} {tunnel.LocalEndpoint} {tunnel.JumpHostDisplay} {tunnel.DestinationDisplay}";
 
                 if (!haystack.Contains(query, StringComparison.OrdinalIgnoreCase))
 

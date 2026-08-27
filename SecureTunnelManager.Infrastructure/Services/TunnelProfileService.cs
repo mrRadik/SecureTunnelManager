@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using SecureTunnelManager.Core;
 using SecureTunnelManager.Core.Models;
 using SecureTunnelManager.Core.Services;
 using SecureTunnelManager.Data;
@@ -67,6 +68,14 @@ public class TunnelProfileService : ITunnelProfileService
         await using var db = await _dbFactory.CreateDbContextAsync(cancellationToken).ConfigureAwait(false);
         var entity = await db.TunnelProfiles.FirstOrDefaultAsync(t => t.Id == id, cancellationToken).ConfigureAwait(false);
         if (entity is null) return;
+
+        var candidateCredentialIds = CredentialReferenceHelper.CollectFromTunnel(EntityMapper.ToModel(entity));
+        await OrphanCredentialCleanup.RemoveUnreferencedAsync(
+            db,
+            candidateCredentialIds,
+            excludeTunnelId: id,
+            excludeRdpId: null,
+            cancellationToken).ConfigureAwait(false);
 
         db.TunnelProfiles.Remove(entity);
         await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);

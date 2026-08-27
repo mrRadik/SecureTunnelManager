@@ -198,6 +198,12 @@ public partial class NotificationCenterViewModel : ObservableObject
         _toastHideTimer.Start();
     }
 
+    public void DismissTransientUi()
+    {
+        HideToast();
+        IsPanelOpen = false;
+    }
+
     private async Task ExecuteNotificationActionAsync(AppNotification notification)
     {
         var main = _serviceProvider.GetRequiredService<MainViewModel>();

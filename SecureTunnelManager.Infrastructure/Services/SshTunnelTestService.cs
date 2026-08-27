@@ -10,7 +10,8 @@ namespace SecureTunnelManager.Infrastructure.Services;
 
 public class SshTunnelTestService : ISshTunnelTestService
 {
-    private static readonly TimeSpan ServiceProbeTimeout = TimeSpan.FromSeconds(4);
+    private static readonly TimeSpan TestTimeout = TimeSpan.FromSeconds(10);
+    private static readonly TimeSpan ServiceProbeTimeout = TimeSpan.FromSeconds(3);
     private readonly ICredentialService _credentialService;
     private readonly SshResiliencePolicyProvider _resilience;
     private readonly ILogger<SshTunnelTestService> _logger;
@@ -28,61 +29,41 @@ public class SshTunnelTestService : ISshTunnelTestService
     public async Task<TunnelTestResult> TestAsync(TunnelTestRequest request, CancellationToken cancellationToken = default)
     {
         var stopwatch = Stopwatch.StartNew();
+        using var timeoutCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        timeoutCts.CancelAfter(TestTimeout);
+
         SshHopChain? chain = null;
         SshClient? forwardingClient = null;
         ForwardedPortLocal? testForward = null;
         var testLocalPort = 0;
+        var connectOptions = SshConnectOptions.ForQuickTest(TestTimeout, created => chain = created);
 
         try
         {
-            if (request.Profile.UseTargetSsh)
-            {
-                chain = await SshHopChain.ConnectAsync(
-                    request.Profile,
-                    _credentialService,
-                    _resilience,
-                    request.JumpAuthOverrides,
-                    request.TargetAuthOverride,
-                    cancellationToken).ConfigureAwait(false);
-                forwardingClient = chain.TargetClient!;
-            }
-            else
-            {
-                chain = await SshHopChain.ConnectHopsAsync(
-                    request.Profile.GetEffectiveJumpHosts(),
-                    _credentialService,
-                    _resilience,
-                    request.JumpAuthOverrides,
-                    cancellationToken).ConfigureAwait(false);
-                forwardingClient = chain.LastHopClient;
-            }
+            var result = await ExecuteTestAsync(
+                    request,
+                    connectOptions,
+                    timeoutCts.Token,
+                    client => forwardingClient = client,
+                    (forward, port) =>
+                    {
+                        testForward = forward;
+                        testLocalPort = port;
+                    })
+                .WaitAsync(timeoutCts.Token)
+                .ConfigureAwait(false);
 
-            testLocalPort = SshHopChain.GetFreeTcpPort();
-            testForward = new ForwardedPortLocal(
-                "127.0.0.1",
-                (uint)testLocalPort,
-                request.Profile.RemoteHost,
-                (uint)request.Profile.RemotePort);
-
-            forwardingClient.AddForwardedPort(testForward);
-            testForward.Start();
-
-            var serviceReachable = await ProbeLocalForwardAsync(testLocalPort, cancellationToken).ConfigureAwait(false);
             stopwatch.Stop();
-
-            var endpoint = $"{request.Profile.RemoteHost}:{request.Profile.RemotePort}";
-            if (serviceReachable)
-            {
-                return TunnelTestResult.Succeeded(
-                    $"Connection successful. SSH route works and {endpoint} is reachable ({stopwatch.Elapsed.TotalSeconds:F1}s).",
-                    stopwatch.Elapsed,
-                    serviceReachable: true);
-            }
-
-            return TunnelTestResult.Succeeded(
-                $"SSH route works, but {endpoint} did not respond. The service may be stopped or listening only on localhost ({stopwatch.Elapsed.TotalSeconds:F1}s).",
-                stopwatch.Elapsed,
-                serviceReachable: false);
+            return TunnelTestResult.Succeeded(result.Endpoint, stopwatch.Elapsed, result.ServiceReachable);
+        }
+        catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
+        {
+            stopwatch.Stop();
+            _logger.LogWarning(
+                "Tunnel test timed out after {Timeout}s for {TunnelName}",
+                TestTimeout.TotalSeconds,
+                request.Profile.Name);
+            return TunnelTestResult.Failed("Connection timed out.", stopwatch.Elapsed);
         }
         catch (Exception ex)
         {
@@ -108,8 +89,60 @@ public class SshTunnelTestService : ISshTunnelTestService
                 }
             }
 
+            // Dispose aborts a hung SSH handshake so WaitAsync can complete promptly.
             chain?.Dispose();
         }
+    }
+
+    private async Task<TunnelTestResult> ExecuteTestAsync(
+        TunnelTestRequest request,
+        SshConnectOptions connectOptions,
+        CancellationToken cancellationToken,
+        Action<SshClient> setForwardingClient,
+        Action<ForwardedPortLocal, int> setTestForward)
+    {
+        SshClient forwardingClient;
+
+        if (request.Profile.UseTargetSsh)
+        {
+            var chain = await SshHopChain.ConnectAsync(
+                request.Profile,
+                _credentialService,
+                _resilience,
+                request.JumpAuthOverrides,
+                request.TargetAuthOverride,
+                cancellationToken,
+                connectOptions).ConfigureAwait(false);
+            forwardingClient = chain.TargetClient!;
+        }
+        else
+        {
+            var chain = await SshHopChain.ConnectHopsAsync(
+                request.Profile.GetEffectiveJumpHosts(),
+                _credentialService,
+                _resilience,
+                request.JumpAuthOverrides,
+                cancellationToken,
+                connectOptions).ConfigureAwait(false);
+            forwardingClient = chain.LastHopClient;
+        }
+
+        setForwardingClient(forwardingClient);
+
+        var testLocalPort = SshHopChain.GetFreeTcpPort();
+        var testForward = new ForwardedPortLocal(
+            "127.0.0.1",
+            (uint)testLocalPort,
+            request.Profile.RemoteHost,
+            (uint)request.Profile.RemotePort);
+
+        forwardingClient.AddForwardedPort(testForward);
+        testForward.Start();
+        setTestForward(testForward, testLocalPort);
+
+        var serviceReachable = await ProbeLocalForwardAsync(testLocalPort, cancellationToken).ConfigureAwait(false);
+        var endpoint = $"{request.Profile.RemoteHost}:{request.Profile.RemotePort}";
+        return TunnelTestResult.Succeeded(endpoint, TimeSpan.Zero, serviceReachable);
     }
 
     private static async Task<bool> ProbeLocalForwardAsync(int localPort, CancellationToken cancellationToken)
@@ -122,6 +155,10 @@ public class SshTunnelTestService : ISshTunnelTestService
             using var client = new TcpClient();
             await client.ConnectAsync(System.Net.IPAddress.Loopback, localPort, timeoutCts.Token).ConfigureAwait(false);
             return client.Connected;
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
         }
         catch
         {

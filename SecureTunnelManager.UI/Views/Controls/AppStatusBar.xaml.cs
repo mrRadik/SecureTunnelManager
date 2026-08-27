@@ -97,6 +97,7 @@ public partial class AppStatusBar : System.Windows.Controls.UserControl
 
         _ownerWindow.LocationChanged += OnOwnerWindowLayoutChanged;
         _ownerWindow.SizeChanged += OnOwnerWindowLayoutChanged;
+        _ownerWindow.StateChanged += OnOwnerWindowStateChanged;
     }
 
     private void OnUnloaded(object sender, RoutedEventArgs e)
@@ -106,13 +107,23 @@ public partial class AppStatusBar : System.Windows.Controls.UserControl
 
         _ownerWindow.LocationChanged -= OnOwnerWindowLayoutChanged;
         _ownerWindow.SizeChanged -= OnOwnerWindowLayoutChanged;
+        _ownerWindow.StateChanged -= OnOwnerWindowStateChanged;
         _ownerWindow = null;
     }
 
     private void OnOwnerWindowLayoutChanged(object? sender, EventArgs e) => RefreshOpenPopups();
 
+    private void OnOwnerWindowStateChanged(object? sender, EventArgs e)
+    {
+        if (_ownerWindow?.WindowState == WindowState.Minimized)
+            NotificationCenter?.DismissTransientUi();
+    }
+
     private void RefreshOpenPopups()
     {
+        if (_ownerWindow?.WindowState == WindowState.Minimized)
+            return;
+
         RefreshPopupPlacement(NotificationToastPopup);
         RefreshPopupPlacement(NotificationPopup);
     }

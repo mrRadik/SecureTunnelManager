@@ -16,24 +16,25 @@ public class TunnelTestRequest
 public sealed class TunnelTestResult
 {
     public bool Success { get; init; }
-    public string Message { get; init; } = string.Empty;
     public TimeSpan Duration { get; init; }
     public bool SshRouteOk { get; init; }
     public bool ServiceReachable { get; init; }
+    public string Endpoint { get; init; } = string.Empty;
+    public string? TechnicalError { get; init; }
 
-    public static TunnelTestResult Failed(string message, TimeSpan duration) => new()
+    public static TunnelTestResult Failed(string technicalError, TimeSpan duration) => new()
     {
         Success = false,
-        Message = message,
-        Duration = duration
+        Duration = duration,
+        TechnicalError = technicalError
     };
 
-    public static TunnelTestResult Succeeded(string message, TimeSpan duration, bool serviceReachable) => new()
+    public static TunnelTestResult Succeeded(string endpoint, TimeSpan duration, bool serviceReachable) => new()
     {
         Success = true,
-        Message = message,
         Duration = duration,
         SshRouteOk = true,
-        ServiceReachable = serviceReachable
+        ServiceReachable = serviceReachable,
+        Endpoint = endpoint
     };
 }

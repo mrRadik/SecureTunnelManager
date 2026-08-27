@@ -71,6 +71,9 @@ public partial class App : System.Windows.Application
 
         await _host.StartAsync().ConfigureAwait(true);
         await DatabaseInitializer.InitializeAsync(_host.Services).ConfigureAwait(true);
+        await Services.GetRequiredService<ICredentialService>()
+            .DeleteUnreferencedAsync()
+            .ConfigureAwait(true);
 
         var settingsService = Services.GetRequiredService<ISettingsService>();
         var localization = Services.GetRequiredService<ILocalizationService>();

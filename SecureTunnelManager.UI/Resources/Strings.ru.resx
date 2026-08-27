@@ -342,8 +342,9 @@
   <data name="Tunnel.Editor.NoTargetAuthentication" xml:space="preserve"><value>Без аутентификации на целевом сервере</value></data>
   <data name="Tunnel.Editor.RemoteHost" xml:space="preserve"><value>Удалённый хост</value></data>
   <data name="Tunnel.Editor.RemoteHostPlaceholder" xml:space="preserve"><value>(удалённый хост)</value></data>
-  <data name="Tunnel.Editor.RemotePortHint" xml:space="preserve"><value>Как remote-host:remote-port в ssh -L. Здесь укажите только хост, а порт 8888 — в поле «Порт».</value></data>
-  <data name="Tunnel.Editor.PortForwardIntro" xml:space="preserve"><value>Выберите локальный адрес и порт на этом компьютере.</value></data>
+  <data name="Tunnel.Editor.RemotePortHint" xml:space="preserve"><value>Как remote-host в ssh -L. Здесь укажите только хост; порт удалённого сервиса — на следующем шаге.</value></data>
+  <data name="Tunnel.Editor.PortForwardIntro" xml:space="preserve"><value>Выберите локальный адрес и порт на этом компьютере и порт удалённого сервиса.</value></data>
+  <data name="Tunnel.Editor.ServicePortHint" xml:space="preserve"><value>Это remote-port в ssh -L (например 8888 или 5432).</value></data>
   <data name="Tunnel.Editor.LocalAddress" xml:space="preserve"><value>Локальный адрес</value></data>
   <data name="Tunnel.Editor.LocalPort" xml:space="preserve"><value>Локальный порт</value></data>
   <data name="Tunnel.Editor.ServicePort" xml:space="preserve"><value>Порт сервиса на целевом сервере</value></data>
@@ -365,4 +366,19 @@
   <data name="Rdp.Editor.Validation.LocalPortRange" xml:space="preserve"><value>Используйте 0 для автовыбора или значение от 1 до 65535</value></data>
   <data name="Rdp.Editor.Validation.PasswordWithUsername" xml:space="preserve"><value>Если указано имя пользователя, требуется пароль</value></data>
   <data name="Rdp.Editor.Validation.UsernameWithPassword" xml:space="preserve"><value>Если указан пароль, требуется имя пользователя</value></data>
+  <data name="Notification.TunnelTestOk" xml:space="preserve"><value>Тест туннеля успешен: {0} доступен ({1} с)</value></data>
+  <data name="Notification.TunnelTestRouteOnly" xml:space="preserve"><value>SSH-маршрут работает, но {0} не ответил ({1} с). Возможно, сервис остановлен.</value></data>
+  <data name="Notification.TunnelTestFailed" xml:space="preserve"><value>Тест туннеля не прошёл: {0}</value></data>
+  <data name="Notification.TunnelCreated" xml:space="preserve"><value>Туннель сохранён: {0}</value></data>
+  <data name="Notification.TunnelUpdated" xml:space="preserve"><value>Туннель обновлён: {0}</value></data>
+  <data name="Notification.TunnelSaveFailed" xml:space="preserve"><value>Не удалось сохранить туннель: {0}</value></data>
+  <data name="Error.CredentialNameConflict" xml:space="preserve"><value>Учётные данные с таким именем уже есть. Попробуйте другое имя туннеля.</value></data>
+  <data name="Error.DuplicateName" xml:space="preserve"><value>Подключение с таким именем уже существует.</value></data>
+  <data name="Error.DatabaseSaveFailed" xml:space="preserve"><value>Не удалось записать в локальную базу. Перезапустите приложение и попробуйте снова.</value></data>
+  <data name="Error.UnexpectedSaveFailed" xml:space="preserve"><value>При сохранении что-то пошло не так. Попробуйте ещё раз.</value></data>
+  <data name="Error.ConnectionFailed" xml:space="preserve"><value>Не удалось подключиться через промежуточный хост. Проверьте адрес, порт и учётные данные.</value></data>
+  <data name="Error.AuthFailed" xml:space="preserve"><value>Ошибка входа. Проверьте имя пользователя, пароль или файл ключа.</value></data>
+  <data name="Error.ConnectionRefused" xml:space="preserve"><value>Удалённый хост отклонил подключение. Убедитесь, что сервис запущен.</value></data>
+  <data name="Error.ConnectionTimeout" xml:space="preserve"><value>Время ожидания подключения истекло. Проверьте сеть и доступность хоста.</value></data>
+  <data name="Error.PrivateKeyFailed" xml:space="preserve"><value>Не удалось использовать закрытый ключ. Проверьте путь к файлу и парольную фразу.</value></data>
 </root>

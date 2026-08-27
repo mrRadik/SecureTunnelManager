@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using SecureTunnelManager.Core;
 using SecureTunnelManager.Core.Models;
 using SecureTunnelManager.Core.Services;
 using SecureTunnelManager.Data;
@@ -66,6 +67,14 @@ public class RdpTargetService : IRdpTargetService
         await using var db = await _dbFactory.CreateDbContextAsync(cancellationToken).ConfigureAwait(false);
         var entity = await db.RdpTargets.FirstOrDefaultAsync(t => t.Id == id, cancellationToken).ConfigureAwait(false);
         if (entity is null) return;
+
+        var candidateCredentialIds = CredentialReferenceHelper.CollectFromRdp(EntityMapper.ToModel(entity));
+        await OrphanCredentialCleanup.RemoveUnreferencedAsync(
+            db,
+            candidateCredentialIds,
+            excludeTunnelId: null,
+            excludeRdpId: id,
+            cancellationToken).ConfigureAwait(false);
 
         db.RdpTargets.Remove(entity);
         await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);

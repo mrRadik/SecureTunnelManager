@@ -32,10 +32,19 @@ internal sealed class SshHopChain : IDisposable
         SshResiliencePolicyProvider resilience,
         IReadOnlyList<TunnelAuthOverride>? jumpAuthOverrides,
         TunnelAuthOverride? targetAuthOverride,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        SshConnectOptions? options = null)
     {
         var chain = new SshHopChain();
-        await chain.ConnectInternalAsync(profile, credentialService, resilience, jumpAuthOverrides, targetAuthOverride, cancellationToken).ConfigureAwait(false);
+        options?.OnChainCreated?.Invoke(chain);
+        await chain.ConnectInternalAsync(
+            profile,
+            credentialService,
+            resilience,
+            jumpAuthOverrides,
+            targetAuthOverride,
+            cancellationToken,
+            options).ConfigureAwait(false);
         return chain;
     }
 
@@ -59,10 +68,18 @@ internal sealed class SshHopChain : IDisposable
         ICredentialService credentialService,
         SshResiliencePolicyProvider resilience,
         IReadOnlyList<TunnelAuthOverride>? jumpAuthOverrides,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        SshConnectOptions? options = null)
     {
         var chain = new SshHopChain();
-        await chain.ConnectHopsInternalAsync(hops, credentialService, resilience, jumpAuthOverrides, cancellationToken).ConfigureAwait(false);
+        options?.OnChainCreated?.Invoke(chain);
+        await chain.ConnectHopsInternalAsync(
+            hops,
+            credentialService,
+            resilience,
+            jumpAuthOverrides,
+            cancellationToken,
+            options).ConfigureAwait(false);
         return chain;
     }
 
@@ -72,10 +89,17 @@ internal sealed class SshHopChain : IDisposable
         SshResiliencePolicyProvider resilience,
         IReadOnlyList<TunnelAuthOverride>? jumpAuthOverrides,
         TunnelAuthOverride? targetAuthOverride,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        SshConnectOptions? options)
     {
         var hops = profile.GetEffectiveJumpHosts();
-        await ConnectHopsInternalAsync(hops, credentialService, resilience, jumpAuthOverrides, cancellationToken).ConfigureAwait(false);
+        await ConnectHopsInternalAsync(
+            hops,
+            credentialService,
+            resilience,
+            jumpAuthOverrides,
+            cancellationToken,
+            options).ConfigureAwait(false);
 
         var targetAuth = await SshConnectionFactory.BuildAuthMethodsAsync(
             profile.TargetAuthMethod,
@@ -94,12 +118,14 @@ internal sealed class SshHopChain : IDisposable
         targetForward.Start();
         _hopForwards.Add(targetForward);
 
-        var targetInfo = new ConnectionInfo("127.0.0.1", targetLocalPort, profile.TargetUsername, targetAuth);
+        var targetInfo = CreateConnectionInfo("127.0.0.1", targetLocalPort, profile.TargetUsername, targetAuth, options);
         TargetClient = new SshClient(targetInfo) { KeepAliveInterval = TimeSpan.FromSeconds(30) };
-        await resilience.ExecuteConnectAsync(
+        await ConnectClientAsync(
+            TargetClient,
             profile.TargetHost,
             profile.TargetPort,
-            ct => Task.Run(() => TargetClient.Connect(), ct),
+            resilience,
+            options,
             cancellationToken).ConfigureAwait(false);
     }
 
@@ -108,7 +134,8 @@ internal sealed class SshHopChain : IDisposable
         ICredentialService credentialService,
         SshResiliencePolicyProvider resilience,
         IReadOnlyList<TunnelAuthOverride>? jumpAuthOverrides,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        SshConnectOptions? options)
     {
         if (hops.Count == 0)
             throw new InvalidOperationException("At least one jump host is required.");
@@ -136,7 +163,7 @@ internal sealed class SshHopChain : IDisposable
             SshClient client;
             if (i == 0)
             {
-                var hopInfo = new ConnectionInfo(hop.Host, hop.Port, hop.Username, hopAuth);
+                var hopInfo = CreateConnectionInfo(hop.Host, hop.Port, hop.Username, hopAuth, options);
                 client = new SshClient(hopInfo) { KeepAliveInterval = TimeSpan.FromSeconds(30) };
             }
             else
@@ -147,18 +174,68 @@ internal sealed class SshHopChain : IDisposable
                 forward.Start();
                 _hopForwards.Add(forward);
 
-                var hopInfo = new ConnectionInfo("127.0.0.1", localPort, hop.Username, hopAuth);
+                var hopInfo = CreateConnectionInfo("127.0.0.1", localPort, hop.Username, hopAuth, options);
                 client = new SshClient(hopInfo) { KeepAliveInterval = TimeSpan.FromSeconds(30) };
             }
 
-            await resilience.ExecuteConnectAsync(
-                hop.Host,
-                hop.Port,
-                ct => Task.Run(() => client.Connect(), ct),
-                cancellationToken).ConfigureAwait(false);
+            // Track before Connect so Dispose can abort a hung handshake on timeout.
             _hopClients.Add(client);
+            try
+            {
+                await ConnectClientAsync(
+                    client,
+                    hop.Host,
+                    hop.Port,
+                    resilience,
+                    options,
+                    cancellationToken).ConfigureAwait(false);
+            }
+            catch
+            {
+                _hopClients.Remove(client);
+                client.Dispose();
+                throw;
+            }
+
             previousClient = client;
         }
+    }
+
+    private static ConnectionInfo CreateConnectionInfo(
+        string host,
+        int port,
+        string username,
+        AuthenticationMethod[] authMethods,
+        SshConnectOptions? options)
+    {
+        var info = new ConnectionInfo(host, port, username, authMethods);
+        if (options?.ConnectionTimeout is { } timeout)
+            info.Timeout = timeout;
+        return info;
+    }
+
+    private static async Task ConnectClientAsync(
+        SshClient client,
+        string host,
+        int port,
+        SshResiliencePolicyProvider resilience,
+        SshConnectOptions? options,
+        CancellationToken cancellationToken)
+    {
+        Task ConnectOnceAsync(CancellationToken ct) =>
+            Task.Run(() => client.Connect(), ct);
+
+        if (options?.RetryTransientFailures == false)
+        {
+            await ConnectOnceAsync(cancellationToken).ConfigureAwait(false);
+            return;
+        }
+
+        await resilience.ExecuteConnectAsync(
+            host,
+            port,
+            ConnectOnceAsync,
+            cancellationToken).ConfigureAwait(false);
     }
 
     internal static int GetFreeTcpPort()

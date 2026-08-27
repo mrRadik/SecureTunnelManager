@@ -331,7 +331,10 @@ public partial class RdpEditorViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            ErrorMessage = ex.Message;
+            var current = ex;
+            while (current.InnerException is not null)
+                current = current.InnerException;
+            ErrorMessage = string.IsNullOrWhiteSpace(current.Message) ? ex.Message : current.Message;
         }
     }
 
@@ -495,14 +498,17 @@ public partial class RdpEditorViewModel : ObservableObject
         string username,
         string password)
     {
-        if (existingId.HasValue)
+        var id = existingId
+            ?? (await _credentialService.GetByNameAsync(credentialName).ConfigureAwait(true))?.Id;
+
+        if (id.HasValue)
         {
             await _credentialService.UpdateAsync(
-                existingId.Value,
+                id.Value,
                 credentialName,
                 username,
                 string.IsNullOrEmpty(password) ? null : password).ConfigureAwait(true);
-            return existingId.Value;
+            return id.Value;
         }
 
         return await _credentialService.CreateAsync(credentialName, username, password).ConfigureAwait(true);
@@ -513,10 +519,13 @@ public partial class RdpEditorViewModel : ObservableObject
         if (string.IsNullOrEmpty(secret))
             return existingId;
 
-        if (existingId.HasValue)
+        var id = existingId
+            ?? (await _credentialService.GetByNameAsync(credentialName).ConfigureAwait(true))?.Id;
+
+        if (id.HasValue)
         {
-            await _credentialService.UpdateAsync(existingId.Value, credentialName, "passphrase", secret).ConfigureAwait(true);
-            return existingId;
+            await _credentialService.UpdateAsync(id.Value, credentialName, "passphrase", secret).ConfigureAwait(true);
+            return id;
         }
 
         return await _credentialService.CreateAsync(credentialName, "passphrase", secret).ConfigureAwait(true);

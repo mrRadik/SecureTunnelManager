@@ -43,6 +43,19 @@ public class CredentialService : ICredentialService
         return entity is null ? null : EntityMapper.ToModel(entity);
     }
 
+    public async Task<Credential?> GetByNameAsync(string name, CancellationToken cancellationToken = default)
+    {
+        var trimmed = name.Trim();
+        if (string.IsNullOrEmpty(trimmed))
+            return null;
+
+        await using var db = await _dbFactory.CreateDbContextAsync(cancellationToken).ConfigureAwait(false);
+        var entity = await db.Credentials.AsNoTracking()
+            .FirstOrDefaultAsync(c => c.Name == trimmed, cancellationToken)
+            .ConfigureAwait(false);
+        return entity is null ? null : EntityMapper.ToModel(entity);
+    }
+
     public async Task<int> CreateAsync(string name, string username, string password, CancellationToken cancellationToken = default)
     {
         var encrypted = await _vaultService.EncryptSecretAsync(password, cancellationToken).ConfigureAwait(false);
@@ -87,6 +100,15 @@ public class CredentialService : ICredentialService
         db.Credentials.Remove(entity);
         await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         _logger.LogInformation("Credential deleted: {Name}", entity.Name);
+    }
+
+    public async Task<int> DeleteUnreferencedAsync(CancellationToken cancellationToken = default)
+    {
+        await using var db = await _dbFactory.CreateDbContextAsync(cancellationToken).ConfigureAwait(false);
+        var removed = await OrphanCredentialCleanup.RemoveAllUnreferencedAsync(db, cancellationToken).ConfigureAwait(false);
+        if (removed > 0)
+            _logger.LogInformation("Removed {Count} unreferenced credential(s)", removed);
+        return removed;
     }
 
     public async Task<bool> VerifyPasswordAsync(int id, string password, CancellationToken cancellationToken = default)

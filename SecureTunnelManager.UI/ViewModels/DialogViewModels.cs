@@ -244,19 +244,22 @@ public partial class TunnelEditorViewModel : ObservableObject
     private readonly IVaultService _vaultService;
     private readonly ISshTunnelTestService _tunnelTestService;
     private readonly ILocalizationService _localization;
+    private readonly INotificationService _notifications;
 
     public TunnelEditorViewModel(
         ITunnelProfileService profileService,
         ICredentialService credentialService,
         IVaultService vaultService,
         ISshTunnelTestService tunnelTestService,
-        ILocalizationService localization)
+        ILocalizationService localization,
+        INotificationService notifications)
     {
         _profileService = profileService;
         _credentialService = credentialService;
         _vaultService = vaultService;
         _tunnelTestService = tunnelTestService;
         _localization = localization;
+        _notifications = notifications;
         _localization.LanguageChanged += (_, _) => RefreshLocalizedText();
     }
 
@@ -331,12 +334,6 @@ public partial class TunnelEditorViewModel : ObservableObject
     [ObservableProperty] private string _remotePortError = string.Empty;
 
     [ObservableProperty] private bool _isTesting;
-
-    [ObservableProperty] private string _testMessage = string.Empty;
-
-    [ObservableProperty] private bool _hasTestResult;
-
-    [ObservableProperty] private bool _testSucceeded;
 
     /// <summary>Password entered in UI; persisted to vault on save.</summary>
     public string JumpPassword { get; set; } = string.Empty;
@@ -540,11 +537,6 @@ public partial class TunnelEditorViewModel : ObservableObject
                         valid = false;
                     }
 
-                    if (RemotePort is < 1 or > 65535)
-                    {
-                        RemotePortError = _localization.Get("Editor.Validation.PortRange");
-                        valid = false;
-                    }
                     break;
                 }
 
@@ -592,7 +584,7 @@ public partial class TunnelEditorViewModel : ObservableObject
                     LocalBindAddressError = _localization.Get("Editor.Validation.InvalidBindAddress");
                     valid = false;
                 }
-                if (UseTargetSsh && RemotePort is < 1 or > 65535)
+                if (RemotePort is < 1 or > 65535)
                 {
                     RemotePortError = _localization.Get("Editor.Validation.ServicePortRange");
                     valid = false;
@@ -710,8 +702,6 @@ public partial class TunnelEditorViewModel : ObservableObject
     private async Task TestTunnelAsync()
     {
         ErrorMessage = string.Empty;
-        TestMessage = string.Empty;
-        HasTestResult = false;
         _vaultService.NotifyActivity();
 
         for (var step = 0; step <= 3; step++)
@@ -719,30 +709,31 @@ public partial class TunnelEditorViewModel : ObservableObject
             if (!ValidateStep(step))
             {
                 CurrentStep = step;
+                NotifyValidationFailed();
                 return;
             }
         }
 
         if (!Validate())
+        {
+            NotifyValidationFailed();
             return;
+        }
 
         IsTesting = true;
         try
         {
             var result = await _tunnelTestService.TestAsync(BuildTestRequest()).ConfigureAwait(true);
-            TestSucceeded = result.Success;
-            TestMessage = result.Message;
-            HasTestResult = true;
-
-            if (!result.Success)
-                ErrorMessage = result.Message;
+            PublishTestResult(result);
         }
         catch (Exception ex)
         {
-            TestSucceeded = false;
-            TestMessage = ex.Message;
-            HasTestResult = true;
-            ErrorMessage = ex.Message;
+            _notifications.Publish(new AppNotification
+            {
+                Severity = NotificationSeverity.Error,
+                MessageKey = "Notification.TunnelTestFailed",
+                MessageArgs = [MapTechnicalError(ex.Message)]
+            });
         }
         finally
         {
@@ -771,12 +762,16 @@ public partial class TunnelEditorViewModel : ObservableObject
             if (!ValidateStep(step))
             {
                 CurrentStep = step;
+                NotifyValidationFailed();
                 return;
             }
         }
 
         if (!Validate())
+        {
+            NotifyValidationFailed();
             return;
+        }
 
         try
         {
@@ -852,13 +847,124 @@ public partial class TunnelEditorViewModel : ObservableObject
             else
                 await _profileService.CreateAsync(profile).ConfigureAwait(true);
 
+            _notifications.Publish(new AppNotification
+            {
+                Severity = NotificationSeverity.Success,
+                MessageKey = IsEditMode
+                    ? "Notification.TunnelUpdated"
+                    : "Notification.TunnelCreated",
+                MessageArgs = [profile.Name]
+            });
+
             DialogResult = true;
             RequestClose?.Invoke(this, EventArgs.Empty);
         }
         catch (Exception ex)
         {
-            ErrorMessage = ex.Message;
+            _notifications.Publish(new AppNotification
+            {
+                Severity = NotificationSeverity.Error,
+                MessageKey = "Notification.TunnelSaveFailed",
+                MessageArgs = [MapSaveError(ex)]
+            });
         }
+    }
+
+    private void PublishTestResult(TunnelTestResult result)
+    {
+        if (!result.Success)
+        {
+            _notifications.Publish(new AppNotification
+            {
+                Severity = NotificationSeverity.Error,
+                MessageKey = "Notification.TunnelTestFailed",
+                MessageArgs = [MapTechnicalError(result.TechnicalError)]
+            });
+            return;
+        }
+
+        var seconds = result.Duration.TotalSeconds.ToString("0.0");
+        if (result.ServiceReachable)
+        {
+            _notifications.Publish(new AppNotification
+            {
+                Severity = NotificationSeverity.Success,
+                MessageKey = "Notification.TunnelTestOk",
+                MessageArgs = [result.Endpoint, seconds]
+            });
+            return;
+        }
+
+        _notifications.Publish(new AppNotification
+        {
+            Severity = NotificationSeverity.Warning,
+            MessageKey = "Notification.TunnelTestRouteOnly",
+            MessageArgs = [result.Endpoint, seconds]
+        });
+    }
+
+    private void NotifyValidationFailed()
+    {
+        if (string.IsNullOrWhiteSpace(ErrorMessage))
+            return;
+
+        _notifications.Publish(new AppNotification
+        {
+            Severity = NotificationSeverity.Warning,
+            DirectMessage = ErrorMessage
+        });
+    }
+
+    private string MapSaveError(Exception ex)
+    {
+        var detail = UnwrapExceptionMessage(ex);
+        if (detail.Contains("UNIQUE constraint failed: Credentials.Name", StringComparison.OrdinalIgnoreCase))
+            return _localization.Get("Error.CredentialNameConflict");
+
+        if (detail.Contains("UNIQUE constraint failed", StringComparison.OrdinalIgnoreCase))
+            return _localization.Get("Error.DuplicateName");
+
+        if (detail.Contains("no such column", StringComparison.OrdinalIgnoreCase)
+            || detail.Contains("SQLite Error", StringComparison.OrdinalIgnoreCase)
+            || detail.Contains("DbUpdateException", StringComparison.OrdinalIgnoreCase)
+            || detail.Contains("entity changes", StringComparison.OrdinalIgnoreCase))
+            return _localization.Get("Error.DatabaseSaveFailed");
+
+        return _localization.Get("Error.UnexpectedSaveFailed");
+    }
+
+    private string MapTechnicalError(string? technicalError)
+    {
+        if (string.IsNullOrWhiteSpace(technicalError))
+            return _localization.Get("Error.ConnectionFailed");
+
+        if (technicalError.Contains("Permission denied", StringComparison.OrdinalIgnoreCase)
+            || technicalError.Contains("Authentication", StringComparison.OrdinalIgnoreCase)
+            || technicalError.Contains("auth", StringComparison.OrdinalIgnoreCase))
+            return _localization.Get("Error.AuthFailed");
+
+        if (technicalError.Contains("Connection refused", StringComparison.OrdinalIgnoreCase)
+            || technicalError.Contains("No connection could be made", StringComparison.OrdinalIgnoreCase)
+            || technicalError.Contains("actively refused", StringComparison.OrdinalIgnoreCase))
+            return _localization.Get("Error.ConnectionRefused");
+
+        if (technicalError.Contains("timed out", StringComparison.OrdinalIgnoreCase)
+            || technicalError.Contains("timeout", StringComparison.OrdinalIgnoreCase))
+            return _localization.Get("Error.ConnectionTimeout");
+
+        if (technicalError.Contains("No such file", StringComparison.OrdinalIgnoreCase)
+            || technicalError.Contains("private key", StringComparison.OrdinalIgnoreCase))
+            return _localization.Get("Error.PrivateKeyFailed");
+
+        return _localization.Get("Error.ConnectionFailed");
+    }
+
+    private static string UnwrapExceptionMessage(Exception ex)
+    {
+        var current = ex;
+        while (current.InnerException is not null)
+            current = current.InnerException;
+        return string.IsNullOrWhiteSpace(current.Message) ? ex.Message : current.Message;
     }
 
     private string BuildCredentialName(string suffix) => $"{Name.Trim()}/{suffix}";
@@ -869,14 +975,17 @@ public partial class TunnelEditorViewModel : ObservableObject
         string username,
         string password)
     {
-        if (existingId.HasValue)
+        var id = existingId
+            ?? (await _credentialService.GetByNameAsync(credentialName).ConfigureAwait(true))?.Id;
+
+        if (id.HasValue)
         {
             await _credentialService.UpdateAsync(
-                existingId.Value,
+                id.Value,
                 credentialName,
                 username,
                 string.IsNullOrEmpty(password) ? null : password).ConfigureAwait(true);
-            return existingId.Value;
+            return id.Value;
         }
 
         return await _credentialService.CreateAsync(credentialName, username, password).ConfigureAwait(true);
@@ -887,14 +996,16 @@ public partial class TunnelEditorViewModel : ObservableObject
         if (string.IsNullOrEmpty(secret))
             return existingId;
 
-        if (existingId.HasValue)
+        var id = existingId
+            ?? (await _credentialService.GetByNameAsync(credentialName).ConfigureAwait(true))?.Id;
+
+        if (id.HasValue)
         {
-            await _credentialService.UpdateAsync(existingId.Value, credentialName, "passphrase", secret).ConfigureAwait(true);
-            return existingId;
+            await _credentialService.UpdateAsync(id.Value, credentialName, "passphrase", secret).ConfigureAwait(true);
+            return id;
         }
 
-        var id = await _credentialService.CreateAsync(credentialName, "passphrase", secret).ConfigureAwait(true);
-        return id;
+        return await _credentialService.CreateAsync(credentialName, "passphrase", secret).ConfigureAwait(true);
     }
 
     private bool Validate()

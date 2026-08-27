@@ -342,8 +342,9 @@ This update includes improvements and bug fixes.</value></data>
   <data name="Tunnel.Editor.NoTargetAuthentication" xml:space="preserve"><value>No target authentication</value></data>
   <data name="Tunnel.Editor.RemoteHost" xml:space="preserve"><value>Remote host</value></data>
   <data name="Tunnel.Editor.RemoteHostPlaceholder" xml:space="preserve"><value>(remote host)</value></data>
-  <data name="Tunnel.Editor.RemotePortHint" xml:space="preserve"><value>Like remote-host:remote-port in ssh -L. Enter host only here; use the Port field for 8888.</value></data>
-  <data name="Tunnel.Editor.PortForwardIntro" xml:space="preserve"><value>Choose a local address and port on this PC.</value></data>
+  <data name="Tunnel.Editor.RemotePortHint" xml:space="preserve"><value>Like remote-host in ssh -L. Enter the host only; the remote service port is set on the next step.</value></data>
+  <data name="Tunnel.Editor.PortForwardIntro" xml:space="preserve"><value>Choose a local address and port on this PC, and the remote service port to forward to.</value></data>
+  <data name="Tunnel.Editor.ServicePortHint" xml:space="preserve"><value>The remote-port in ssh -L (for example 8888 or 5432).</value></data>
   <data name="Tunnel.Editor.LocalAddress" xml:space="preserve"><value>Local address</value></data>
   <data name="Tunnel.Editor.LocalPort" xml:space="preserve"><value>Local port</value></data>
   <data name="Tunnel.Editor.ServicePort" xml:space="preserve"><value>Service port on target</value></data>
@@ -365,4 +366,19 @@ This update includes improvements and bug fixes.</value></data>
   <data name="Rdp.Editor.Validation.LocalPortRange" xml:space="preserve"><value>Use 0 for auto, or 1–65535</value></data>
   <data name="Rdp.Editor.Validation.PasswordWithUsername" xml:space="preserve"><value>Password is required when username is set</value></data>
   <data name="Rdp.Editor.Validation.UsernameWithPassword" xml:space="preserve"><value>Username is required when password is set</value></data>
+  <data name="Notification.TunnelTestOk" xml:space="preserve"><value>Tunnel test OK: {0} is reachable ({1}s)</value></data>
+  <data name="Notification.TunnelTestRouteOnly" xml:space="preserve"><value>SSH route works, but {0} did not respond ({1}s). The service may be stopped.</value></data>
+  <data name="Notification.TunnelTestFailed" xml:space="preserve"><value>Tunnel test failed: {0}</value></data>
+  <data name="Notification.TunnelCreated" xml:space="preserve"><value>Tunnel saved: {0}</value></data>
+  <data name="Notification.TunnelUpdated" xml:space="preserve"><value>Tunnel updated: {0}</value></data>
+  <data name="Notification.TunnelSaveFailed" xml:space="preserve"><value>Could not save the tunnel: {0}</value></data>
+  <data name="Error.CredentialNameConflict" xml:space="preserve"><value>Saved credentials with this name already exist. Try another tunnel name.</value></data>
+  <data name="Error.DuplicateName" xml:space="preserve"><value>A connection with this name already exists.</value></data>
+  <data name="Error.DatabaseSaveFailed" xml:space="preserve"><value>Could not write to the local database. Restart the app and try again.</value></data>
+  <data name="Error.UnexpectedSaveFailed" xml:space="preserve"><value>Something went wrong while saving. Please try again.</value></data>
+  <data name="Error.ConnectionFailed" xml:space="preserve"><value>Could not connect through the jump host. Check the address, port, and credentials.</value></data>
+  <data name="Error.AuthFailed" xml:space="preserve"><value>Authentication failed. Check the username, password, or key file.</value></data>
+  <data name="Error.ConnectionRefused" xml:space="preserve"><value>The remote host refused the connection. Check that the service is running.</value></data>
+  <data name="Error.ConnectionTimeout" xml:space="preserve"><value>The connection timed out. Check the network path and host availability.</value></data>
+  <data name="Error.PrivateKeyFailed" xml:space="preserve"><value>Could not use the private key. Check the file path and passphrase.</value></data>
 </root>

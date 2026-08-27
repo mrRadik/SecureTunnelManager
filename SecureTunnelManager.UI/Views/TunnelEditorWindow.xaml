@@ -257,28 +257,13 @@
                         </StackPanel>
 
                         <StackPanel Visibility="{Binding IsDirectForwardMode, Converter={StaticResource BoolToVisibilityConverter}}">
-                            <Grid Margin="0,0,0,8">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="120"/>
-                                </Grid.ColumnDefinitions>
-                                <StackPanel Grid.Column="0" Margin="0,0,12,0">
-                                    <TextBlock Text="{loc:Loc Tunnel.Editor.RemoteHost}" Style="{DynamicResource StmWizardFieldLabel}"/>
-                                    <TextBox Text="{Binding RemoteHost, UpdateSourceTrigger=PropertyChanged}"
-                                             Style="{DynamicResource StmInput}"/>
-                                    <TextBlock Text="{Binding RemoteHostError}"
-                                               Style="{DynamicResource StmValidationError}"
-                                               Visibility="{Binding RemoteHostError, Converter={StaticResource StringNotEmptyToVisibilityConverter}}"/>
-                                </StackPanel>
-                                <StackPanel Grid.Column="1">
-                                    <TextBlock Text="{loc:Loc Editor.Port}" Style="{DynamicResource StmWizardFieldLabel}"/>
-                                    <TextBox Text="{Binding RemotePort, UpdateSourceTrigger=PropertyChanged}"
-                                             Style="{DynamicResource StmInput}"/>
-                                    <TextBlock Text="{Binding RemotePortError}"
-                                               Style="{DynamicResource StmValidationError}"
-                                               Visibility="{Binding RemotePortError, Converter={StaticResource StringNotEmptyToVisibilityConverter}}"/>
-                                </StackPanel>
-                            </Grid>
+                            <TextBlock Text="{loc:Loc Tunnel.Editor.RemoteHost}" Style="{DynamicResource StmWizardFieldLabel}"/>
+                            <TextBox Text="{Binding RemoteHost, UpdateSourceTrigger=PropertyChanged}"
+                                     Style="{DynamicResource StmInput}"
+                                     Margin="0,0,0,8"/>
+                            <TextBlock Text="{Binding RemoteHostError}"
+                                       Style="{DynamicResource StmValidationError}"
+                                       Visibility="{Binding RemoteHostError, Converter={StaticResource StringNotEmptyToVisibilityConverter}}"/>
                             <TextBlock Text="{loc:Loc Tunnel.Editor.RemotePortHint}"
                                        Style="{DynamicResource StmWizardHint}"/>
                         </StackPanel>
@@ -308,37 +293,18 @@
                             </StackPanel>
                         </Grid>
 
-                        <StackPanel Visibility="{Binding IsTargetSshMode, Converter={StaticResource BoolToVisibilityConverter}}">
-                            <TextBlock Text="{loc:Loc Tunnel.Editor.ServicePort}" Style="{DynamicResource StmWizardFieldLabel}"/>
-                            <TextBox Text="{Binding RemotePort, UpdateSourceTrigger=PropertyChanged}"
-                                     Style="{DynamicResource StmInput}"
-                                     MaxWidth="200"
-                                     HorizontalAlignment="Left"
-                                     Margin="0,0,0,16"/>
-                            <TextBlock Text="{Binding RemotePortError}"
-                                       Style="{DynamicResource StmValidationError}"
-                                       Visibility="{Binding RemotePortError, Converter={StaticResource StringNotEmptyToVisibilityConverter}}"/>
-                        </StackPanel>
+                        <TextBlock Text="{loc:Loc Tunnel.Editor.ServicePort}" Style="{DynamicResource StmWizardFieldLabel}"/>
+                        <TextBox Text="{Binding RemotePort, UpdateSourceTrigger=PropertyChanged}"
+                                 Style="{DynamicResource StmInput}"
+                                 MaxWidth="200"
+                                 HorizontalAlignment="Left"
+                                 Margin="0,0,0,8"/>
+                        <TextBlock Text="{Binding RemotePortError}"
+                                   Style="{DynamicResource StmValidationError}"
+                                   Visibility="{Binding RemotePortError, Converter={StaticResource StringNotEmptyToVisibilityConverter}}"/>
+                        <TextBlock Text="{loc:Loc Tunnel.Editor.ServicePortHint}"
+                                   Style="{DynamicResource StmWizardHint}"/>
 
-                        <TextBlock Text="{Binding TestMessage}"
-                                   TextWrapping="Wrap"
-                                   FontSize="13"
-                                   Margin="0,4,0,0"
-                                   Visibility="{Binding HasTestResult, Converter={StaticResource BooleanToVisibilityConverter}}">
-                            <TextBlock.Style>
-                                <Style TargetType="TextBlock" BasedOn="{StaticResource StmFontBase}">
-                                    <Setter Property="Foreground" Value="{DynamicResource StmTextPrimaryBrush}"/>
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding TestSucceeded}" Value="True">
-                                            <Setter Property="Foreground" Value="{DynamicResource StmSuccessBrush}"/>
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding TestSucceeded}" Value="False">
-                                            <Setter Property="Foreground" Value="{DynamicResource StmErrorBrush}"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </TextBlock.Style>
-                        </TextBlock>
                     </StackPanel>
 
                 </StackPanel>
@@ -423,12 +389,6 @@
                         </Button.Style>
                     </Button>
                 </StackPanel>
-
-                <TextBlock Text="{Binding ErrorMessage}"
-                           Style="{DynamicResource StmValidationError}"
-                           VerticalAlignment="Center"
-                           HorizontalAlignment="Center"
-                           Visibility="{Binding ErrorMessage, Converter={StaticResource StringNotEmptyToVisibilityConverter}}"/>
 
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                     <Button Content="{loc:Loc Common.Cancel}"

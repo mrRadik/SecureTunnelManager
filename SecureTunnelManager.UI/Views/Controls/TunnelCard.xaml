@@ -39,6 +39,10 @@
 
             <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="0,0,12,0">
                 <TextBlock Text="{Binding Name}" Style="{DynamicResource StmCardTitleText}" TextTrimming="CharacterEllipsis"/>
+                <TextBlock Text="{Binding Description}"
+                           Style="{DynamicResource StmCardSecondaryText}"
+                           TextTrimming="CharacterEllipsis"
+                           MinHeight="18"/>
             </StackPanel>
 
             <controls:ConnectionRouteView Grid.Column="2"

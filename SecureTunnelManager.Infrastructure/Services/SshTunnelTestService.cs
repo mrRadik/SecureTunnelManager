@@ -29,18 +29,33 @@ public class SshTunnelTestService : ISshTunnelTestService
     {
         var stopwatch = Stopwatch.StartNew();
         SshHopChain? chain = null;
+        SshClient? forwardingClient = null;
         ForwardedPortLocal? testForward = null;
         var testLocalPort = 0;
 
         try
         {
-            chain = await SshHopChain.ConnectAsync(
-                request.Profile,
-                _credentialService,
-                _resilience,
-                request.JumpAuthOverrides,
-                request.TargetAuthOverride,
-                cancellationToken).ConfigureAwait(false);
+            if (request.Profile.UseTargetSsh)
+            {
+                chain = await SshHopChain.ConnectAsync(
+                    request.Profile,
+                    _credentialService,
+                    _resilience,
+                    request.JumpAuthOverrides,
+                    request.TargetAuthOverride,
+                    cancellationToken).ConfigureAwait(false);
+                forwardingClient = chain.TargetClient!;
+            }
+            else
+            {
+                chain = await SshHopChain.ConnectHopsAsync(
+                    request.Profile.GetEffectiveJumpHosts(),
+                    _credentialService,
+                    _resilience,
+                    request.JumpAuthOverrides,
+                    cancellationToken).ConfigureAwait(false);
+                forwardingClient = chain.LastHopClient;
+            }
 
             testLocalPort = SshHopChain.GetFreeTcpPort();
             testForward = new ForwardedPortLocal(
@@ -49,7 +64,7 @@ public class SshTunnelTestService : ISshTunnelTestService
                 request.Profile.RemoteHost,
                 (uint)request.Profile.RemotePort);
 
-            chain.TargetClient!.AddForwardedPort(testForward);
+            forwardingClient.AddForwardedPort(testForward);
             testForward.Start();
 
             var serviceReachable = await ProbeLocalForwardAsync(testLocalPort, cancellationToken).ConfigureAwait(false);
@@ -84,7 +99,7 @@ public class SshTunnelTestService : ISshTunnelTestService
                     if (testForward.IsStarted)
                         testForward.Stop();
 
-                    chain?.TargetClient?.RemoveForwardedPort(testForward);
+                    forwardingClient?.RemoveForwardedPort(testForward);
                     testForward.Dispose();
                 }
                 catch (Exception ex)

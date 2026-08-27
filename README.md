@@ -4,7 +4,7 @@ Windows desktop app for managing SSH port forwards through jump hosts (bastion s
 
 ## Features
 
-- SSH tunnels with jump host and target server
+- SSH tunnels with jump host and target server, or a direct `ssh -L` forward from the last hop (no target SSH login)
 - Password vault (AES-256 + Windows DPAPI)
 - Password and private key authentication
 - Auto-reconnect, system tray, start with Windows

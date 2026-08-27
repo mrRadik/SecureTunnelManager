@@ -91,10 +91,10 @@
 
                     <!-- Step 1: Computer -->
                     <StackPanel Visibility="{Binding CurrentStep, Converter={StaticResource IntEqualsConverter}, ConverterParameter=0}">
-                        <TextBlock Text="Name" Style="{DynamicResource StmWizardFieldLabel}"/>
+                        <TextBlock Text="{loc:Loc Editor.Name}" Style="{DynamicResource StmWizardFieldLabel}"/>
                         <Grid Margin="0,0,0,20">
                             <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" Style="{DynamicResource StmInput}"/>
-                            <TextBlock Text="e.g. Office PC, Dev Server"
+                            <TextBlock Text="{loc:Loc Editor.NamePlaceholder}"
                                        Margin="12,0,12,4"
                                        VerticalAlignment="Center">
                                 <TextBlock.Style>
@@ -113,7 +113,7 @@
                                    Margin="0,-16,0,20"
                                    Visibility="{Binding NameError, Converter={StaticResource StringNotEmptyToVisibilityConverter}}"/>
 
-                        <TextBlock Text="Description (optional)" Style="{DynamicResource StmWizardFieldLabel}"/>
+                        <TextBlock Text="{loc:Loc Editor.DescriptionOptional}" Style="{DynamicResource StmWizardFieldLabel}"/>
                         <Grid Margin="0,0,0,20">
                             <TextBox Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}"
                                      AcceptsReturn="True"
@@ -128,7 +128,7 @@
                                     </Style>
                                 </TextBox.Style>
                             </TextBox>
-                            <TextBlock Text="Add a description or notes about this computer..."
+                            <TextBlock Text="{loc:Loc Editor.DescriptionPlaceholder}"
                                        Margin="12,8,12,0"
                                        VerticalAlignment="Top">
                                 <TextBlock.Style>
@@ -162,7 +162,7 @@
 
                     <!-- Step 2: Jump Host -->
                     <StackPanel Visibility="{Binding CurrentStep, Converter={StaticResource IntEqualsConverter}, ConverterParameter=1}">
-                        <TextBlock Text="Intermediate servers between your PC and the RDP host. Add more if the route uses multiple jump hosts. The last hop opens the port forward."
+                        <TextBlock Text="{loc:Loc Rdp.Editor.JumpHostsIntro}"
                                    Style="{DynamicResource StmWizardStepIntro}"/>
 
                         <ItemsControl ItemsSource="{Binding JumpHosts}">
@@ -173,7 +173,7 @@
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
 
-                        <Button Content="+ Add jump host"
+                        <Button Content="{loc:Loc Editor.AddJumpHost}"
                                 Command="{Binding AddJumpHostCommand}"
                                 Style="{DynamicResource StmSecondaryButton}"
                                 HorizontalAlignment="Left"
@@ -183,7 +183,7 @@
 
                     <!-- Step 3: Remote Desktop -->
                     <StackPanel Visibility="{Binding CurrentStep, Converter={StaticResource IntEqualsConverter}, ConverterParameter=2}">
-                        <TextBlock Text="Windows host reached through the jump host. Remote Desktop (mstsc) opens after the tunnel is up."
+                        <TextBlock Text="{loc:Loc Rdp.Editor.RemoteDesktopIntro}"
                                    Style="{DynamicResource StmWizardStepIntro}"/>
 
                         <Grid Margin="0,0,0,20">
@@ -192,13 +192,13 @@
                                 <ColumnDefinition Width="120"/>
                             </Grid.ColumnDefinitions>
                             <StackPanel Grid.Column="0" Margin="0,0,12,0">
-                                <TextBlock Text="RDP host" Style="{DynamicResource StmWizardFieldLabel}"/>
+                                <TextBlock Text="{loc:Loc Rdp.Editor.RdpHost}" Style="{DynamicResource StmWizardFieldLabel}"/>
                                 <TextBox Text="{Binding RdpHost, UpdateSourceTrigger=PropertyChanged}" Style="{DynamicResource StmInput}"/>
                                 <TextBlock Text="{Binding RdpHostError}" Style="{DynamicResource StmValidationError}"
                                            Visibility="{Binding RdpHostError, Converter={StaticResource StringNotEmptyToVisibilityConverter}}"/>
                             </StackPanel>
                             <StackPanel Grid.Column="1">
-                                <TextBlock Text="Port" Style="{DynamicResource StmWizardFieldLabel}"/>
+                                <TextBlock Text="{loc:Loc Editor.Port}" Style="{DynamicResource StmWizardFieldLabel}"/>
                                 <TextBox Text="{Binding RdpPort, UpdateSourceTrigger=PropertyChanged}" Style="{DynamicResource StmInput}"/>
                                 <TextBlock Text="{Binding RdpPortError}" Style="{DynamicResource StmValidationError}"
                                            Visibility="{Binding RdpPortError, Converter={StaticResource StringNotEmptyToVisibilityConverter}}"/>
@@ -211,32 +211,32 @@
                                 <ColumnDefinition Width="120"/>
                             </Grid.ColumnDefinitions>
                             <StackPanel Grid.Column="0" Margin="0,0,12,0">
-                                <TextBlock Text="Local bind" Style="{DynamicResource StmWizardFieldLabel}"/>
+                                <TextBlock Text="{loc:Loc Rdp.Editor.LocalBind}" Style="{DynamicResource StmWizardFieldLabel}"/>
                                 <TextBox Text="{Binding LocalBindAddress, UpdateSourceTrigger=PropertyChanged}" Style="{DynamicResource StmInput}"/>
                             </StackPanel>
                             <StackPanel Grid.Column="1">
-                                <TextBlock Text="Local port" Style="{DynamicResource StmWizardFieldLabel}"/>
+                                <TextBlock Text="{loc:Loc Tunnel.Editor.LocalPort}" Style="{DynamicResource StmWizardFieldLabel}"/>
                                 <TextBox Text="{Binding LocalPort, UpdateSourceTrigger=PropertyChanged}" Style="{DynamicResource StmInput}"/>
                                 <TextBlock Text="{Binding LocalPortError}" Style="{DynamicResource StmValidationError}"
                                            Visibility="{Binding LocalPortError, Converter={StaticResource StringNotEmptyToVisibilityConverter}}"/>
                             </StackPanel>
                         </Grid>
-                        <TextBlock Text="Local port 0 picks a free port for each session."
+                        <TextBlock Text="{loc:Loc Rdp.Editor.LocalPortHint}"
                                    Style="{DynamicResource StmWizardHint}"
                                    Margin="0,-12,0,20"/>
 
-                        <TextBlock Text="Sign-in name (optional)" Style="{DynamicResource StmWizardFieldLabel}"/>
+                        <TextBlock Text="{loc:Loc Rdp.Editor.SignInNameOptional}" Style="{DynamicResource StmWizardFieldLabel}"/>
                         <TextBox Text="{Binding RdpUsername, UpdateSourceTrigger=PropertyChanged}"
                                  Style="{DynamicResource StmInput}"
                                  Margin="0,0,0,4"/>
-                        <TextBlock Text="For a local account use .\user or COMPUTER\user. Domain: DOMAIN\user."
+                        <TextBlock Text="{loc:Loc Rdp.Editor.UsernameHint}"
                                    Style="{DynamicResource StmWizardHint}"/>
 
-                        <TextBlock Text="Password" Style="{DynamicResource StmWizardFieldLabel}"/>
+                        <TextBlock Text="{loc:Loc Editor.Password}" Style="{DynamicResource StmWizardFieldLabel}"/>
                         <PasswordBox x:Name="RdpPasswordBox"
                                      Style="{DynamicResource StmInputPassword}"
                                      PasswordChanged="OnRdpPasswordChanged"/>
-                        <TextBlock Text="Leave blank to skip auto-login, or when editing leave password blank to keep the saved one. Windows policies may still require a prompt."
+                        <TextBlock Text="{loc:Loc Rdp.Editor.PasswordHint}"
                                    Style="{DynamicResource StmWizardHint}"
                                    Visibility="{Binding IsEditMode, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                         <TextBlock Text="{Binding RdpCredentialError}" Style="{DynamicResource StmValidationError}"
@@ -251,17 +251,17 @@
 
             <!-- Connection path -->
             <StackPanel Grid.Column="2" VerticalAlignment="Top">
-                <TextBlock Text="Connection path"
+                <TextBlock Text="{loc:Loc Editor.ConnectionPath}"
                            FontSize="15"
                            FontWeight="SemiBold"/>
-                <TextBlock Text="How traffic flows from your PC to the remote desktop."
+                <TextBlock Text="{loc:Loc Rdp.Editor.ConnectionPathHint}"
                            FontSize="13"
                            Foreground="{DynamicResource StmTextSecondaryBrush}"
                            TextWrapping="Wrap"
                            Margin="0,4,0,0"/>
 
                 <StackPanel Margin="0,20,0,0">
-                    <controls:ConnectionPathNode Label="Local PC"
+                    <controls:ConnectionPathNode Label="{loc:Loc Editor.LocalPc}"
                                                  Value="{Binding FlowMyComputer}"
                                                  IconGlyph="&#xE7F4;"
                                                  AccentBrush="{DynamicResource StmAccentBrush}"
@@ -270,7 +270,7 @@
                     <ItemsControl ItemsSource="{Binding FlowJumpHosts}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <controls:ConnectionPathNode Label="Jump Host"
+                                <controls:ConnectionPathNode Label="{loc:Loc Editor.JumpHost}"
                                                              Value="{Binding}"
                                                              IconGlyph="&#xE968;"
                                                              AccentBrush="{DynamicResource StmAccentBrush}"/>
@@ -278,7 +278,7 @@
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
 
-                    <controls:ConnectionPathNode Label="RDP Server"
+                    <controls:ConnectionPathNode Label="{loc:Loc Editor.RdpServer}"
                                                  Value="{Binding FlowRdpServer}"
                                                  IconGlyph="&#xE753;"
                                                  AccentBrush="{DynamicResource StmSuccessBrush}"
@@ -298,7 +298,7 @@
 
             <Grid Grid.Row="1">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
-                    <Button Content="Back"
+                    <Button Content="{loc:Loc Vault.Back}"
                             Command="{Binding BackCommand}"
                             Style="{DynamicResource StmGhostButton}"
                             FontSize="13"
@@ -313,18 +313,18 @@
                            Visibility="{Binding ErrorMessage, Converter={StaticResource StringNotEmptyToVisibilityConverter}}"/>
 
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                    <Button Content="Cancel"
+                    <Button Content="{loc:Loc Common.Cancel}"
                             Command="{Binding CancelCommand}"
                             IsCancel="True"
                             Style="{DynamicResource StmGhostButton}"
                             FontSize="13"
                             Padding="0,4"
                             Margin="0,0,8,0"/>
-                    <Button Content="Next"
+                    <Button Content="{loc:Loc Common.Next}"
                             Click="OnNextClick"
                             Style="{DynamicResource StmWizardPrimaryButton}"
                             Visibility="{Binding IsLastStep, Converter={StaticResource InverseBooleanToVisibilityConverter}}"/>
-                    <Button Content="Save"
+                    <Button Content="{loc:Loc Common.Save}"
                             Click="OnSaveClick"
                             Style="{DynamicResource StmSuccessButton}"
                             MinHeight="36"

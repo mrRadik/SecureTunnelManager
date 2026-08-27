@@ -165,7 +165,7 @@
   <data name="Tunnels.DeleteTitle" xml:space="preserve"><value>Удалить туннель</value></data>
   <data name="Tunnels.DeleteConfirm" xml:space="preserve"><value>Удалить «{0}»?</value></data>
   <data name="Route.Local" xml:space="preserve"><value>Локально</value></data>
-  <data name="Route.JumpHost" xml:space="preserve"><value>Jump host</value></data>
+  <data name="Route.JumpHost" xml:space="preserve"><value>Промежуточный хост</value></data>
   <data name="Route.Target" xml:space="preserve"><value>Цель</value></data>
   <data name="Vault.UnlockTitle" xml:space="preserve"><value>Разблокировка хранилища</value></data>
   <data name="Vault.UnlockSubtitle" xml:space="preserve"><value>Введите мастер-пароль для доступа к сохранённым учётным данным.</value></data>
@@ -288,4 +288,81 @@
   <data name="Notification.Time.Yesterday" xml:space="preserve"><value>Вчера</value></data>
   <data name="Notification.Close" xml:space="preserve"><value>Закрыть</value></data>
   <data name="Common.Ok" xml:space="preserve"><value>OK</value></data>
+  <data name="Common.Next" xml:space="preserve"><value>Далее</value></data>
+  <data name="Common.Save" xml:space="preserve"><value>Сохранить</value></data>
+  <data name="Common.Remove" xml:space="preserve"><value>Удалить</value></data>
+  <data name="Editor.Name" xml:space="preserve"><value>Имя</value></data>
+  <data name="Editor.NamePlaceholder" xml:space="preserve"><value>Например, рабочая БД или офисный сервер</value></data>
+  <data name="Editor.DescriptionOptional" xml:space="preserve"><value>Описание (необязательно)</value></data>
+  <data name="Editor.DescriptionPlaceholder" xml:space="preserve"><value>Добавьте описание или заметки...</value></data>
+  <data name="Editor.HostAddress" xml:space="preserve"><value>Адрес хоста</value></data>
+  <data name="Editor.Port" xml:space="preserve"><value>Порт</value></data>
+  <data name="Editor.SignInName" xml:space="preserve"><value>Имя пользователя</value></data>
+  <data name="Editor.SignInMethod" xml:space="preserve"><value>Способ входа</value></data>
+  <data name="Editor.Password" xml:space="preserve"><value>Пароль</value></data>
+  <data name="Editor.CertificateKeyFile" xml:space="preserve"><value>Сертификат (файл ключа)</value></data>
+  <data name="Editor.KeepPasswordHint" xml:space="preserve"><value>При редактировании оставьте пустым, чтобы сохранить текущий пароль.</value></data>
+  <data name="Editor.KeyFile" xml:space="preserve"><value>Файл ключа</value></data>
+  <data name="Editor.KeyPassphraseOptional" xml:space="preserve"><value>Парольная фраза ключа (необязательно)</value></data>
+  <data name="Editor.PrivateKeyFilter" xml:space="preserve"><value>Закрытые ключи (*.pem;*.ppk;*.*)|*.*</value></data>
+  <data name="Editor.ConnectionPath" xml:space="preserve"><value>Маршрут подключения</value></data>
+  <data name="Editor.ConnectionPathHint" xml:space="preserve"><value>Маршрут трафика от компьютера до удалённого сервиса.</value></data>
+  <data name="Editor.LocalPc" xml:space="preserve"><value>Локальный компьютер</value></data>
+  <data name="Editor.JumpHost" xml:space="preserve"><value>Промежуточный хост</value></data>
+  <data name="Editor.TargetServer" xml:space="preserve"><value>Целевой сервер</value></data>
+  <data name="Editor.ForwardedService" xml:space="preserve"><value>Пробрасываемый сервис</value></data>
+  <data name="Editor.RdpServer" xml:space="preserve"><value>RDP-сервер</value></data>
+  <data name="Editor.AddJumpHost" xml:space="preserve"><value>+ Добавить промежуточный хост</value></data>
+  <data name="Editor.JumpHostsIntro" xml:space="preserve"><value>Промежуточные серверы между компьютером и целью. Добавьте ещё, если маршрут проходит через несколько хостов.</value></data>
+  <data name="Editor.StepIndicator" xml:space="preserve"><value>Шаг {0} из {1}</value></data>
+  <data name="Editor.JumpHostTitle" xml:space="preserve"><value>Промежуточный хост {0}</value></data>
+  <data name="Editor.Validation.NameRequired" xml:space="preserve"><value>Укажите имя</value></data>
+  <data name="Editor.Validation.JumpHostRequired" xml:space="preserve"><value>Добавьте хотя бы один промежуточный хост.</value></data>
+  <data name="Editor.Validation.HostRequired" xml:space="preserve"><value>Укажите хост</value></data>
+  <data name="Editor.Validation.InvalidIpAddress" xml:space="preserve"><value>Введите полный адрес IPv4 (четыре октета) или корректный адрес IPv6</value></data>
+  <data name="Editor.Validation.InvalidHost" xml:space="preserve"><value>Введите корректный IP-адрес или имя хоста</value></data>
+  <data name="Editor.Validation.UsernameRequired" xml:space="preserve"><value>Укажите имя пользователя</value></data>
+  <data name="Editor.Validation.PasswordRequired" xml:space="preserve"><value>Укажите пароль</value></data>
+  <data name="Editor.Validation.PrivateKeyRequired" xml:space="preserve"><value>Укажите файл закрытого ключа</value></data>
+  <data name="Editor.Validation.PortRange" xml:space="preserve"><value>Порт должен быть от 1 до 65535</value></data>
+  <data name="Editor.Validation.LocalAddressRequired" xml:space="preserve"><value>Укажите локальный адрес</value></data>
+  <data name="Editor.Validation.InvalidBindAddress" xml:space="preserve"><value>Введите полный адрес IPv4 (четыре октета, например 127.0.0.1) или IPv6</value></data>
+  <data name="Editor.Validation.ServicePortRange" xml:space="preserve"><value>Порт сервиса должен быть от 1 до 65535</value></data>
+  <data name="Editor.Validation.CompleteRequiredFields" xml:space="preserve"><value>Заполните обязательные поля, прежде чем продолжить.</value></data>
+  <data name="Editor.Validation.FixHighlightedFields" xml:space="preserve"><value>Исправьте выделенные поля перед сохранением.</value></data>
+  <data name="Tunnel.Editor.NewTitle" xml:space="preserve"><value>Новый туннель</value></data>
+  <data name="Tunnel.Editor.EditTitle" xml:space="preserve"><value>Редактирование туннеля</value></data>
+  <data name="Tunnel.Editor.StepInformation" xml:space="preserve"><value>Сведения о туннеле</value></data>
+  <data name="Tunnel.Editor.StepJumpHosts" xml:space="preserve"><value>Промежуточный хост</value></data>
+  <data name="Tunnel.Editor.StepTargetServer" xml:space="preserve"><value>Целевой сервер</value></data>
+  <data name="Tunnel.Editor.StepRemoteService" xml:space="preserve"><value>Удалённый сервис</value></data>
+  <data name="Tunnel.Editor.StepPortForward" xml:space="preserve"><value>Проброс порта</value></data>
+  <data name="Tunnel.Editor.StartWithWindows" xml:space="preserve"><value>Подключаться автоматически при запуске Windows</value></data>
+  <data name="Tunnel.Editor.TargetIntro" xml:space="preserve"><value>Настройте удалённую конечную точку и при необходимости учётные данные SSH.</value></data>
+  <data name="Tunnel.Editor.NoTargetAuthentication" xml:space="preserve"><value>Без аутентификации на целевом сервере</value></data>
+  <data name="Tunnel.Editor.RemoteHost" xml:space="preserve"><value>Удалённый хост</value></data>
+  <data name="Tunnel.Editor.RemoteHostPlaceholder" xml:space="preserve"><value>(удалённый хост)</value></data>
+  <data name="Tunnel.Editor.RemotePortHint" xml:space="preserve"><value>Как remote-host:remote-port в ssh -L. Здесь укажите только хост, а порт 8888 — в поле «Порт».</value></data>
+  <data name="Tunnel.Editor.PortForwardIntro" xml:space="preserve"><value>Выберите локальный адрес и порт на этом компьютере.</value></data>
+  <data name="Tunnel.Editor.LocalAddress" xml:space="preserve"><value>Локальный адрес</value></data>
+  <data name="Tunnel.Editor.LocalPort" xml:space="preserve"><value>Локальный порт</value></data>
+  <data name="Tunnel.Editor.ServicePort" xml:space="preserve"><value>Порт сервиса на целевом сервере</value></data>
+  <data name="Tunnel.Editor.Save" xml:space="preserve"><value>Сохранить туннель</value></data>
+  <data name="Rdp.Editor.NewTitle" xml:space="preserve"><value>Новый компьютер</value></data>
+  <data name="Rdp.Editor.EditTitle" xml:space="preserve"><value>Редактирование компьютера</value></data>
+  <data name="Rdp.Editor.StepComputer" xml:space="preserve"><value>Компьютер</value></data>
+  <data name="Rdp.Editor.StepJumpHosts" xml:space="preserve"><value>Промежуточный хост</value></data>
+  <data name="Rdp.Editor.StepRemoteDesktop" xml:space="preserve"><value>Удалённый рабочий стол</value></data>
+  <data name="Rdp.Editor.JumpHostsIntro" xml:space="preserve"><value>Промежуточные серверы между компьютером и RDP-хостом. Добавьте ещё, если маршрут проходит через несколько хостов. Последний хост открывает проброс порта.</value></data>
+  <data name="Rdp.Editor.RemoteDesktopIntro" xml:space="preserve"><value>Windows-хост, доступный через промежуточный хост. После запуска туннеля откроется удалённый рабочий стол (mstsc).</value></data>
+  <data name="Rdp.Editor.RdpHost" xml:space="preserve"><value>RDP-хост</value></data>
+  <data name="Rdp.Editor.LocalBind" xml:space="preserve"><value>Локальный адрес</value></data>
+  <data name="Rdp.Editor.LocalPortHint" xml:space="preserve"><value>Локальный порт 0 выбирает свободный порт для каждого сеанса.</value></data>
+  <data name="Rdp.Editor.SignInNameOptional" xml:space="preserve"><value>Имя пользователя (необязательно)</value></data>
+  <data name="Rdp.Editor.UsernameHint" xml:space="preserve"><value>Для локальной учётной записи используйте .\user или COMPUTER\user. Для доменной — DOMAIN\user.</value></data>
+  <data name="Rdp.Editor.PasswordHint" xml:space="preserve"><value>Оставьте пустым, чтобы не выполнять автоматический вход. При редактировании пустое поле сохраняет текущий пароль. Политики Windows всё равно могут запросить пароль.</value></data>
+  <data name="Rdp.Editor.ConnectionPathHint" xml:space="preserve"><value>Маршрут трафика от компьютера до удалённого рабочего стола.</value></data>
+  <data name="Rdp.Editor.Validation.LocalPortRange" xml:space="preserve"><value>Используйте 0 для автовыбора или значение от 1 до 65535</value></data>
+  <data name="Rdp.Editor.Validation.PasswordWithUsername" xml:space="preserve"><value>Если указано имя пользователя, требуется пароль</value></data>
+  <data name="Rdp.Editor.Validation.UsernameWithPassword" xml:space="preserve"><value>Если указан пароль, требуется имя пользователя</value></data>
 </root>

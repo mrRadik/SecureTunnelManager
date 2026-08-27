@@ -24,6 +24,7 @@ public class TunnelProfileEntity
     public int? TargetCredentialId { get; set; }
     public string? TargetPrivateKeyPath { get; set; }
     public int? TargetKeyPassphraseCredentialId { get; set; }
+    public bool UseTargetSsh { get; set; } = true;
 
     public int LocalPort { get; set; }
     public string LocalBindAddress { get; set; } = "127.0.0.1";

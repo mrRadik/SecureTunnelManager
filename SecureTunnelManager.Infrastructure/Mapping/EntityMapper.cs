@@ -83,6 +83,7 @@ internal static class EntityMapper
             TargetCredentialId = entity.TargetCredentialId,
             TargetPrivateKeyPath = entity.TargetPrivateKeyPath,
             TargetKeyPassphraseCredentialId = entity.TargetKeyPassphraseCredentialId,
+            UseTargetSsh = entity.UseTargetSsh,
             LocalPort = entity.LocalPort,
             LocalBindAddress = string.IsNullOrWhiteSpace(entity.LocalBindAddress) ? "127.0.0.1" : entity.LocalBindAddress,
             RemoteHost = entity.RemoteHost,
@@ -122,6 +123,7 @@ internal static class EntityMapper
             TargetCredentialId = profile.TargetCredentialId,
             TargetPrivateKeyPath = profile.TargetPrivateKeyPath,
             TargetKeyPassphraseCredentialId = profile.TargetKeyPassphraseCredentialId,
+            UseTargetSsh = profile.UseTargetSsh,
             LocalPort = profile.LocalPort,
             LocalBindAddress = profile.LocalBindAddress,
             RemoteHost = profile.RemoteHost,
@@ -154,6 +156,7 @@ internal static class EntityMapper
         entity.TargetCredentialId = profile.TargetCredentialId;
         entity.TargetPrivateKeyPath = profile.TargetPrivateKeyPath;
         entity.TargetKeyPassphraseCredentialId = profile.TargetKeyPassphraseCredentialId;
+        entity.UseTargetSsh = profile.UseTargetSsh;
         entity.LocalPort = profile.LocalPort;
         entity.LocalBindAddress = profile.LocalBindAddress;
         entity.RemoteHost = profile.RemoteHost;
@@ -188,6 +191,7 @@ internal static class EntityMapper
             TargetUsername = profile.TargetUsername,
             TargetAuthMethod = profile.TargetAuthMethod,
             TargetPrivateKeyPath = profile.TargetPrivateKeyPath,
+            UseTargetSsh = profile.UseTargetSsh,
             LocalPort = profile.LocalPort,
             LocalBindAddress = profile.LocalBindAddress,
             RemoteHost = profile.RemoteHost,
@@ -213,6 +217,7 @@ internal static class EntityMapper
             TargetUsername = dto.TargetUsername,
             TargetAuthMethod = dto.TargetAuthMethod,
             TargetPrivateKeyPath = dto.TargetPrivateKeyPath,
+            UseTargetSsh = dto.UseTargetSsh,
             LocalPort = dto.LocalPort,
             LocalBindAddress = string.IsNullOrWhiteSpace(dto.LocalBindAddress) ? "127.0.0.1" : dto.LocalBindAddress,
             RemoteHost = dto.RemoteHost,

@@ -5,6 +5,7 @@ using SecureTunnelManager.Core.Models;
 using SecureTunnelManager.Core.ServiceIcons;
 using SecureTunnelManager.Core.Services;
 using SecureTunnelManager.Core.Validation;
+using SecureTunnelManager.UI.Services;
 
 namespace SecureTunnelManager.UI.ViewModels;
 
@@ -13,20 +14,26 @@ public partial class RdpEditorViewModel : ObservableObject
     private readonly IRdpTargetService _targetService;
     private readonly ICredentialService _credentialService;
     private readonly IVaultService _vaultService;
+    private readonly ILocalizationService _localization;
 
     public RdpEditorViewModel(
         IRdpTargetService targetService,
         ICredentialService credentialService,
-        IVaultService vaultService)
+        IVaultService vaultService,
+        ILocalizationService localization)
     {
         _targetService = targetService;
         _credentialService = credentialService;
         _vaultService = vaultService;
+        _localization = localization;
+        _localization.LanguageChanged += (_, _) => RefreshLocalizedText();
     }
 
     public int TargetId { get; private set; }
     public bool IsEditMode => TargetId > 0;
-    public string WindowTitle => IsEditMode ? "Edit computer" : "New computer";
+    public string WindowTitle => _localization.Get(IsEditMode
+        ? "Rdp.Editor.EditTitle"
+        : "Rdp.Editor.NewTitle");
 
     private int? _initialRdpCredentialId;
 
@@ -36,13 +43,13 @@ public partial class RdpEditorViewModel : ObservableObject
     public bool IsLastStep => CurrentStep == 2;
     public string CurrentStepTitle => CurrentStep switch
     {
-        0 => "Computer",
-        1 => "Jump Host",
-        2 => "Remote Desktop",
+        0 => _localization.Get("Rdp.Editor.StepComputer"),
+        1 => _localization.Get("Rdp.Editor.StepJumpHosts"),
+        2 => _localization.Get("Rdp.Editor.StepRemoteDesktop"),
         _ => string.Empty
     };
 
-    public string StepIndicator => $"Step {CurrentStep + 1} of 3";
+    public string StepIndicator => _localization.Format("Editor.StepIndicator", CurrentStep + 1, 3);
 
     [ObservableProperty] private string _name = string.Empty;
     [ObservableProperty] private string _description = string.Empty;
@@ -77,7 +84,11 @@ public partial class RdpEditorViewModel : ObservableObject
         ? $"{LocalBindAddress}:auto"
         : $"{LocalBindAddress}:{LocalPort}";
 
-    public string FlowRdpServer => FormatRdpEndpoint(RdpUsername, RdpHost, RdpPort, "RDP Server");
+    public string FlowRdpServer => FormatRdpEndpoint(
+        RdpUsername,
+        RdpHost,
+        RdpPort,
+        _localization.Get("Editor.RdpServer"));
 
     public async Task InitializeAsync(RdpTarget? target)
     {
@@ -282,7 +293,7 @@ public partial class RdpEditorViewModel : ObservableObject
             }
             else if (string.IsNullOrEmpty(RdpPassword) && !rdpCredentialId.HasValue)
             {
-                RdpCredentialError = "Password is required";
+                RdpCredentialError = _localization.Get("Editor.Validation.PasswordRequired");
                 CurrentStep = 2;
                 return;
             }
@@ -335,14 +346,14 @@ public partial class RdpEditorViewModel : ObservableObject
             case 0:
                 if (string.IsNullOrWhiteSpace(Name))
                 {
-                    NameError = "Name is required";
+                    NameError = _localization.Get("Editor.Validation.NameRequired");
                     valid = false;
                 }
                 break;
             case 1:
                 if (JumpHosts.Count == 0)
                 {
-                    ErrorMessage = "Add at least one jump host.";
+                    ErrorMessage = _localization.Get("Editor.Validation.JumpHostRequired");
                     valid = false;
                     break;
                 }
@@ -356,24 +367,24 @@ public partial class RdpEditorViewModel : ObservableObject
             case 2:
                 if (string.IsNullOrWhiteSpace(RdpHost))
                 {
-                    RdpHostError = "Host is required";
+                    RdpHostError = _localization.Get("Editor.Validation.HostRequired");
                     valid = false;
                 }
-                else if (!NetworkAddressValidator.TryValidateHostOrIp(RdpHost, out var hostError))
+                else if (!NetworkAddressValidator.IsValidHostOrIp(RdpHost))
                 {
-                    RdpHostError = hostError;
+                    RdpHostError = GetInvalidHostMessage(RdpHost);
                     valid = false;
                 }
 
                 if (RdpPort is < 1 or > 65535)
                 {
-                    RdpPortError = "Port must be between 1 and 65535";
+                    RdpPortError = _localization.Get("Editor.Validation.PortRange");
                     valid = false;
                 }
 
                 if (LocalPort is < 0 or > 65535)
                 {
-                    LocalPortError = "Use 0 for auto, or 1–65535";
+                    LocalPortError = _localization.Get("Rdp.Editor.Validation.LocalPortRange");
                     valid = false;
                 }
 
@@ -381,13 +392,13 @@ public partial class RdpEditorViewModel : ObservableObject
                     && string.IsNullOrEmpty(RdpPassword)
                     && !HasStoredRdpCredential)
                 {
-                    RdpCredentialError = "Password is required when username is set";
+                    RdpCredentialError = _localization.Get("Rdp.Editor.Validation.PasswordWithUsername");
                     valid = false;
                 }
 
                 if (string.IsNullOrWhiteSpace(RdpUsername) && !string.IsNullOrEmpty(RdpPassword))
                 {
-                    RdpCredentialError = "Username is required when password is set";
+                    RdpCredentialError = _localization.Get("Rdp.Editor.Validation.UsernameWithPassword");
                     valid = false;
                 }
                 break;
@@ -419,7 +430,7 @@ public partial class RdpEditorViewModel : ObservableObject
 
     private JumpHostHopViewModel CreateJumpHostViewModel(JumpHostHop hop, int index)
     {
-        var vm = JumpHostHopViewModel.FromModel(hop, index);
+        var vm = JumpHostHopViewModel.FromModel(hop, index, _localization);
         vm.FlowChanged += (_, _) => NotifyFlowDiagramChanged();
         return vm;
     }
@@ -459,6 +470,21 @@ public partial class RdpEditorViewModel : ObservableObject
             JumpHosts[i].Index = i;
             JumpHosts[i].CanRemove = JumpHosts.Count > 1;
         }
+    }
+
+    private string GetInvalidHostMessage(string value) =>
+        _localization.Get(value.Contains('.') || value.Contains(':')
+            ? "Editor.Validation.InvalidIpAddress"
+            : "Editor.Validation.InvalidHost");
+
+    private void RefreshLocalizedText()
+    {
+        OnPropertyChanged(nameof(WindowTitle));
+        OnPropertyChanged(nameof(CurrentStepTitle));
+        OnPropertyChanged(nameof(StepIndicator));
+        foreach (var hop in JumpHosts)
+            hop.RefreshLocalizedText();
+        NotifyFlowDiagramChanged();
     }
 
     private string BuildCredentialName(string suffix) => $"{Name.Trim()}/{suffix}";

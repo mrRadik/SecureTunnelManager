@@ -74,6 +74,9 @@ public sealed class SshTerminalLauncherService : ISshTerminalLauncherService
 
     private static string? ValidateProfile(TunnelProfile profile)
     {
+        if (!profile.UseTargetSsh)
+            return "SSH terminal is unavailable for tunnels that forward directly from the last jump host.";
+
         if (string.IsNullOrWhiteSpace(profile.TargetHost))
             return "Target host is required.";
 

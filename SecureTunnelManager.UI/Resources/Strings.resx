@@ -288,4 +288,81 @@ This update includes improvements and bug fixes.</value></data>
   <data name="Notification.Time.Yesterday" xml:space="preserve"><value>Yesterday</value></data>
   <data name="Notification.Close" xml:space="preserve"><value>Close</value></data>
   <data name="Common.Ok" xml:space="preserve"><value>OK</value></data>
+  <data name="Common.Next" xml:space="preserve"><value>Next</value></data>
+  <data name="Common.Save" xml:space="preserve"><value>Save</value></data>
+  <data name="Common.Remove" xml:space="preserve"><value>Remove</value></data>
+  <data name="Editor.Name" xml:space="preserve"><value>Name</value></data>
+  <data name="Editor.NamePlaceholder" xml:space="preserve"><value>e.g. Production DB, Office Server</value></data>
+  <data name="Editor.DescriptionOptional" xml:space="preserve"><value>Description (optional)</value></data>
+  <data name="Editor.DescriptionPlaceholder" xml:space="preserve"><value>Add a description or notes...</value></data>
+  <data name="Editor.HostAddress" xml:space="preserve"><value>Host address</value></data>
+  <data name="Editor.Port" xml:space="preserve"><value>Port</value></data>
+  <data name="Editor.SignInName" xml:space="preserve"><value>Sign-in name</value></data>
+  <data name="Editor.SignInMethod" xml:space="preserve"><value>Sign-in method</value></data>
+  <data name="Editor.Password" xml:space="preserve"><value>Password</value></data>
+  <data name="Editor.CertificateKeyFile" xml:space="preserve"><value>Certificate (key file)</value></data>
+  <data name="Editor.KeepPasswordHint" xml:space="preserve"><value>Leave blank when editing to keep the saved password.</value></data>
+  <data name="Editor.KeyFile" xml:space="preserve"><value>Key file</value></data>
+  <data name="Editor.KeyPassphraseOptional" xml:space="preserve"><value>Key passphrase (optional)</value></data>
+  <data name="Editor.PrivateKeyFilter" xml:space="preserve"><value>Private keys (*.pem;*.ppk;*.*)|*.*</value></data>
+  <data name="Editor.ConnectionPath" xml:space="preserve"><value>Connection path</value></data>
+  <data name="Editor.ConnectionPathHint" xml:space="preserve"><value>How traffic flows from your PC to the remote service.</value></data>
+  <data name="Editor.LocalPc" xml:space="preserve"><value>Local PC</value></data>
+  <data name="Editor.JumpHost" xml:space="preserve"><value>Jump Host</value></data>
+  <data name="Editor.TargetServer" xml:space="preserve"><value>Target Server</value></data>
+  <data name="Editor.ForwardedService" xml:space="preserve"><value>Forwarded service</value></data>
+  <data name="Editor.RdpServer" xml:space="preserve"><value>RDP Server</value></data>
+  <data name="Editor.AddJumpHost" xml:space="preserve"><value>+ Add jump host</value></data>
+  <data name="Editor.JumpHostsIntro" xml:space="preserve"><value>Intermediate servers between your PC and the target. Add more if your route uses multiple jump hosts.</value></data>
+  <data name="Editor.StepIndicator" xml:space="preserve"><value>Step {0} of {1}</value></data>
+  <data name="Editor.JumpHostTitle" xml:space="preserve"><value>Jump host {0}</value></data>
+  <data name="Editor.Validation.NameRequired" xml:space="preserve"><value>Name is required</value></data>
+  <data name="Editor.Validation.JumpHostRequired" xml:space="preserve"><value>Add at least one jump host.</value></data>
+  <data name="Editor.Validation.HostRequired" xml:space="preserve"><value>Host is required</value></data>
+  <data name="Editor.Validation.InvalidIpAddress" xml:space="preserve"><value>Enter a full IPv4 address (four octets) or a valid IPv6 address</value></data>
+  <data name="Editor.Validation.InvalidHost" xml:space="preserve"><value>Enter a valid IP address or hostname</value></data>
+  <data name="Editor.Validation.UsernameRequired" xml:space="preserve"><value>Username is required</value></data>
+  <data name="Editor.Validation.PasswordRequired" xml:space="preserve"><value>Password is required</value></data>
+  <data name="Editor.Validation.PrivateKeyRequired" xml:space="preserve"><value>Private key file is required</value></data>
+  <data name="Editor.Validation.PortRange" xml:space="preserve"><value>Port must be between 1 and 65535</value></data>
+  <data name="Editor.Validation.LocalAddressRequired" xml:space="preserve"><value>Local address is required</value></data>
+  <data name="Editor.Validation.InvalidBindAddress" xml:space="preserve"><value>Enter a full IPv4 address (four octets, e.g. 127.0.0.1) or IPv6</value></data>
+  <data name="Editor.Validation.ServicePortRange" xml:space="preserve"><value>Service port must be between 1 and 65535</value></data>
+  <data name="Editor.Validation.CompleteRequiredFields" xml:space="preserve"><value>Please complete the required fields before continuing.</value></data>
+  <data name="Editor.Validation.FixHighlightedFields" xml:space="preserve"><value>Please fix the highlighted fields before saving.</value></data>
+  <data name="Tunnel.Editor.NewTitle" xml:space="preserve"><value>New Tunnel</value></data>
+  <data name="Tunnel.Editor.EditTitle" xml:space="preserve"><value>Edit Tunnel</value></data>
+  <data name="Tunnel.Editor.StepInformation" xml:space="preserve"><value>Tunnel information</value></data>
+  <data name="Tunnel.Editor.StepJumpHosts" xml:space="preserve"><value>Jump Host</value></data>
+  <data name="Tunnel.Editor.StepTargetServer" xml:space="preserve"><value>Target Server</value></data>
+  <data name="Tunnel.Editor.StepRemoteService" xml:space="preserve"><value>Remote Service</value></data>
+  <data name="Tunnel.Editor.StepPortForward" xml:space="preserve"><value>Port Forward</value></data>
+  <data name="Tunnel.Editor.StartWithWindows" xml:space="preserve"><value>Connect automatically when Windows starts</value></data>
+  <data name="Tunnel.Editor.TargetIntro" xml:space="preserve"><value>Configure the remote endpoint and, when needed, its SSH credentials.</value></data>
+  <data name="Tunnel.Editor.NoTargetAuthentication" xml:space="preserve"><value>No target authentication</value></data>
+  <data name="Tunnel.Editor.RemoteHost" xml:space="preserve"><value>Remote host</value></data>
+  <data name="Tunnel.Editor.RemoteHostPlaceholder" xml:space="preserve"><value>(remote host)</value></data>
+  <data name="Tunnel.Editor.RemotePortHint" xml:space="preserve"><value>Like remote-host:remote-port in ssh -L. Enter host only here; use the Port field for 8888.</value></data>
+  <data name="Tunnel.Editor.PortForwardIntro" xml:space="preserve"><value>Choose a local address and port on this PC.</value></data>
+  <data name="Tunnel.Editor.LocalAddress" xml:space="preserve"><value>Local address</value></data>
+  <data name="Tunnel.Editor.LocalPort" xml:space="preserve"><value>Local port</value></data>
+  <data name="Tunnel.Editor.ServicePort" xml:space="preserve"><value>Service port on target</value></data>
+  <data name="Tunnel.Editor.Save" xml:space="preserve"><value>Save Tunnel</value></data>
+  <data name="Rdp.Editor.NewTitle" xml:space="preserve"><value>New computer</value></data>
+  <data name="Rdp.Editor.EditTitle" xml:space="preserve"><value>Edit computer</value></data>
+  <data name="Rdp.Editor.StepComputer" xml:space="preserve"><value>Computer</value></data>
+  <data name="Rdp.Editor.StepJumpHosts" xml:space="preserve"><value>Jump Host</value></data>
+  <data name="Rdp.Editor.StepRemoteDesktop" xml:space="preserve"><value>Remote Desktop</value></data>
+  <data name="Rdp.Editor.JumpHostsIntro" xml:space="preserve"><value>Intermediate servers between your PC and the RDP host. Add more if the route uses multiple jump hosts. The last hop opens the port forward.</value></data>
+  <data name="Rdp.Editor.RemoteDesktopIntro" xml:space="preserve"><value>Windows host reached through the jump host. Remote Desktop (mstsc) opens after the tunnel is up.</value></data>
+  <data name="Rdp.Editor.RdpHost" xml:space="preserve"><value>RDP host</value></data>
+  <data name="Rdp.Editor.LocalBind" xml:space="preserve"><value>Local bind</value></data>
+  <data name="Rdp.Editor.LocalPortHint" xml:space="preserve"><value>Local port 0 picks a free port for each session.</value></data>
+  <data name="Rdp.Editor.SignInNameOptional" xml:space="preserve"><value>Sign-in name (optional)</value></data>
+  <data name="Rdp.Editor.UsernameHint" xml:space="preserve"><value>For a local account use .\user or COMPUTER\user. Domain: DOMAIN\user.</value></data>
+  <data name="Rdp.Editor.PasswordHint" xml:space="preserve"><value>Leave blank to skip auto-login, or when editing leave password blank to keep the saved one. Windows policies may still require a prompt.</value></data>
+  <data name="Rdp.Editor.ConnectionPathHint" xml:space="preserve"><value>How traffic flows from your PC to the remote desktop.</value></data>
+  <data name="Rdp.Editor.Validation.LocalPortRange" xml:space="preserve"><value>Use 0 for auto, or 1–65535</value></data>
+  <data name="Rdp.Editor.Validation.PasswordWithUsername" xml:space="preserve"><value>Password is required when username is set</value></data>
+  <data name="Rdp.Editor.Validation.UsernameWithPassword" xml:space="preserve"><value>Username is required when password is set</value></data>
 </root>

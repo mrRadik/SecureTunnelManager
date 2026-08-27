@@ -28,6 +28,12 @@ public partial class TunnelProfile
     public string? TargetPrivateKeyPath { get; set; }
     public int? TargetKeyPassphraseCredentialId { get; set; }
 
+    /// <summary>
+    /// When false, the local forward is created on the last jump host without
+    /// opening a separate authenticated SSH session to the target.
+    /// </summary>
+    public bool UseTargetSsh { get; set; } = true;
+
     // Port forward
     public string LocalBindAddress { get; set; } = "127.0.0.1";
     public int LocalPort { get; set; }

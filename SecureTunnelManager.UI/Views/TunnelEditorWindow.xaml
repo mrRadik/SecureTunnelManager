@@ -91,10 +91,10 @@
 
                     <!-- Step 1 -->
                     <StackPanel Visibility="{Binding CurrentStep, Converter={StaticResource IntEqualsConverter}, ConverterParameter=0}">
-                        <TextBlock Text="Name" Style="{DynamicResource StmWizardFieldLabel}"/>
+                        <TextBlock Text="{loc:Loc Editor.Name}" Style="{DynamicResource StmWizardFieldLabel}"/>
                         <Grid Margin="0,0,0,20">
                             <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" Style="{DynamicResource StmInput}"/>
-                            <TextBlock Text="e.g. Production DB, Office Server"
+                            <TextBlock Text="{loc:Loc Editor.NamePlaceholder}"
                                        Margin="12,0,12,4"
                                        VerticalAlignment="Center">
                                 <TextBlock.Style>
@@ -113,7 +113,7 @@
                                    Margin="0,-16,0,20"
                                    Visibility="{Binding NameError, Converter={StaticResource StringNotEmptyToVisibilityConverter}}"/>
 
-                        <TextBlock Text="Description (optional)" Style="{DynamicResource StmWizardFieldLabel}"/>
+                        <TextBlock Text="{loc:Loc Editor.DescriptionOptional}" Style="{DynamicResource StmWizardFieldLabel}"/>
                         <Grid Margin="0,0,0,20">
                             <TextBox Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}"
                                      AcceptsReturn="True"
@@ -128,7 +128,7 @@
                                     </Style>
                                 </TextBox.Style>
                             </TextBox>
-                            <TextBlock Text="Add a description or notes about this tunnel..."
+                            <TextBlock Text="{loc:Loc Editor.DescriptionPlaceholder}"
                                        Margin="12,8,12,0"
                                        VerticalAlignment="Top">
                                 <TextBlock.Style>
@@ -150,7 +150,7 @@
                                                     FallbackKey="tunnel"
                                                     Margin="0,0,0,20"/>
 
-                        <CheckBox Content="Connect automatically when Windows starts"
+                        <CheckBox Content="{loc:Loc Tunnel.Editor.StartWithWindows}"
                                   IsChecked="{Binding StartWithWindows}"
                                   Style="{DynamicResource StmCheckBox}"
                                   FontSize="13"/>
@@ -158,7 +158,7 @@
 
                     <!-- Step 2 -->
                     <StackPanel Visibility="{Binding CurrentStep, Converter={StaticResource IntEqualsConverter}, ConverterParameter=1}">
-                        <TextBlock Text="Intermediate servers between your PC and the target. Add more if your route uses multiple jump hosts."
+                        <TextBlock Text="{loc:Loc Editor.JumpHostsIntro}"
                                    Style="{DynamicResource StmWizardStepIntro}"/>
 
                         <ItemsControl ItemsSource="{Binding JumpHosts}">
@@ -169,7 +169,7 @@
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
 
-                        <Button Content="+ Add jump host"
+                        <Button Content="{loc:Loc Editor.AddJumpHost}"
                                 Command="{Binding AddJumpHostCommand}"
                                 Style="{DynamicResource StmSecondaryButton}"
                                 HorizontalAlignment="Left"
@@ -179,27 +179,47 @@
 
                     <!-- Step 3 -->
                     <StackPanel Visibility="{Binding CurrentStep, Converter={StaticResource IntEqualsConverter}, ConverterParameter=2}">
-                        <TextBlock Text="The server and service you want to reach through the jump host."
+                        <TextBlock Text="{loc:Loc Tunnel.Editor.TargetIntro}"
                                    Style="{DynamicResource StmWizardStepIntro}"/>
 
+                        <TextBlock Text="{loc:Loc Editor.SignInMethod}" Style="{DynamicResource StmWizardFieldLabel}" Margin="0,0,0,8"/>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,20">
+                            <RadioButton Content="{loc:Loc Editor.Password}"
+                                         GroupName="TargetAuthMethod"
+                                         Style="{DynamicResource StmRadioButton}"
+                                         FontSize="13"
+                                         IsChecked="{Binding IsTargetPasswordAuth, Mode=TwoWay}"/>
+                            <RadioButton Content="{loc:Loc Editor.CertificateKeyFile}"
+                                         GroupName="TargetAuthMethod"
+                                         Style="{DynamicResource StmRadioButton}"
+                                         FontSize="13"
+                                         IsChecked="{Binding IsTargetPrivateKeyAuth, Mode=TwoWay}"/>
+                            <RadioButton Content="{loc:Loc Tunnel.Editor.NoTargetAuthentication}"
+                                         GroupName="TargetAuthMethod"
+                                         Style="{DynamicResource StmRadioButton}"
+                                         FontSize="13"
+                                         IsChecked="{Binding IsDirectForwardMode, Mode=TwoWay}"/>
+                        </StackPanel>
+
+                        <StackPanel Visibility="{Binding IsTargetSshMode, Converter={StaticResource BoolToVisibilityConverter}}">
                         <Grid Margin="0,0,0,20">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="120"/>
                             </Grid.ColumnDefinitions>
                             <StackPanel Grid.Column="0" Margin="0,0,12,0">
-                                <TextBlock Text="Host address" Style="{DynamicResource StmWizardFieldLabel}"/>
+                                <TextBlock Text="{loc:Loc Editor.HostAddress}" Style="{DynamicResource StmWizardFieldLabel}"/>
                                 <TextBox Text="{Binding TargetHost, UpdateSourceTrigger=PropertyChanged}" Style="{DynamicResource StmInput}"/>
                                 <TextBlock Text="{Binding TargetHostError}" Style="{DynamicResource StmValidationError}"
                                            Visibility="{Binding TargetHostError, Converter={StaticResource StringNotEmptyToVisibilityConverter}}"/>
                             </StackPanel>
                             <StackPanel Grid.Column="1">
-                                <TextBlock Text="Port" Style="{DynamicResource StmWizardFieldLabel}"/>
+                                <TextBlock Text="{loc:Loc Editor.Port}" Style="{DynamicResource StmWizardFieldLabel}"/>
                                 <TextBox Text="{Binding TargetPort, UpdateSourceTrigger=PropertyChanged}" Style="{DynamicResource StmInput}"/>
                             </StackPanel>
                         </Grid>
 
-                        <TextBlock Text="Sign-in name" Style="{DynamicResource StmWizardFieldLabel}"/>
+                        <TextBlock Text="{loc:Loc Editor.SignInName}" Style="{DynamicResource StmWizardFieldLabel}"/>
                         <TextBox Text="{Binding TargetUsername, UpdateSourceTrigger=PropertyChanged}"
                                  Style="{DynamicResource StmInput}"
                                  Margin="0,0,0,20"/>
@@ -207,26 +227,12 @@
                                    Margin="0,-16,0,20"
                                    Visibility="{Binding TargetUsernameError, Converter={StaticResource StringNotEmptyToVisibilityConverter}}"/>
 
-                        <TextBlock Text="Sign-in method" Style="{DynamicResource StmWizardFieldLabel}" Margin="0,0,0,8"/>
-                        <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
-                            <RadioButton Content="Password"
-                                         GroupName="TargetAuthMethod"
-                                         Style="{DynamicResource StmRadioButton}"
-                                         FontSize="13"
-                                         IsChecked="{Binding IsTargetPasswordAuth, Mode=TwoWay}"/>
-                            <RadioButton Content="Certificate (key file)"
-                                         GroupName="TargetAuthMethod"
-                                         Style="{DynamicResource StmRadioButton}"
-                                         FontSize="13"
-                                         IsChecked="{Binding IsTargetPrivateKeyAuth, Mode=TwoWay}"/>
-                        </StackPanel>
-
                         <StackPanel Visibility="{Binding IsTargetPasswordAuth, Converter={StaticResource BoolToVisibilityConverter}}">
-                            <TextBlock Text="Password" Style="{DynamicResource StmWizardFieldLabel}"/>
+                            <TextBlock Text="{loc:Loc Editor.Password}" Style="{DynamicResource StmWizardFieldLabel}"/>
                             <PasswordBox x:Name="TargetPasswordBox"
                                          Style="{DynamicResource StmInputPassword}"
                                          PasswordChanged="OnTargetPasswordChanged"/>
-                            <TextBlock Text="Leave blank when editing to keep the saved password."
+                            <TextBlock Text="{loc:Loc Editor.KeepPasswordHint}"
                                        Style="{DynamicResource StmWizardHint}"
                                        Visibility="{Binding IsEditMode, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                             <TextBlock Text="{Binding TargetCredentialError}" Style="{DynamicResource StmValidationError}"
@@ -234,25 +240,53 @@
                         </StackPanel>
 
                         <StackPanel Visibility="{Binding IsTargetPrivateKeyAuth, Converter={StaticResource BoolToVisibilityConverter}}">
-                            <TextBlock Text="Key file" Style="{DynamicResource StmWizardFieldLabel}"/>
+                            <TextBlock Text="{loc:Loc Editor.KeyFile}" Style="{DynamicResource StmWizardFieldLabel}"/>
                             <Grid Margin="0,0,0,4">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
                                 <TextBox Grid.Column="0" Text="{Binding TargetPrivateKeyPath, UpdateSourceTrigger=PropertyChanged}" Style="{DynamicResource StmInput}"/>
-                                <Button Grid.Column="1" Content="Browse" Command="{Binding BrowseTargetKeyCommand}" Style="{DynamicResource StmSecondaryButton}" Margin="8,0,0,4" MinWidth="90"/>
+                                <Button Grid.Column="1" Content="{loc:Loc Share.Browse}" Command="{Binding BrowseTargetKeyCommand}" Style="{DynamicResource StmSecondaryButton}" Margin="8,0,0,4" MinWidth="90"/>
                             </Grid>
                             <TextBlock Text="{Binding TargetPrivateKeyError}" Style="{DynamicResource StmValidationError}"
                                        Visibility="{Binding TargetPrivateKeyError, Converter={StaticResource StringNotEmptyToVisibilityConverter}}"/>
-                            <TextBlock Text="Key passphrase (optional)" Style="{DynamicResource StmWizardFieldLabel}"/>
+                            <TextBlock Text="{loc:Loc Editor.KeyPassphraseOptional}" Style="{DynamicResource StmWizardFieldLabel}"/>
                             <PasswordBox x:Name="TargetKeyPassphraseBox" Style="{DynamicResource StmInputPassword}"/>
+                        </StackPanel>
+                        </StackPanel>
+
+                        <StackPanel Visibility="{Binding IsDirectForwardMode, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <Grid Margin="0,0,0,8">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="120"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0" Margin="0,0,12,0">
+                                    <TextBlock Text="{loc:Loc Tunnel.Editor.RemoteHost}" Style="{DynamicResource StmWizardFieldLabel}"/>
+                                    <TextBox Text="{Binding RemoteHost, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{DynamicResource StmInput}"/>
+                                    <TextBlock Text="{Binding RemoteHostError}"
+                                               Style="{DynamicResource StmValidationError}"
+                                               Visibility="{Binding RemoteHostError, Converter={StaticResource StringNotEmptyToVisibilityConverter}}"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="1">
+                                    <TextBlock Text="{loc:Loc Editor.Port}" Style="{DynamicResource StmWizardFieldLabel}"/>
+                                    <TextBox Text="{Binding RemotePort, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{DynamicResource StmInput}"/>
+                                    <TextBlock Text="{Binding RemotePortError}"
+                                               Style="{DynamicResource StmValidationError}"
+                                               Visibility="{Binding RemotePortError, Converter={StaticResource StringNotEmptyToVisibilityConverter}}"/>
+                                </StackPanel>
+                            </Grid>
+                            <TextBlock Text="{loc:Loc Tunnel.Editor.RemotePortHint}"
+                                       Style="{DynamicResource StmWizardHint}"/>
                         </StackPanel>
                     </StackPanel>
 
                     <!-- Step 4 -->
                     <StackPanel Visibility="{Binding CurrentStep, Converter={StaticResource IntEqualsConverter}, ConverterParameter=3}">
-                        <TextBlock Text="Choose a local address and port on this PC, then the service port on the target server."
+                        <TextBlock Text="{loc:Loc Tunnel.Editor.PortForwardIntro}"
                                    Style="{DynamicResource StmWizardStepIntro}"/>
 
                         <Grid Margin="0,0,0,20">
@@ -261,25 +295,30 @@
                                 <ColumnDefinition Width="120"/>
                             </Grid.ColumnDefinitions>
                             <StackPanel Grid.Column="0" Margin="0,0,12,0">
-                                <TextBlock Text="Local address" Style="{DynamicResource StmWizardFieldLabel}"/>
+                                <TextBlock Text="{loc:Loc Tunnel.Editor.LocalAddress}" Style="{DynamicResource StmWizardFieldLabel}"/>
                                 <TextBox Text="{Binding LocalBindAddress, UpdateSourceTrigger=PropertyChanged}" Style="{DynamicResource StmInput}"/>
                                 <TextBlock Text="{Binding LocalBindAddressError}" Style="{DynamicResource StmValidationError}"
                                            Visibility="{Binding LocalBindAddressError, Converter={StaticResource StringNotEmptyToVisibilityConverter}}"/>
                             </StackPanel>
                             <StackPanel Grid.Column="1">
-                                <TextBlock Text="Local port" Style="{DynamicResource StmWizardFieldLabel}"/>
+                                <TextBlock Text="{loc:Loc Tunnel.Editor.LocalPort}" Style="{DynamicResource StmWizardFieldLabel}"/>
                                 <TextBox Text="{Binding LocalPort, UpdateSourceTrigger=PropertyChanged}" Style="{DynamicResource StmInput}"/>
                                 <TextBlock Text="{Binding LocalPortError}" Style="{DynamicResource StmValidationError}"
                                            Visibility="{Binding LocalPortError, Converter={StaticResource StringNotEmptyToVisibilityConverter}}"/>
                             </StackPanel>
                         </Grid>
 
-                        <TextBlock Text="Service port on target" Style="{DynamicResource StmWizardFieldLabel}"/>
-                        <TextBox Text="{Binding RemotePort, UpdateSourceTrigger=PropertyChanged}"
-                                 Style="{DynamicResource StmInput}"
-                                 MaxWidth="200"
-                                 HorizontalAlignment="Left"
-                                 Margin="0,0,0,16"/>
+                        <StackPanel Visibility="{Binding IsTargetSshMode, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <TextBlock Text="{loc:Loc Tunnel.Editor.ServicePort}" Style="{DynamicResource StmWizardFieldLabel}"/>
+                            <TextBox Text="{Binding RemotePort, UpdateSourceTrigger=PropertyChanged}"
+                                     Style="{DynamicResource StmInput}"
+                                     MaxWidth="200"
+                                     HorizontalAlignment="Left"
+                                     Margin="0,0,0,16"/>
+                            <TextBlock Text="{Binding RemotePortError}"
+                                       Style="{DynamicResource StmValidationError}"
+                                       Visibility="{Binding RemotePortError, Converter={StaticResource StringNotEmptyToVisibilityConverter}}"/>
+                        </StackPanel>
 
                         <TextBlock Text="{Binding TestMessage}"
                                    TextWrapping="Wrap"
@@ -307,17 +346,17 @@
 
             <!-- Connection path -->
             <StackPanel Grid.Column="2" VerticalAlignment="Top">
-                <TextBlock Text="Connection path"
+                <TextBlock Text="{loc:Loc Editor.ConnectionPath}"
                            FontSize="15"
                            FontWeight="SemiBold"/>
-                <TextBlock Text="How traffic flows from your PC to the remote service."
+                <TextBlock Text="{loc:Loc Editor.ConnectionPathHint}"
                            FontSize="13"
                            Foreground="{DynamicResource StmTextSecondaryBrush}"
                            TextWrapping="Wrap"
                            Margin="0,4,0,0"/>
 
                 <StackPanel Margin="0,20,0,0">
-                    <controls:ConnectionPathNode Label="Local PC"
+                    <controls:ConnectionPathNode Label="{loc:Loc Editor.LocalPc}"
                                                  Value="{Binding FlowMyComputer}"
                                                  IconGlyph="&#xE7F4;"
                                                  AccentBrush="{DynamicResource StmAccentBrush}"
@@ -326,7 +365,7 @@
                     <ItemsControl ItemsSource="{Binding FlowJumpHosts}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <controls:ConnectionPathNode Label="Jump Host"
+                                <controls:ConnectionPathNode Label="{loc:Loc Editor.JumpHost}"
                                                              Value="{Binding}"
                                                              IconGlyph="&#xE968;"
                                                              AccentBrush="{DynamicResource StmAccentBrush}"/>
@@ -334,12 +373,13 @@
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
 
-                    <controls:ConnectionPathNode Label="Target Server"
+                    <controls:ConnectionPathNode Label="{loc:Loc Editor.TargetServer}"
                                                  Value="{Binding FlowTargetServer}"
                                                  IconGlyph="&#xE753;"
-                                                 AccentBrush="{DynamicResource StmSuccessBrush}"/>
+                                                 AccentBrush="{DynamicResource StmSuccessBrush}"
+                                                 Visibility="{Binding IsTargetSshMode, Converter={StaticResource BoolToVisibilityConverter}}"/>
 
-                    <controls:ConnectionPathNode Label="Forwarded service"
+                    <controls:ConnectionPathNode Label="{loc:Loc Editor.ForwardedService}"
                                                  Value="{Binding FlowForwardedService}"
                                                  IconGlyph="&#xE774;"
                                                  AccentBrush="{DynamicResource StmAccentHoverBrush}"
@@ -360,7 +400,7 @@
 
             <Grid Grid.Row="1">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
-                    <Button Content="Back"
+                    <Button Content="{loc:Loc Vault.Back}"
                             Command="{Binding BackCommand}"
                             Style="{DynamicResource StmGhostButton}"
                             FontSize="13"
@@ -391,17 +431,17 @@
                            Visibility="{Binding ErrorMessage, Converter={StaticResource StringNotEmptyToVisibilityConverter}}"/>
 
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                    <Button Content="Cancel"
+                    <Button Content="{loc:Loc Common.Cancel}"
                             IsCancel="True"
                             Style="{DynamicResource StmGhostButton}"
                             FontSize="13"
                             Padding="0,4"
                             Margin="0,0,8,0"/>
-                    <Button Content="Next"
+                    <Button Content="{loc:Loc Common.Next}"
                             Click="OnNextClick"
                             Style="{DynamicResource StmWizardPrimaryButton}"
                             Visibility="{Binding IsLastStep, Converter={StaticResource InverseBooleanToVisibilityConverter}}"/>
-                    <Button Content="Save Tunnel"
+                    <Button Content="{loc:Loc Tunnel.Editor.Save}"
                             Click="OnSaveClick"
                             Style="{DynamicResource StmSuccessButton}"
                             MinHeight="36"

@@ -47,9 +47,22 @@ internal sealed class SshHopChain : IDisposable
         ICredentialService credentialService,
         SshResiliencePolicyProvider resilience,
         CancellationToken cancellationToken)
+        => await ConnectHopsAsync(
+            hops,
+            credentialService,
+            resilience,
+            jumpAuthOverrides: null,
+            cancellationToken).ConfigureAwait(false);
+
+    public static async Task<SshHopChain> ConnectHopsAsync(
+        IReadOnlyList<JumpHostHop> hops,
+        ICredentialService credentialService,
+        SshResiliencePolicyProvider resilience,
+        IReadOnlyList<TunnelAuthOverride>? jumpAuthOverrides,
+        CancellationToken cancellationToken)
     {
         var chain = new SshHopChain();
-        await chain.ConnectHopsInternalAsync(hops, credentialService, resilience, jumpAuthOverrides: null, cancellationToken).ConfigureAwait(false);
+        await chain.ConnectHopsInternalAsync(hops, credentialService, resilience, jumpAuthOverrides, cancellationToken).ConfigureAwait(false);
         return chain;
     }
 

@@ -2,11 +2,19 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using SecureTunnelManager.Core.Models;
 using SecureTunnelManager.Core.Validation;
+using SecureTunnelManager.UI.Services;
 
 namespace SecureTunnelManager.UI.ViewModels;
 
 public partial class JumpHostHopViewModel : ObservableObject
 {
+    private readonly ILocalizationService _localization;
+
+    public JumpHostHopViewModel(ILocalizationService localization)
+    {
+        _localization = localization;
+    }
+
     [ObservableProperty] private string _host = string.Empty;
     [ObservableProperty] private int _port = 22;
     [ObservableProperty] private string _username = string.Empty;
@@ -24,7 +32,7 @@ public partial class JumpHostHopViewModel : ObservableObject
     public string KeyPassphrase { get; set; } = string.Empty;
 
     [ObservableProperty] private int _index;
-    public string Title => $"Jump host {Index + 1}";
+    public string Title => _localization.Format("Editor.JumpHostTitle", Index + 1);
 
     [ObservableProperty] private bool _canRemove = true;
 
@@ -73,7 +81,10 @@ public partial class JumpHostHopViewModel : ObservableObject
 
     public event EventHandler? FlowChanged;
 
-    public static JumpHostHopViewModel FromModel(JumpHostHop hop, int index) => new()
+    public static JumpHostHopViewModel FromModel(
+        JumpHostHop hop,
+        int index,
+        ILocalizationService localization) => new(localization)
     {
         Index = index,
         Host = hop.Host,
@@ -106,30 +117,32 @@ public partial class JumpHostHopViewModel : ObservableObject
 
         if (string.IsNullOrWhiteSpace(Host))
         {
-            HostError = "Host is required";
+            HostError = _localization.Get("Editor.Validation.HostRequired");
             valid = false;
         }
-        else if (!NetworkAddressValidator.TryValidateHostOrIp(Host, out var hostError))
+        else if (!NetworkAddressValidator.IsValidHostOrIp(Host))
         {
-            HostError = hostError;
+            HostError = _localization.Get(Host.Contains('.') || Host.Contains(':')
+                ? "Editor.Validation.InvalidIpAddress"
+                : "Editor.Validation.InvalidHost");
             valid = false;
         }
 
         if (string.IsNullOrWhiteSpace(Username))
         {
-            UsernameError = "Username is required";
+            UsernameError = _localization.Get("Editor.Validation.UsernameRequired");
             valid = false;
         }
 
         if (AuthMethod == AuthMethod.Password && string.IsNullOrEmpty(Password) && !CredentialId.HasValue)
         {
-            CredentialError = "Password is required";
+            CredentialError = _localization.Get("Editor.Validation.PasswordRequired");
             valid = false;
         }
 
         if (AuthMethod == AuthMethod.PrivateKey && string.IsNullOrWhiteSpace(PrivateKeyPath))
         {
-            PrivateKeyError = "Private key file is required";
+            PrivateKeyError = _localization.Get("Editor.Validation.PrivateKeyRequired");
             valid = false;
         }
 
@@ -141,7 +154,7 @@ public partial class JumpHostHopViewModel : ObservableObject
     {
         var dialog = new Microsoft.Win32.OpenFileDialog
         {
-            Filter = "Private keys (*.pem;*.ppk;*.*)|*.*"
+            Filter = _localization.Get("Editor.PrivateKeyFilter")
         };
 
         if (dialog.ShowDialog() != true)
@@ -158,5 +171,11 @@ public partial class JumpHostHopViewModel : ObservableObject
 
         var label = string.IsNullOrWhiteSpace(username) ? host : $"{username}@{host}";
         return port == 22 ? label : $"{label}:{port}";
+    }
+
+    public void RefreshLocalizedText()
+    {
+        OnPropertyChanged(nameof(Title));
+        OnPropertyChanged(nameof(FlowDisplay));
     }
 }

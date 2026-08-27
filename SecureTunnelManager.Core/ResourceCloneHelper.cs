@@ -90,6 +90,7 @@ public static class ResourceCloneHelper
             TargetCredentialId = source.TargetCredentialId,
             TargetPrivateKeyPath = source.TargetPrivateKeyPath,
             TargetKeyPassphraseCredentialId = source.TargetKeyPassphraseCredentialId,
+            UseTargetSsh = source.UseTargetSsh,
             LocalBindAddress = source.LocalBindAddress,
             LocalPort = source.LocalPort,
             RemoteHost = source.RemoteHost,

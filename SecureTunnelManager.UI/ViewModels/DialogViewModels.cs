@@ -4,6 +4,7 @@ using SecureTunnelManager.Core.Models;
 using SecureTunnelManager.Core.ServiceIcons;
 using SecureTunnelManager.Core.Services;
 using SecureTunnelManager.Core.Validation;
+using SecureTunnelManager.UI.Services;
 using System.Collections.ObjectModel;
 
 namespace SecureTunnelManager.UI.ViewModels;
@@ -242,22 +243,28 @@ public partial class TunnelEditorViewModel : ObservableObject
     private readonly ICredentialService _credentialService;
     private readonly IVaultService _vaultService;
     private readonly ISshTunnelTestService _tunnelTestService;
+    private readonly ILocalizationService _localization;
 
     public TunnelEditorViewModel(
         ITunnelProfileService profileService,
         ICredentialService credentialService,
         IVaultService vaultService,
-        ISshTunnelTestService tunnelTestService)
+        ISshTunnelTestService tunnelTestService,
+        ILocalizationService localization)
     {
         _profileService = profileService;
         _credentialService = credentialService;
         _vaultService = vaultService;
         _tunnelTestService = tunnelTestService;
+        _localization = localization;
+        _localization.LanguageChanged += (_, _) => RefreshLocalizedText();
     }
 
     public int ProfileId { get; private set; }
     public bool IsEditMode => ProfileId > 0;
-    public string WindowTitle => IsEditMode ? "Edit Tunnel" : "New Tunnel";
+    public string WindowTitle => _localization.Get(IsEditMode
+        ? "Tunnel.Editor.EditTitle"
+        : "Tunnel.Editor.NewTitle");
 
     [ObservableProperty] private int _currentStep;
 
@@ -265,14 +272,16 @@ public partial class TunnelEditorViewModel : ObservableObject
     public bool IsLastStep => CurrentStep == 3;
     public string CurrentStepTitle => CurrentStep switch
     {
-        0 => "Tunnel information",
-        1 => "Jump Host",
-        2 => "Target Server",
-        3 => "Port Forward",
+        0 => _localization.Get("Tunnel.Editor.StepInformation"),
+        1 => _localization.Get("Tunnel.Editor.StepJumpHosts"),
+        2 => _localization.Get(UseTargetSsh
+            ? "Tunnel.Editor.StepTargetServer"
+            : "Tunnel.Editor.StepRemoteService"),
+        3 => _localization.Get("Tunnel.Editor.StepPortForward"),
         _ => string.Empty
     };
 
-    public string StepIndicator => $"Step {CurrentStep + 1} of 4";
+    public string StepIndicator => _localization.Format("Editor.StepIndicator", CurrentStep + 1, 4);
 
     [ObservableProperty] private string _name = string.Empty;
     [ObservableProperty] private string _description = string.Empty;
@@ -296,9 +305,11 @@ public partial class TunnelEditorViewModel : ObservableObject
     [ObservableProperty] private int? _targetCredentialId;
     [ObservableProperty] private string? _targetPrivateKeyPath;
     [ObservableProperty] private int? _targetKeyPassphraseCredentialId;
+    [ObservableProperty] private bool _useTargetSsh = true;
 
     [ObservableProperty] private string _localBindAddress = "127.0.0.1";
     [ObservableProperty] private int _localPort = 8080;
+    [ObservableProperty] private string _remoteHost = string.Empty;
     [ObservableProperty] private int _remotePort = 80;
     [ObservableProperty] private bool _startWithWindows;
 
@@ -316,6 +327,8 @@ public partial class TunnelEditorViewModel : ObservableObject
     [ObservableProperty] private string _targetCredentialError = string.Empty;
     [ObservableProperty] private string _targetPrivateKeyError = string.Empty;
     [ObservableProperty] private string _localPortError = string.Empty;
+    [ObservableProperty] private string _remoteHostError = string.Empty;
+    [ObservableProperty] private string _remotePortError = string.Empty;
 
     [ObservableProperty] private bool _isTesting;
 
@@ -351,27 +364,53 @@ public partial class TunnelEditorViewModel : ObservableObject
 
     public bool IsTargetPasswordAuth
     {
-        get => TargetAuthMethod == AuthMethod.Password;
-        set { if (value) TargetAuthMethod = AuthMethod.Password; }
+        get => UseTargetSsh && TargetAuthMethod == AuthMethod.Password;
+        set
+        {
+            if (!value)
+                return;
+
+            UseTargetSsh = true;
+            TargetAuthMethod = AuthMethod.Password;
+        }
     }
 
     public bool IsTargetPrivateKeyAuth
     {
-        get => TargetAuthMethod == AuthMethod.PrivateKey;
+        get => UseTargetSsh && TargetAuthMethod == AuthMethod.PrivateKey;
         set
         {
             if (value)
+            {
+                UseTargetSsh = true;
                 TargetAuthMethod = AuthMethod.PrivateKey;
+            }
             else if (TargetAuthMethod == AuthMethod.PrivateKey)
                 TargetAuthMethod = AuthMethod.Password;
         }
     }
 
+    public bool IsTargetSshMode
+    {
+        get => UseTargetSsh;
+        set { if (value) UseTargetSsh = true; }
+    }
+
+    public bool IsDirectForwardMode
+    {
+        get => !UseTargetSsh;
+        set { if (value) UseTargetSsh = false; }
+    }
+
     public string FlowMyComputer => $"{LocalBindAddress}:{LocalPort}";
-    public string FlowTargetServer => FormatEndpoint(TargetUsername, TargetHost, TargetPort, "Target Server");
-    public string FlowForwardedService => string.IsNullOrWhiteSpace(TargetHost)
-        ? $"(target server):{RemotePort}"
-        : $"{TargetHost}:{RemotePort}";
+    public string FlowTargetServer => FormatEndpoint(
+        TargetUsername,
+        TargetHost,
+        TargetPort,
+        _localization.Get("Editor.TargetServer"));
+    public string FlowForwardedService => string.IsNullOrWhiteSpace(RemoteHost)
+        ? $"{_localization.Get("Tunnel.Editor.RemoteHostPlaceholder")}:{RemotePort}"
+        : $"{RemoteHost}:{RemotePort}";
 
     public bool DialogResult { get; private set; }
 
@@ -388,7 +427,9 @@ public partial class TunnelEditorViewModel : ObservableObject
             ProfileId = 0;
             CurrentStep = 0;
             IconKey = ServiceIconCatalog.DefaultTunnelKey;
+            UseTargetSsh = true;
             LocalBindAddress = "127.0.0.1";
+            RemoteHost = string.Empty;
             ResetJumpHosts(new List<JumpHostHop> { new() { Port = 22 } });
             OnPropertyChanged(nameof(WindowTitle));
             OnPropertyChanged(nameof(IsEditMode));
@@ -411,8 +452,10 @@ public partial class TunnelEditorViewModel : ObservableObject
         TargetCredentialId = profile.TargetCredentialId;
         TargetPrivateKeyPath = profile.TargetPrivateKeyPath;
         TargetKeyPassphraseCredentialId = profile.TargetKeyPassphraseCredentialId;
+        UseTargetSsh = profile.UseTargetSsh;
         LocalBindAddress = string.IsNullOrWhiteSpace(profile.LocalBindAddress) ? "127.0.0.1" : profile.LocalBindAddress;
         LocalPort = profile.LocalPort;
+        RemoteHost = string.IsNullOrWhiteSpace(profile.RemoteHost) ? profile.TargetHost : profile.RemoteHost;
         RemotePort = profile.RemotePort;
         StartWithWindows = profile.StartWithWindows;
 
@@ -465,14 +508,14 @@ public partial class TunnelEditorViewModel : ObservableObject
             case 0:
                 if (string.IsNullOrWhiteSpace(Name))
                 {
-                    NameError = "Name is required";
+                    NameError = _localization.Get("Editor.Validation.NameRequired");
                     valid = false;
                 }
                 break;
             case 1:
                 if (JumpHosts.Count == 0)
                 {
-                    ErrorMessage = "Add at least one jump host.";
+                    ErrorMessage = _localization.Get("Editor.Validation.JumpHostRequired");
                     valid = false;
                     break;
                 }
@@ -484,60 +527,81 @@ public partial class TunnelEditorViewModel : ObservableObject
                 }
                 break;
             case 2:
+                if (!UseTargetSsh)
+                {
+                    if (string.IsNullOrWhiteSpace(RemoteHost))
+                    {
+                        RemoteHostError = _localization.Get("Editor.Validation.HostRequired");
+                        valid = false;
+                    }
+                    else if (!NetworkAddressValidator.IsValidHostOrIp(RemoteHost))
+                    {
+                        RemoteHostError = GetInvalidHostMessage(RemoteHost);
+                        valid = false;
+                    }
+
+                    if (RemotePort is < 1 or > 65535)
+                    {
+                        RemotePortError = _localization.Get("Editor.Validation.PortRange");
+                        valid = false;
+                    }
+                    break;
+                }
+
                 if (string.IsNullOrWhiteSpace(TargetHost))
                 {
-                    TargetHostError = "Host is required";
+                    TargetHostError = _localization.Get("Editor.Validation.HostRequired");
                     valid = false;
                 }
-                else if (!NetworkAddressValidator.TryValidateHostOrIp(TargetHost, out var targetHostError))
+                else if (!NetworkAddressValidator.IsValidHostOrIp(TargetHost))
                 {
-                    TargetHostError = targetHostError;
+                    TargetHostError = GetInvalidHostMessage(TargetHost);
                     valid = false;
                 }
                 if (string.IsNullOrWhiteSpace(TargetUsername))
                 {
-                    TargetUsernameError = "Username is required";
+                    TargetUsernameError = _localization.Get("Editor.Validation.UsernameRequired");
                     valid = false;
                 }
                 if (TargetAuthMethod == AuthMethod.Password
                     && !TargetCredentialId.HasValue
                     && string.IsNullOrEmpty(TargetPassword))
                 {
-                    TargetCredentialError = "Password is required";
+                    TargetCredentialError = _localization.Get("Editor.Validation.PasswordRequired");
                     valid = false;
                 }
                 if (TargetAuthMethod == AuthMethod.PrivateKey && string.IsNullOrWhiteSpace(TargetPrivateKeyPath))
                 {
-                    TargetPrivateKeyError = "Private key file is required";
+                    TargetPrivateKeyError = _localization.Get("Editor.Validation.PrivateKeyRequired");
                     valid = false;
                 }
                 break;
             case 3:
                 if (LocalPort is < 1 or > 65535)
                 {
-                    LocalPortError = "Port must be between 1 and 65535";
+                    LocalPortError = _localization.Get("Editor.Validation.PortRange");
                     valid = false;
                 }
                 if (string.IsNullOrWhiteSpace(LocalBindAddress))
                 {
-                    LocalBindAddressError = "Local address is required";
+                    LocalBindAddressError = _localization.Get("Editor.Validation.LocalAddressRequired");
                     valid = false;
                 }
-                else if (!NetworkAddressValidator.TryValidateIpAddress(LocalBindAddress, out var bindError))
+                else if (!NetworkAddressValidator.IsValidIpAddress(LocalBindAddress))
                 {
-                    LocalBindAddressError = bindError;
+                    LocalBindAddressError = _localization.Get("Editor.Validation.InvalidBindAddress");
                     valid = false;
                 }
-                if (RemotePort is < 1 or > 65535)
+                if (UseTargetSsh && RemotePort is < 1 or > 65535)
                 {
-                    ErrorMessage = "Service port must be between 1 and 65535";
+                    RemotePortError = _localization.Get("Editor.Validation.ServicePortRange");
                     valid = false;
                 }
                 break;
         }
 
         if (!valid)
-            ErrorMessage = "Please complete the required fields before continuing.";
+            ErrorMessage = _localization.Get("Editor.Validation.CompleteRequiredFields");
 
         return valid;
     }
@@ -551,6 +615,19 @@ public partial class TunnelEditorViewModel : ObservableObject
     partial void OnTargetAuthMethodChanged(AuthMethod value)
     {
         NotifyAuthPropertiesChanged();
+        NotifyFlowDiagramChanged();
+    }
+
+    partial void OnUseTargetSshChanged(bool value)
+    {
+        if (value && !string.IsNullOrWhiteSpace(TargetHost))
+            RemoteHost = TargetHost;
+        else if (!value && string.IsNullOrWhiteSpace(RemoteHost))
+            RemoteHost = TargetHost;
+
+        ClearValidationErrors();
+        NotifyAuthPropertiesChanged();
+        OnPropertyChanged(nameof(CurrentStepTitle));
         NotifyFlowDiagramChanged();
     }
 
@@ -571,6 +648,8 @@ public partial class TunnelEditorViewModel : ObservableObject
     partial void OnTargetHostChanged(string value)
     {
         TargetHostError = string.Empty;
+        if (UseTargetSsh)
+            RemoteHost = value;
         NotifyFlowDiagramChanged();
     }
 
@@ -593,7 +672,17 @@ public partial class TunnelEditorViewModel : ObservableObject
         NotifyFlowDiagramChanged();
     }
 
-    partial void OnRemotePortChanged(int value) => NotifyFlowDiagramChanged();
+    partial void OnRemoteHostChanged(string value)
+    {
+        RemoteHostError = string.Empty;
+        NotifyFlowDiagramChanged();
+    }
+
+    partial void OnRemotePortChanged(int value)
+    {
+        RemotePortError = string.Empty;
+        NotifyFlowDiagramChanged();
+    }
 
     [RelayCommand]
     private void BrowseJumpKey()
@@ -663,7 +752,7 @@ public partial class TunnelEditorViewModel : ObservableObject
 
     private bool CanTestTunnel() => !IsTesting;
 
-    public string TestTunnelButtonText => IsTesting ? "Testing..." : "Test Tunnel";
+    public string TestTunnelButtonText => _localization.Get(IsTesting ? "Tunnel.Testing" : "Tunnel.Test");
 
     partial void OnIsTestingChanged(bool value)
     {
@@ -717,7 +806,7 @@ public partial class TunnelEditorViewModel : ObservableObject
                 jumpModels.Add(hopVm.ToModel());
             }
 
-            if (TargetAuthMethod == AuthMethod.Password)
+            if (UseTargetSsh && TargetAuthMethod == AuthMethod.Password)
             {
                 TargetCredentialId = await UpsertPasswordCredentialAsync(
                     TargetCredentialId,
@@ -725,7 +814,7 @@ public partial class TunnelEditorViewModel : ObservableObject
                     TargetUsername,
                     TargetPassword).ConfigureAwait(true);
             }
-            else
+            else if (UseTargetSsh)
             {
                 TargetCredentialId = null;
                 TargetKeyPassphraseCredentialId = await UpsertOptionalSecretAsync(
@@ -748,9 +837,10 @@ public partial class TunnelEditorViewModel : ObservableObject
                 TargetCredentialId = TargetCredentialId,
                 TargetPrivateKeyPath = TargetPrivateKeyPath,
                 TargetKeyPassphraseCredentialId = TargetKeyPassphraseCredentialId,
+                UseTargetSsh = UseTargetSsh,
                 LocalBindAddress = LocalBindAddress.Trim(),
                 LocalPort = LocalPort,
-                RemoteHost = TargetHost.Trim(),
+                RemoteHost = RemoteHost.Trim(),
                 RemotePort = RemotePort,
                 StartWithWindows = StartWithWindows
             };
@@ -814,7 +904,7 @@ public partial class TunnelEditorViewModel : ObservableObject
 
         if (string.IsNullOrWhiteSpace(Name))
         {
-            NameError = "Name is required";
+            NameError = _localization.Get("Editor.Validation.NameRequired");
             valid = false;
         }
 
@@ -827,62 +917,78 @@ public partial class TunnelEditorViewModel : ObservableObject
                 valid = false;
         }
 
-        if (string.IsNullOrWhiteSpace(TargetHost))
+        if (!UseTargetSsh)
         {
-            TargetHostError = "Host is required";
+            if (string.IsNullOrWhiteSpace(RemoteHost))
+            {
+                RemoteHostError = _localization.Get("Editor.Validation.HostRequired");
+                valid = false;
+            }
+            else if (!NetworkAddressValidator.IsValidHostOrIp(RemoteHost))
+            {
+                RemoteHostError = GetInvalidHostMessage(RemoteHost);
+                valid = false;
+            }
+        }
+        else if (string.IsNullOrWhiteSpace(TargetHost))
+        {
+            TargetHostError = _localization.Get("Editor.Validation.HostRequired");
             valid = false;
         }
-        else if (!NetworkAddressValidator.TryValidateHostOrIp(TargetHost, out var targetHostError))
+        else if (!NetworkAddressValidator.IsValidHostOrIp(TargetHost))
         {
-            TargetHostError = targetHostError;
+            TargetHostError = GetInvalidHostMessage(TargetHost);
             valid = false;
         }
 
-        if (string.IsNullOrWhiteSpace(TargetUsername))
+        if (UseTargetSsh && string.IsNullOrWhiteSpace(TargetUsername))
         {
-            TargetUsernameError = "Username is required";
+            TargetUsernameError = _localization.Get("Editor.Validation.UsernameRequired");
             valid = false;
         }
 
-        if (TargetAuthMethod == AuthMethod.Password
+        if (UseTargetSsh
+            && TargetAuthMethod == AuthMethod.Password
             && !TargetCredentialId.HasValue
             && string.IsNullOrEmpty(TargetPassword))
         {
-            TargetCredentialError = "Password is required";
+            TargetCredentialError = _localization.Get("Editor.Validation.PasswordRequired");
             valid = false;
         }
 
-        if (TargetAuthMethod == AuthMethod.PrivateKey && string.IsNullOrWhiteSpace(TargetPrivateKeyPath))
+        if (UseTargetSsh
+            && TargetAuthMethod == AuthMethod.PrivateKey
+            && string.IsNullOrWhiteSpace(TargetPrivateKeyPath))
         {
-            TargetPrivateKeyError = "Private key path is required";
+            TargetPrivateKeyError = _localization.Get("Editor.Validation.PrivateKeyRequired");
             valid = false;
         }
 
         if (LocalPort is < 1 or > 65535)
         {
-            LocalPortError = "Port must be between 1 and 65535";
+            LocalPortError = _localization.Get("Editor.Validation.PortRange");
             valid = false;
         }
 
         if (string.IsNullOrWhiteSpace(LocalBindAddress))
         {
-            LocalBindAddressError = "Bind address is required";
+            LocalBindAddressError = _localization.Get("Editor.Validation.LocalAddressRequired");
             valid = false;
         }
-        else if (!NetworkAddressValidator.TryValidateIpAddress(LocalBindAddress, out var bindError))
+        else if (!NetworkAddressValidator.IsValidIpAddress(LocalBindAddress))
         {
-            LocalBindAddressError = bindError;
+            LocalBindAddressError = _localization.Get("Editor.Validation.InvalidBindAddress");
             valid = false;
         }
 
         if (RemotePort is < 1 or > 65535)
         {
+            RemotePortError = _localization.Get("Editor.Validation.PortRange");
             valid = false;
-            ErrorMessage = "Forwarded port must be between 1 and 65535";
         }
 
         if (!valid)
-            ErrorMessage = "Please fix the highlighted fields before saving.";
+            ErrorMessage = _localization.Get("Editor.Validation.FixHighlightedFields");
 
         return valid;
     }
@@ -900,6 +1006,8 @@ public partial class TunnelEditorViewModel : ObservableObject
         TargetPrivateKeyError = string.Empty;
         LocalPortError = string.Empty;
         LocalBindAddressError = string.Empty;
+        RemoteHostError = string.Empty;
+        RemotePortError = string.Empty;
     }
 
     private void NotifyFlowDiagramChanged()
@@ -947,7 +1055,7 @@ public partial class TunnelEditorViewModel : ObservableObject
 
     private JumpHostHopViewModel CreateJumpHostViewModel(JumpHostHop hop, int index)
     {
-        var vm = JumpHostHopViewModel.FromModel(hop, index);
+        var vm = JumpHostHopViewModel.FromModel(hop, index, _localization);
         vm.FlowChanged += (_, _) => NotifyFlowDiagramChanged();
         return vm;
     }
@@ -976,15 +1084,33 @@ public partial class TunnelEditorViewModel : ObservableObject
         OnPropertyChanged(nameof(IsJumpPrivateKeyAuth));
         OnPropertyChanged(nameof(IsTargetPasswordAuth));
         OnPropertyChanged(nameof(IsTargetPrivateKeyAuth));
+        OnPropertyChanged(nameof(IsTargetSshMode));
+        OnPropertyChanged(nameof(IsDirectForwardMode));
     }
 
-    private static string? PickFile()
+    private string? PickFile()
     {
         var dialog = new Microsoft.Win32.OpenFileDialog
         {
-            Filter = "Private keys (*.pem;*.ppk;*.*)|*.*"
+            Filter = _localization.Get("Editor.PrivateKeyFilter")
         };
         return dialog.ShowDialog() == true ? dialog.FileName : null;
+    }
+
+    private string GetInvalidHostMessage(string value) =>
+        _localization.Get(value.Contains('.') || value.Contains(':')
+            ? "Editor.Validation.InvalidIpAddress"
+            : "Editor.Validation.InvalidHost");
+
+    private void RefreshLocalizedText()
+    {
+        OnPropertyChanged(nameof(WindowTitle));
+        OnPropertyChanged(nameof(CurrentStepTitle));
+        OnPropertyChanged(nameof(StepIndicator));
+        OnPropertyChanged(nameof(TestTunnelButtonText));
+        foreach (var hop in JumpHosts)
+            hop.RefreshLocalizedText();
+        NotifyFlowDiagramChanged();
     }
 
     private TunnelProfile BuildDraftProfile()
@@ -1002,9 +1128,10 @@ public partial class TunnelEditorViewModel : ObservableObject
             TargetCredentialId = TargetCredentialId,
             TargetPrivateKeyPath = TargetPrivateKeyPath,
             TargetKeyPassphraseCredentialId = TargetKeyPassphraseCredentialId,
+            UseTargetSsh = UseTargetSsh,
             LocalBindAddress = LocalBindAddress.Trim(),
             LocalPort = LocalPort,
-            RemoteHost = TargetHost.Trim(),
+            RemoteHost = RemoteHost.Trim(),
             RemotePort = RemotePort,
             StartWithWindows = StartWithWindows
         };

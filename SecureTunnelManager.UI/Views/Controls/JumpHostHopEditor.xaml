@@ -1,7 +1,8 @@
 ﻿<UserControl x:Class="SecureTunnelManager.UI.Views.Controls.JumpHostHopEditor"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:vm="clr-namespace:SecureTunnelManager.UI.ViewModels">
+             xmlns:vm="clr-namespace:SecureTunnelManager.UI.ViewModels"
+             xmlns:loc="clr-namespace:SecureTunnelManager.UI.Localization">
 
     <StackPanel Margin="0,0,0,24">
         <Grid Margin="0,0,0,12">
@@ -9,7 +10,7 @@
                        FontSize="15"
                        FontWeight="SemiBold"
                        VerticalAlignment="Center"/>
-            <Button Content="Remove"
+            <Button Content="{loc:Loc Common.Remove}"
                     Command="{Binding DataContext.RemoveJumpHostCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                     CommandParameter="{Binding}"
                     Style="{DynamicResource StmGhostButton}"
@@ -25,40 +26,40 @@
                 <ColumnDefinition Width="120"/>
             </Grid.ColumnDefinitions>
             <StackPanel Grid.Column="0" Margin="0,0,12,0">
-                <TextBlock Text="Host address" Style="{DynamicResource StmLabel}"/>
+                <TextBlock Text="{loc:Loc Editor.HostAddress}" Style="{DynamicResource StmLabel}"/>
                 <TextBox Text="{Binding Host, UpdateSourceTrigger=PropertyChanged}" Style="{DynamicResource StmInput}"/>
                 <TextBlock Text="{Binding HostError}" Style="{DynamicResource StmValidationError}"
                            Visibility="{Binding HostError, Converter={StaticResource StringNotEmptyToVisibilityConverter}}"/>
             </StackPanel>
             <StackPanel Grid.Column="1">
-                <TextBlock Text="Port" Style="{DynamicResource StmLabel}"/>
+                <TextBlock Text="{loc:Loc Editor.Port}" Style="{DynamicResource StmLabel}"/>
                 <TextBox Text="{Binding Port, UpdateSourceTrigger=PropertyChanged}" Style="{DynamicResource StmInput}"/>
             </StackPanel>
         </Grid>
 
-        <TextBlock Text="Sign-in name" Style="{DynamicResource StmLabel}"/>
+        <TextBlock Text="{loc:Loc Editor.SignInName}" Style="{DynamicResource StmLabel}"/>
         <TextBox Text="{Binding Username, UpdateSourceTrigger=PropertyChanged}" Style="{DynamicResource StmInput}"/>
         <TextBlock Text="{Binding UsernameError}" Style="{DynamicResource StmValidationError}"
                    Visibility="{Binding UsernameError, Converter={StaticResource StringNotEmptyToVisibilityConverter}}"/>
 
-        <TextBlock Text="Sign-in method" Style="{DynamicResource StmLabel}" Margin="0,16,0,8"/>
+        <TextBlock Text="{loc:Loc Editor.SignInMethod}" Style="{DynamicResource StmLabel}" Margin="0,16,0,8"/>
         <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
-            <RadioButton Content="Password"
+            <RadioButton Content="{loc:Loc Editor.Password}"
                          GroupName="{Binding Title}"
                          Style="{DynamicResource StmRadioButton}"
                          IsChecked="{Binding IsPasswordAuth, Mode=TwoWay}"/>
-            <RadioButton Content="Certificate (key file)"
+            <RadioButton Content="{loc:Loc Editor.CertificateKeyFile}"
                          GroupName="{Binding Title}"
                          Style="{DynamicResource StmRadioButton}"
                          IsChecked="{Binding IsPrivateKeyAuth, Mode=TwoWay}"/>
         </StackPanel>
 
         <StackPanel Visibility="{Binding IsPasswordAuth, Converter={StaticResource BoolToVisibilityConverter}}">
-            <TextBlock Text="Password" Style="{DynamicResource StmLabel}"/>
+            <TextBlock Text="{loc:Loc Editor.Password}" Style="{DynamicResource StmLabel}"/>
             <PasswordBox x:Name="PasswordBox"
                          Style="{DynamicResource StmInputPassword}"
                          PasswordChanged="OnPasswordChanged"/>
-            <TextBlock Text="Leave blank when editing to keep the saved password."
+            <TextBlock Text="{loc:Loc Editor.KeepPasswordHint}"
                        Style="{DynamicResource StmPageSubtitle}"
                        Visibility="{Binding DataContext.IsEditMode, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BooleanToVisibilityConverter}}"/>
             <TextBlock Text="{Binding CredentialError}" Style="{DynamicResource StmValidationError}"
@@ -66,18 +67,18 @@
         </StackPanel>
 
         <StackPanel Visibility="{Binding IsPrivateKeyAuth, Converter={StaticResource BoolToVisibilityConverter}}">
-            <TextBlock Text="Key file" Style="{DynamicResource StmLabel}"/>
+            <TextBlock Text="{loc:Loc Editor.KeyFile}" Style="{DynamicResource StmLabel}"/>
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 <TextBox Grid.Column="0" Text="{Binding PrivateKeyPath, UpdateSourceTrigger=PropertyChanged}" Style="{DynamicResource StmInput}"/>
-                <Button Grid.Column="1" Content="Browse" Command="{Binding BrowseKeyCommand}" Style="{DynamicResource StmSecondaryButton}" Margin="8,0,0,4" MinWidth="90"/>
+                <Button Grid.Column="1" Content="{loc:Loc Share.Browse}" Command="{Binding BrowseKeyCommand}" Style="{DynamicResource StmSecondaryButton}" Margin="8,0,0,4" MinWidth="90"/>
             </Grid>
             <TextBlock Text="{Binding PrivateKeyError}" Style="{DynamicResource StmValidationError}"
                        Visibility="{Binding PrivateKeyError, Converter={StaticResource StringNotEmptyToVisibilityConverter}}"/>
-            <TextBlock Text="Key passphrase (optional)" Style="{DynamicResource StmLabel}"/>
+            <TextBlock Text="{loc:Loc Editor.KeyPassphraseOptional}" Style="{DynamicResource StmLabel}"/>
             <PasswordBox x:Name="KeyPassphraseBox" Style="{DynamicResource StmInputPassword}" PasswordChanged="OnKeyPassphraseChanged"/>
         </StackPanel>
 

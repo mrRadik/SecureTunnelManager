@@ -29,6 +29,11 @@ public static class TunnelDisplayHelper
 
     public static string FormatDestination(TunnelProfile profile)
     {
+        if (!profile.UseTargetSsh)
+            return string.IsNullOrWhiteSpace(profile.RemoteHost)
+                ? "—"
+                : $"{profile.RemoteHost.Trim()}:{profile.RemotePort}";
+
         if (string.IsNullOrWhiteSpace(profile.TargetHost))
             return "—";
         var user = string.IsNullOrWhiteSpace(profile.TargetUsername) ? string.Empty : $"{profile.TargetUsername.Trim()}@";
@@ -46,7 +51,9 @@ public static class TunnelDisplayHelper
             _ => string.Join(" → ", state.JumpHostDisplays)
         };
         state.DestinationDisplay = FormatDestination(profile);
-        state.TargetDisplay = $"{profile.TargetUsername}@{profile.TargetHost}";
+        state.TargetDisplay = profile.UseTargetSsh
+            ? $"{profile.TargetUsername}@{profile.TargetHost}"
+            : profile.RemoteHost;
         state.LocalPort = profile.LocalPort;
         state.Name = profile.Name;
     }

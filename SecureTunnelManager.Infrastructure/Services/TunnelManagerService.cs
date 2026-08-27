@@ -233,8 +233,12 @@ public class TunnelManagerService : ITunnelManagerService, IDisposable
             _ => string.Join(" → ", state.JumpHostDisplays)
         };
 
-        state.DestinationDisplay = $"{profile.TargetUsername}@{profile.TargetHost}:{profile.RemotePort}";
-        state.TargetDisplay = $"{profile.TargetUsername}@{profile.TargetHost}";
+        state.DestinationDisplay = profile.UseTargetSsh
+            ? $"{profile.TargetUsername}@{profile.TargetHost}:{profile.RemotePort}"
+            : $"{profile.RemoteHost}:{profile.RemotePort}";
+        state.TargetDisplay = profile.UseTargetSsh
+            ? $"{profile.TargetUsername}@{profile.TargetHost}"
+            : profile.RemoteHost;
         state.LocalPort = profile.LocalPort;
     }
 

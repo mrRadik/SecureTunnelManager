@@ -19,6 +19,7 @@ public class TunnelExportDto
     public string TargetUsername { get; set; } = string.Empty;
     public AuthMethod TargetAuthMethod { get; set; }
     public string? TargetPrivateKeyPath { get; set; }
+    public bool UseTargetSsh { get; set; } = true;
     public int LocalPort { get; set; }
     public string LocalBindAddress { get; set; } = "127.0.0.1";
     public string RemoteHost { get; set; } = string.Empty;

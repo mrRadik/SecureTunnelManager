@@ -251,8 +251,20 @@ public partial class NotificationCenterViewModel : ObservableObject
 
     private void ShowToast(AppNotification notification)
     {
-        _toastItem = new NotificationItemViewModel(notification, _localization);
-        ToastMessage = _toastItem.Message;
+        var item = new NotificationItemViewModel(notification, _localization);
+        var message = item.Message;
+
+        if (!CanShowInAppToast())
+        {
+            _serviceProvider.GetService<TrayIconService>()?.ShowBalloon(
+                _localization.Get("App.Title"),
+                message,
+                notification.Severity);
+            return;
+        }
+
+        _toastItem = item;
+        ToastMessage = message;
         ToastActionLabel = _toastItem.ActionLabel;
         ToastHasAction = _toastItem.HasAction;
         IsToastVisible = true;
@@ -264,6 +276,12 @@ public partial class NotificationCenterViewModel : ObservableObject
         _toastHideTimer.Tick -= OnToastHideTick;
         _toastHideTimer.Tick += OnToastHideTick;
         _toastHideTimer.Start();
+    }
+
+    private static bool CanShowInAppToast()
+    {
+        var mainWindow = System.Windows.Application.Current?.MainWindow;
+        return mainWindow is { IsVisible: true, WindowState: not System.Windows.WindowState.Minimized };
     }
 
     private void OnToastHideTick(object? sender, EventArgs e) => HideToast();

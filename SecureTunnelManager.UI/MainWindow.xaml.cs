@@ -14,6 +14,8 @@ public partial class MainWindow : StmChromeWindow
         if (DataContext is ViewModels.MainViewModel { Settings.CloseToTray: true })
         {
             e.Cancel = true;
+            if (DataContext is ViewModels.MainViewModel { Notifications: var notifications })
+                notifications.DismissTransientUi();
             Hide();
             return;
         }

@@ -98,6 +98,7 @@ public partial class AppStatusBar : System.Windows.Controls.UserControl
         _ownerWindow.LocationChanged += OnOwnerWindowLayoutChanged;
         _ownerWindow.SizeChanged += OnOwnerWindowLayoutChanged;
         _ownerWindow.StateChanged += OnOwnerWindowStateChanged;
+        _ownerWindow.IsVisibleChanged += OnOwnerWindowVisibilityChanged;
     }
 
     private void OnUnloaded(object sender, RoutedEventArgs e)
@@ -108,6 +109,7 @@ public partial class AppStatusBar : System.Windows.Controls.UserControl
         _ownerWindow.LocationChanged -= OnOwnerWindowLayoutChanged;
         _ownerWindow.SizeChanged -= OnOwnerWindowLayoutChanged;
         _ownerWindow.StateChanged -= OnOwnerWindowStateChanged;
+        _ownerWindow.IsVisibleChanged -= OnOwnerWindowVisibilityChanged;
         _ownerWindow = null;
     }
 
@@ -116,6 +118,12 @@ public partial class AppStatusBar : System.Windows.Controls.UserControl
     private void OnOwnerWindowStateChanged(object? sender, EventArgs e)
     {
         if (_ownerWindow?.WindowState == WindowState.Minimized)
+            NotificationCenter?.DismissTransientUi();
+    }
+
+    private void OnOwnerWindowVisibilityChanged(object sender, DependencyPropertyChangedEventArgs e)
+    {
+        if (_ownerWindow is { IsVisible: false })
             NotificationCenter?.DismissTransientUi();
     }
 

@@ -1,6 +1,6 @@
 {
-  "version": "1.9.0",
-  "url": "https://github.com/mrRadik/SecureTunnelManager/releases/download/v1.9.0/SecureTunnelManager-Setup-1.9.0.msi",
-  "sha256": "4f1042d297b79649fd74fd298f06af37b96cb0789974a501477df0fde6abc44a",
-  "releaseNotes": "Secure Tunnel Manager 1.9.0\r\n\r\n═══════════════════════════════════════\r\nОБНОВЛЕНИЯ\r\n═══════════════════════════════════════\r\n\r\n• Режим туннеля без SSH-авторизации на целевом сервере — проброс как ssh -L с последнего jump host\r\n• В мастере туннеля: «Без аутентификации на целевом сервере», отдельное поле порта удалённого хоста\r\n• RDP по-прежнему не требует учётных данных Windows на целевой машине\r\n• Локализация мастеров туннеля, RDP и jump host: интерфейс переводится при смене языка в настройках"
+  "version": "1.9.2",
+  "url": "https://github.com/mrRadik/SecureTunnelManager/releases/download/v1.9.2/SecureTunnelManager-Setup-1.9.2.msi",
+  "sha256": "0cea60740a853fc693164a7949b0f7218261fa91dcb3b9f7345d23145321c82b",
+  "releaseNotes": "Secure Tunnel Manager 1.9.2\r\n\r\n═══════════════════════════════════════\r\nОБНОВЛЕНИЯ\r\n═══════════════════════════════════════\r\n\r\n• Уведомления при работе в трее больше не висят поверх других окон\r\n• Описание туннеля отображается в списке, как у RDP"
 }

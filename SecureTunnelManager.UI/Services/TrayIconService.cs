@@ -1,3 +1,4 @@
+using SecureTunnelManager.Core.Models;
 using SecureTunnelManager.Core.Services;
 using SecureTunnelManager.UI.Helpers;
 using SecureTunnelManager.UI.Services;
@@ -34,9 +35,16 @@ public sealed class TrayIconService : IDisposable
     public event EventHandler? OpenRequested;
     public event EventHandler? ExitRequested;
 
-    public void ShowBalloon(string title, string message)
+    public void ShowBalloon(string title, string message, NotificationSeverity severity = NotificationSeverity.Info)
     {
-        _notifyIcon.ShowBalloonTip(3000, title, message, System.Windows.Forms.ToolTipIcon.Info);
+        var icon = severity switch
+        {
+            NotificationSeverity.Error => System.Windows.Forms.ToolTipIcon.Error,
+            NotificationSeverity.Warning => System.Windows.Forms.ToolTipIcon.Warning,
+            _ => System.Windows.Forms.ToolTipIcon.Info
+        };
+
+        _notifyIcon.ShowBalloonTip(5000, title, message, icon);
     }
 
     private void TrySetIcon()

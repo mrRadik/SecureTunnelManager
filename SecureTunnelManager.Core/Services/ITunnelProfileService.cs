@@ -13,4 +13,7 @@ public interface ITunnelProfileService
     Task UpdateAsync(TunnelProfile profile, CancellationToken cancellationToken = default);
     Task DeleteAsync(int id, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<TunnelProfile>> GetAutoStartProfilesAsync(CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<string>> GetGroupNamesAsync(CancellationToken cancellationToken = default);
+    Task SetGroupNameAsync(int profileId, string? groupName, CancellationToken cancellationToken = default);
+    Task RenameGroupAsync(string oldName, string newName, CancellationToken cancellationToken = default);
 }

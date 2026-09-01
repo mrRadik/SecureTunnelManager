@@ -95,7 +95,7 @@ public partial class ShareViewModel : ObservableObject
                 Kind = ShareConnectionKind.Tunnel,
                 ResourceId = tunnel.Id,
                 Name = tunnel.Name,
-                Subtitle = FormatTunnelSubtitle(tunnel.LocalBindAddress, tunnel.LocalPort, tunnel.RemoteHost, tunnel.RemotePort),
+                Subtitle = FormatTunnelSubtitle(tunnel.LocalBindAddress, tunnel.LocalPort, tunnel.RemoteHost, tunnel.RemotePort, tunnel.GroupName),
                 IsSelected = true
             });
         }
@@ -267,7 +267,7 @@ public partial class ShareViewModel : ObservableObject
                     ShareConnectionKind.Tunnel,
                     index,
                     tunnel.Name,
-                    FormatTunnelSubtitle(tunnel.LocalBindAddress, tunnel.LocalPort, tunnel.RemoteHost, tunnel.RemotePort)));
+                    FormatTunnelSubtitle(tunnel.LocalBindAddress, tunnel.LocalPort, tunnel.RemoteHost, tunnel.RemotePort, tunnel.GroupName)));
             }
 
             var rdpOrder = _importBundle.RdpTargets
@@ -394,11 +394,19 @@ public partial class ShareViewModel : ObservableObject
         return item;
     }
 
-    private static string FormatTunnelSubtitle(string bindAddress, int localPort, string remoteHost, int remotePort)
+    private static string FormatTunnelSubtitle(
+        string bindAddress,
+        int localPort,
+        string remoteHost,
+        int remotePort,
+        string? groupName)
     {
         var bind = string.IsNullOrWhiteSpace(bindAddress) ? "127.0.0.1" : bindAddress.Trim();
         var remote = string.IsNullOrWhiteSpace(remoteHost) ? "?" : remoteHost.Trim();
-        return $"{bind}:{localPort} → {remote}:{remotePort}";
+        var builder = new StringBuilder($"{bind}:{localPort} → {remote}:{remotePort}");
+        if (!string.IsNullOrWhiteSpace(groupName))
+            builder.Append(" · ").Append(groupName.Trim());
+        return builder.ToString();
     }
 
     private static string FormatRdpSubtitle(string rdpHost, int rdpPort, string? groupName)

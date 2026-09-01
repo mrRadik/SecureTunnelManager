@@ -69,6 +69,7 @@ internal static class EntityMapper
             Name = entity.Name,
             Description = entity.Description,
             IconKey = entity.IconKey,
+            GroupName = entity.GroupName,
             JumpHost = entity.JumpHost,
             JumpPort = entity.JumpPort,
             JumpUsername = entity.JumpUsername,
@@ -108,6 +109,7 @@ internal static class EntityMapper
             Name = profile.Name,
             Description = profile.Description,
             IconKey = profile.IconKey,
+            GroupName = profile.GroupName,
             JumpHost = profile.JumpHost,
             JumpPort = profile.JumpPort,
             JumpUsername = profile.JumpUsername,
@@ -141,6 +143,7 @@ internal static class EntityMapper
         entity.Name = profile.Name;
         entity.Description = profile.Description;
         entity.IconKey = profile.IconKey;
+        entity.GroupName = profile.GroupName;
         entity.JumpHost = profile.JumpHost;
         entity.JumpPort = profile.JumpPort;
         entity.JumpUsername = profile.JumpUsername;
@@ -173,6 +176,7 @@ internal static class EntityMapper
             Name = profile.Name,
             Description = profile.Description,
             IconKey = profile.IconKey,
+            GroupName = profile.GroupName,
             JumpHost = profile.JumpHost,
             JumpPort = profile.JumpPort,
             JumpUsername = profile.JumpUsername,
@@ -207,6 +211,7 @@ internal static class EntityMapper
             Name = dto.Name,
             Description = dto.Description,
             IconKey = dto.IconKey,
+            GroupName = dto.GroupName,
             JumpHost = dto.JumpHost,
             JumpPort = dto.JumpPort,
             JumpUsername = dto.JumpUsername,

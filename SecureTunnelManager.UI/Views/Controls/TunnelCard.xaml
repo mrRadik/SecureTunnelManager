@@ -16,6 +16,7 @@
                 <MenuItem Tag="OpenTerminal" Click="OnOpenTerminalClick"/>
                 <Separator Style="{StaticResource StmMenuSeparator}"/>
                 <MenuItem Tag="Duplicate" Click="OnDuplicateClick"/>
+                <MenuItem Tag="MoveToGroup" Click="OnMoveToGroupClick"/>
                 <MenuItem Tag="Edit" Click="OnEditClick"/>
                 <MenuItem Tag="Delete" Click="OnDeleteClick"/>
             </ContextMenu>

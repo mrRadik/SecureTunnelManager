@@ -36,6 +36,7 @@
         <Setter Property="Height" Value="40"/>
         <Setter Property="Padding" Value="10,0"/>
         <Setter Property="Margin" Value="0,0,0,4"/>
+        <Setter Property="MaxDropDownHeight" Value="240"/>
         <Setter Property="ItemContainerStyle" Value="{DynamicResource StmComboBoxItem}"/>
         <Setter Property="Template">
             <Setter.Value>
@@ -80,7 +81,8 @@
                                           HorizontalAlignment="Left"
                                           IsHitTestVisible="False"
                                           Content="{TemplateBinding SelectionBoxItem}"
-                                          ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"/>
+                                          ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                          TextElement.Foreground="{TemplateBinding Foreground}"/>
                         <TextBox x:Name="PART_EditableTextBox"
                                  Margin="10,0,32,0"
                                  VerticalAlignment="Center"
@@ -92,6 +94,8 @@
                                  FontFamily="{TemplateBinding FontFamily}"
                                  FontSize="{TemplateBinding FontSize}"
                                  Foreground="{TemplateBinding Foreground}"
+                                 CaretBrush="{DynamicResource StmTextPrimaryBrush}"
+                                 SelectionBrush="{DynamicResource StmAccentBrush}"
                                  IsReadOnly="{TemplateBinding IsReadOnly}"/>
                         <Popup x:Name="popup"
                                Placement="Bottom"
@@ -104,7 +108,7 @@
                                     BorderThickness="1"
                                     CornerRadius="6"
                                     MinWidth="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}"
-                                    MaxHeight="240">
+                                    MaxHeight="{TemplateBinding MaxDropDownHeight}">
                                 <ScrollViewer CanContentScroll="True">
                                     <ItemsPresenter/>
                                 </ScrollViewer>
@@ -124,6 +128,18 @@
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
+    </Style>
+
+    <Style x:Key="StmToolbarComboBox" TargetType="ComboBox" BasedOn="{StaticResource StmComboBox}">
+        <Setter Property="Height" Value="32"/>
+        <Setter Property="MinHeight" Value="32"/>
+        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="Margin" Value="0"/>
+        <Setter Property="MinWidth" Value="148"/>
+        <Setter Property="MaxWidth" Value="220"/>
+        <Setter Property="MaxDropDownHeight" Value="320"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="HorizontalAlignment" Value="Right"/>
     </Style>
 
 </ResourceDictionary>

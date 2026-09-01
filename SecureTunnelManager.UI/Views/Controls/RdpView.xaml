@@ -41,10 +41,19 @@
                                     Placeholder="{loc:Loc Rdp.SearchPlaceholder}"/>
             </controls:FilterToolbar.SearchContent>
             <controls:FilterToolbar.FilterContent>
-                <StackPanel Orientation="Horizontal">
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                     <controls:SegmentedControl ItemsSource="{Binding RdpFilterSegments}"
                                                SelectedValue="{Binding StatusFilter, Mode=TwoWay}"
                                                IsInline="True"/>
+                    <Border Style="{DynamicResource StmToolbarDivider}"
+                            Margin="8,4"
+                            Visibility="{Binding ShowGroupFilter, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                    <ComboBox ItemsSource="{Binding GroupFilterOptions}"
+                              SelectedItem="{Binding SelectedGroupFilter, Mode=TwoWay}"
+                              DisplayMemberPath="Label"
+                              Style="{DynamicResource StmToolbarComboBox}"
+                              ToolTip="{loc:Loc Rdp.Group.Label}"
+                              Visibility="{Binding ShowGroupFilter, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                     <Border Style="{DynamicResource StmToolbarDivider}" Margin="8,4"/>
                     <controls:SegmentedControl ItemsSource="{Binding ViewModeSegments}"
                                                SelectedValue="{Binding ViewMode, Mode=TwoWay}"

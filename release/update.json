@@ -1,6 +1,6 @@
 {
-  "version": "1.9.2",
-  "url": "https://github.com/mrRadik/SecureTunnelManager/releases/download/v1.9.2/SecureTunnelManager-Setup-1.9.2.msi",
-  "sha256": "0cea60740a853fc693164a7949b0f7218261fa91dcb3b9f7345d23145321c82b",
-  "releaseNotes": "Secure Tunnel Manager 1.9.2\r\n\r\n═══════════════════════════════════════\r\nОБНОВЛЕНИЯ\r\n═══════════════════════════════════════\r\n\r\n• Уведомления при работе в трее больше не висят поверх других окон\r\n• Описание туннеля отображается в списке, как у RDP"
+  "version": "1.10.0",
+  "url": "https://github.com/mrRadik/SecureTunnelManager/releases/download/v1.10.0/SecureTunnelManager-Setup-1.10.0.msi",
+  "sha256": "dc1ab86b8928f49f8ae0c7f6265b25bfdf77cd3c1a917375fc7d0319505031fc",
+  "releaseNotes": "Secure Tunnel Manager 1.10.0\r\n\r\n═══════════════════════════════════════\r\nОБНОВЛЕНИЯ\r\n═══════════════════════════════════════\r\n\r\n• Группировка туннелей — как у RDP: создание групп, переименование, сворачивание\r\n• Фильтрация по группам в разделах «Туннели» и «RDP»\r\n• Настройка отключения всплывающих уведомлений\r\n• Контекстное меню в трее в стиле приложения\r\n• Исправлен цвет курсора в поле ввода имени группы"
 }

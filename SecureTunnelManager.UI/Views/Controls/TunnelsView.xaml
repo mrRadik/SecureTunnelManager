@@ -91,9 +91,20 @@
                                     Placeholder="{loc:Loc Tunnels.SearchPlaceholder}"/>
             </controls:FilterToolbar.SearchContent>
             <controls:FilterToolbar.FilterContent>
-                <controls:SegmentedControl ItemsSource="{Binding TunnelFilterSegments}"
-                                           SelectedValue="{Binding StatusFilter, Mode=TwoWay}"
-                                           IsInline="True"/>
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <controls:SegmentedControl ItemsSource="{Binding TunnelFilterSegments}"
+                                               SelectedValue="{Binding StatusFilter, Mode=TwoWay}"
+                                               IsInline="True"/>
+                    <Border Style="{DynamicResource StmToolbarDivider}"
+                            Margin="8,4"
+                            Visibility="{Binding ShowGroupFilter, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                    <ComboBox ItemsSource="{Binding GroupFilterOptions}"
+                              SelectedItem="{Binding SelectedGroupFilter, Mode=TwoWay}"
+                              DisplayMemberPath="Label"
+                              Style="{DynamicResource StmToolbarComboBox}"
+                              ToolTip="{loc:Loc Tunnels.Group.Label}"
+                              Visibility="{Binding ShowGroupFilter, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                </StackPanel>
             </controls:FilterToolbar.FilterContent>
         </controls:FilterToolbar>
 
@@ -117,11 +128,11 @@
 
             <ScrollViewer VerticalScrollBarVisibility="Auto"
                           Visibility="{Binding HasFilteredTunnels, Converter={StaticResource BooleanToVisibilityConverter}}">
-                <ItemsControl ItemsSource="{Binding FilteredTunnels}"
+                <ItemsControl ItemsSource="{Binding FilteredTunnelGroups}"
                               Margin="{StaticResource StmFabScrollPadding}">
                     <ItemsControl.ItemTemplate>
-                        <DataTemplate DataType="{x:Type vm:TunnelRowViewModel}">
-                            <controls:TunnelCard DataContext="{Binding}"/>
+                        <DataTemplate DataType="{x:Type vm:TunnelGroupRowViewModel}">
+                            <controls:TunnelGroupSection/>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>

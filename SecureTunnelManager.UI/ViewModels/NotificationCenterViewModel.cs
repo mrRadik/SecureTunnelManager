@@ -83,6 +83,7 @@ public partial class NotificationCenterViewModel : ObservableObject
 
     private readonly INotificationService _notificationService;
     private readonly ILocalizationService _localization;
+    private readonly ISettingsService _settingsService;
     private readonly IServiceProvider _serviceProvider;
     private DispatcherTimer? _toastHideTimer;
     private NotificationItemViewModel? _toastItem;
@@ -90,14 +91,16 @@ public partial class NotificationCenterViewModel : ObservableObject
     public NotificationCenterViewModel(
         INotificationService notificationService,
         ILocalizationService localization,
+        ISettingsService settingsService,
         IServiceProvider serviceProvider)
     {
         _notificationService = notificationService;
         _localization = localization;
+        _settingsService = settingsService;
         _serviceProvider = serviceProvider;
 
         _notificationService.Changed += (_, _) => RunOnUiThread(RefreshFromService);
-        _notificationService.Published += (_, notification) => RunOnUiThread(() => ShowToast(notification));
+        _notificationService.Published += (_, notification) => RunOnUiThread(() => _ = ShowToastAsync(notification));
         _localization.LanguageChanged += (_, _) => RefreshLocalizedText();
         RefreshFromService();
     }
@@ -204,6 +207,16 @@ public partial class NotificationCenterViewModel : ObservableObject
         IsPanelOpen = false;
     }
 
+    public void HideToast()
+    {
+        _toastHideTimer?.Stop();
+        IsToastVisible = false;
+        _toastItem = null;
+        ToastHasAction = false;
+        ToastActionLabel = string.Empty;
+        ExecuteToastActionCommand.NotifyCanExecuteChanged();
+    }
+
     private async Task ExecuteNotificationActionAsync(AppNotification notification)
     {
         var main = _serviceProvider.GetRequiredService<MainViewModel>();
@@ -249,8 +262,15 @@ public partial class NotificationCenterViewModel : ObservableObject
         ClearAllCommand.NotifyCanExecuteChanged();
     }
 
-    private void ShowToast(AppNotification notification)
+    private async Task ShowToastAsync(AppNotification notification)
     {
+        var settings = await _settingsService.GetSettingsAsync().ConfigureAwait(true);
+        if (!settings.ShowNotificationPopups)
+        {
+            HideToast();
+            return;
+        }
+
         var item = new NotificationItemViewModel(notification, _localization);
         var message = item.Message;
 
@@ -285,16 +305,6 @@ public partial class NotificationCenterViewModel : ObservableObject
     }
 
     private void OnToastHideTick(object? sender, EventArgs e) => HideToast();
-
-    private void HideToast()
-    {
-        _toastHideTimer?.Stop();
-        IsToastVisible = false;
-        _toastItem = null;
-        ToastHasAction = false;
-        ToastActionLabel = string.Empty;
-        ExecuteToastActionCommand.NotifyCanExecuteChanged();
-    }
 
     private static void RunOnUiThread(Action action)
     {

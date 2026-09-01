@@ -18,11 +18,13 @@ public class SettingsService : ISettingsService
     private const string CircuitBreakerBreakSecondsKey = "CircuitBreakerBreakSeconds";
     private const string StartAllTunnelsKey = "StartAllTunnelsOnAppStart";
     private const string CloseToTrayKey = "CloseToTray";
+    private const string ShowNotificationPopupsKey = "ShowNotificationPopups";
     private const string CheckForUpdatesOnStartupKey = "CheckForUpdatesOnStartup";
     private const string LastAcknowledgedVersionKey = "LastAcknowledgedVersion";
     private const string UiLanguageKey = "UiLanguage";
     private const string UiThemeKey = "UiTheme";
     private const string RdpCollapsedGroupsJsonKey = "RdpCollapsedGroupsJson";
+    private const string TunnelCollapsedGroupsJsonKey = "TunnelCollapsedGroupsJson";
 
     private readonly IDbContextFactory<AppDbContext> _dbFactory;
 
@@ -46,13 +48,15 @@ public class SettingsService : ISettingsService
             CircuitBreakerBreakSeconds = dict.TryGetValue(CircuitBreakerBreakSecondsKey, out var breaker) ? int.Parse(breaker) : 90,
             StartAllTunnelsOnAppStart = dict.TryGetValue(StartAllTunnelsKey, out var startAll) && bool.Parse(startAll),
             CloseToTray = !dict.TryGetValue(CloseToTrayKey, out var closeTray) || bool.Parse(closeTray),
+            ShowNotificationPopups = !dict.TryGetValue(ShowNotificationPopupsKey, out var showPopups) || bool.Parse(showPopups),
             CheckForUpdatesOnStartup = !dict.TryGetValue(CheckForUpdatesOnStartupKey, out var checkUpdates) || bool.Parse(checkUpdates),
             LastAcknowledgedVersion = dict.GetValueOrDefault(LastAcknowledgedVersionKey),
             UiLanguage = dict.TryGetValue(UiLanguageKey, out var lang) && !string.IsNullOrWhiteSpace(lang) ? lang : "en",
             UiTheme = dict.TryGetValue(UiThemeKey, out var theme) && !string.IsNullOrWhiteSpace(theme)
                 ? AppThemeModes.Normalize(theme)
                 : AppThemeModes.Dark,
-            RdpCollapsedGroupsJson = dict.GetValueOrDefault(RdpCollapsedGroupsJsonKey)
+            RdpCollapsedGroupsJson = dict.GetValueOrDefault(RdpCollapsedGroupsJsonKey),
+            TunnelCollapsedGroupsJson = dict.GetValueOrDefault(TunnelCollapsedGroupsJsonKey)
         };
     }
 
@@ -74,6 +78,7 @@ public class SettingsService : ISettingsService
         await UpsertAsync(db, CircuitBreakerBreakSecondsKey, settings.CircuitBreakerBreakSeconds.ToString(), cancellationToken).ConfigureAwait(false);
         await UpsertAsync(db, StartAllTunnelsKey, settings.StartAllTunnelsOnAppStart.ToString(), cancellationToken).ConfigureAwait(false);
         await UpsertAsync(db, CloseToTrayKey, settings.CloseToTray.ToString(), cancellationToken).ConfigureAwait(false);
+        await UpsertAsync(db, ShowNotificationPopupsKey, settings.ShowNotificationPopups.ToString(), cancellationToken).ConfigureAwait(false);
         await UpsertAsync(db, CheckForUpdatesOnStartupKey, settings.CheckForUpdatesOnStartup.ToString(), cancellationToken).ConfigureAwait(false);
 
         if (!string.IsNullOrWhiteSpace(settings.LastAcknowledgedVersion))
@@ -87,6 +92,15 @@ public class SettingsService : ISettingsService
         else
         {
             var existing = await db.Settings.FirstOrDefaultAsync(s => s.Key == RdpCollapsedGroupsJsonKey, cancellationToken).ConfigureAwait(false);
+            if (existing is not null)
+                db.Settings.Remove(existing);
+        }
+
+        if (!string.IsNullOrWhiteSpace(settings.TunnelCollapsedGroupsJson))
+            await UpsertAsync(db, TunnelCollapsedGroupsJsonKey, settings.TunnelCollapsedGroupsJson, cancellationToken).ConfigureAwait(false);
+        else
+        {
+            var existing = await db.Settings.FirstOrDefaultAsync(s => s.Key == TunnelCollapsedGroupsJsonKey, cancellationToken).ConfigureAwait(false);
             if (existing is not null)
                 db.Settings.Remove(existing);
         }

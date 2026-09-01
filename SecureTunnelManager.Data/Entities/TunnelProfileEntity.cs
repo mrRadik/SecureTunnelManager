@@ -6,6 +6,7 @@ public class TunnelProfileEntity
     public string Name { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
     public string IconKey { get; set; } = string.Empty;
+    public string? GroupName { get; set; }
 
     public string JumpHost { get; set; } = string.Empty;
     public int JumpPort { get; set; } = 22;

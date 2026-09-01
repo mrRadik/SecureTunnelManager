@@ -24,9 +24,7 @@
             <TextBlock x:Name="GroupLabel" Style="{DynamicResource StmLabel}"/>
             <ComboBox x:Name="GroupCombo"
                       Style="{DynamicResource StmComboBox}"
-                      IsEditable="True"
-                      Margin="0,0,0,8"/>
-            <CheckBox x:Name="NoGroupCheckBox" Style="{DynamicResource StmCheckBox}"/>
+                      IsEditable="True"/>
         </StackPanel>
 
         <Border Grid.Row="2" Style="{DynamicResource StmDialogFooter}">

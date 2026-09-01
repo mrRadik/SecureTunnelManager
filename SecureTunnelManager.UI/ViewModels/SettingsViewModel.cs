@@ -49,6 +49,31 @@ public sealed class FilterSegmentItem
     public object Value { get; }
 }
 
+/// <summary>
+/// Group filter entry for tunnels/RDP toolbars. <see cref="IsAll"/> matches every group;
+/// otherwise <see cref="GroupKey"/> is normalized (<c>""</c> = ungrouped).
+/// </summary>
+public sealed class ConnectionGroupFilterItem
+{
+    private ConnectionGroupFilterItem(string? groupKey, string label, bool isAll)
+    {
+        GroupKey = groupKey;
+        Label = label;
+        IsAll = isAll;
+    }
+
+    public static ConnectionGroupFilterItem CreateAll(string label) => new(null, label, isAll: true);
+
+    public static ConnectionGroupFilterItem Create(string groupKey, string label) =>
+        new(groupKey, label, isAll: false);
+
+    public string? GroupKey { get; }
+    public string Label { get; }
+    public bool IsAll { get; }
+
+    public override string ToString() => Label;
+}
+
 public partial class SettingsViewModel : ObservableObject
 {
     private readonly ISettingsService _settingsService;
@@ -57,6 +82,7 @@ public partial class SettingsViewModel : ObservableObject
     private readonly IThemeService _themeService;
     private readonly UpdatePromptService _updatePromptService;
     private readonly IVaultService _vaultService;
+    private readonly NotificationCenterViewModel _notifications;
     private bool _isLoading;
 
     public SettingsViewModel(
@@ -65,7 +91,8 @@ public partial class SettingsViewModel : ObservableObject
         ILocalizationService localization,
         IThemeService themeService,
         UpdatePromptService updatePromptService,
-        IVaultService vaultService)
+        IVaultService vaultService,
+        NotificationCenterViewModel notifications)
     {
         _settingsService = settingsService;
         _autoStartService = autoStartService;
@@ -73,6 +100,7 @@ public partial class SettingsViewModel : ObservableObject
         _themeService = themeService;
         _updatePromptService = updatePromptService;
         _vaultService = vaultService;
+        _notifications = notifications;
     }
 
     [ObservableProperty]
@@ -98,6 +126,9 @@ public partial class SettingsViewModel : ObservableObject
 
     [ObservableProperty]
     private bool _closeToTray = true;
+
+    [ObservableProperty]
+    private bool _showNotificationPopups = true;
 
     [ObservableProperty]
     private bool _checkForUpdatesOnStartup = true;
@@ -131,6 +162,7 @@ public partial class SettingsViewModel : ObservableObject
             CircuitBreakerBreakSeconds = settings.CircuitBreakerBreakSeconds;
             StartAllTunnelsOnAppStart = settings.StartAllTunnelsOnAppStart;
             CloseToTray = settings.CloseToTray;
+            ShowNotificationPopups = settings.ShowNotificationPopups;
             CheckForUpdatesOnStartup = settings.CheckForUpdatesOnStartup;
             StartWithWindows = _autoStartService.IsRegisteredWithWindows();
             UiLanguage = string.Equals(settings.UiLanguage, "ru", StringComparison.OrdinalIgnoreCase) ? "ru" : "en";
@@ -178,6 +210,13 @@ public partial class SettingsViewModel : ObservableObject
     partial void OnCircuitBreakerBreakSecondsChanged(int value) => _ = PersistAsync();
     partial void OnStartAllTunnelsOnAppStartChanged(bool value) => _ = PersistAsync();
     partial void OnCloseToTrayChanged(bool value) => _ = PersistAsync();
+    partial void OnShowNotificationPopupsChanged(bool value)
+    {
+        if (!value)
+            _notifications.HideToast();
+
+        _ = PersistAsync();
+    }
     partial void OnCheckForUpdatesOnStartupChanged(bool value) => _ = PersistAsync();
 
     partial void OnUiLanguageChanged(string value)
@@ -231,6 +270,7 @@ public partial class SettingsViewModel : ObservableObject
         settings.CircuitBreakerBreakSeconds = Math.Clamp(CircuitBreakerBreakSeconds, 30, 600);
         settings.StartAllTunnelsOnAppStart = StartAllTunnelsOnAppStart;
         settings.CloseToTray = CloseToTray;
+        settings.ShowNotificationPopups = ShowNotificationPopups;
         settings.CheckForUpdatesOnStartup = CheckForUpdatesOnStartup;
         settings.UiLanguage = UiLanguage;
         settings.UiTheme = AppThemeModes.Normalize(UiTheme);

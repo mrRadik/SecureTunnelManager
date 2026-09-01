@@ -22,6 +22,7 @@ public class AppDbContext : DbContext
             entity.HasKey(e => e.Id);
             entity.Property(e => e.Name).HasMaxLength(200).IsRequired();
             entity.Property(e => e.Description).HasMaxLength(1000);
+            entity.Property(e => e.GroupName).HasMaxLength(200);
             entity.Property(e => e.JumpHost).HasMaxLength(255).IsRequired();
             entity.Property(e => e.JumpUsername).HasMaxLength(128).IsRequired();
             entity.Property(e => e.TargetHost).HasMaxLength(255).IsRequired();

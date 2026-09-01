@@ -65,7 +65,6 @@ public class DialogService : IDialogService
             title,
             message,
             localization.Get("Rdp.Group.Label"),
-            localization.Get("Rdp.Group.NoGroup"),
             existingGroups,
             currentGroup,
             allowClear)

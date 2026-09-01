@@ -33,6 +33,7 @@ public partial class TunnelCard : System.Windows.Controls.UserControl
                 "Restart" => Localization.Get("Menu.Restart"),
                 "OpenTerminal" => Localization.Get("Menu.OpenTerminal"),
                 "Duplicate" => Localization.Get("Menu.Duplicate"),
+                "MoveToGroup" => Localization.Get("Tunnels.Group.MoveTitle"),
                 "Edit" => Localization.Get("Menu.Edit"),
                 "Delete" => Localization.Get("Menu.Delete"),
                 _ => item.Tag?.ToString() ?? string.Empty
@@ -45,6 +46,7 @@ public partial class TunnelCard : System.Windows.Controls.UserControl
                 "Restart" => StmMenuIcons.Restart(),
                 "OpenTerminal" => StmMenuIcons.Terminal(),
                 "Duplicate" => StmMenuIcons.Duplicate(),
+                "MoveToGroup" => StmMenuIcons.MoveToGroup(),
                 "Edit" => StmMenuIcons.Edit(),
                 "Delete" => StmMenuIcons.Delete(),
                 _ => null
@@ -90,6 +92,12 @@ public partial class TunnelCard : System.Windows.Controls.UserControl
     {
         if (Row is null || MainVm is null) return;
         await MainVm.DuplicateTunnelCommand.ExecuteAsync(Row);
+    }
+
+    private async void OnMoveToGroupClick(object sender, RoutedEventArgs e)
+    {
+        if (Row is null || MainVm is null) return;
+        await MainVm.MoveTunnelToGroupCommand.ExecuteAsync(Row);
     }
 
     private async void OnEditClick(object sender, RoutedEventArgs e)

@@ -22,6 +22,7 @@ public partial class RdpViewModel : ObservableObject
     private readonly INotificationService _notificationService;
     private HashSet<string> _collapsedGroupKeys = new(StringComparer.OrdinalIgnoreCase);
     private readonly Dictionary<int, RdpSessionStatus> _sessionStatuses = new();
+    private bool _suppressGroupFilterApply;
 
     public RdpViewModel(
         IRdpTargetService targetService,
@@ -49,20 +50,24 @@ public partial class RdpViewModel : ObservableObject
         RefreshVaultState();
         RefreshFilterSegments();
         RefreshViewModeSegments();
+        RefreshGroupFilterOptions();
     }
 
     public ObservableCollection<RdpTargetRowViewModel> Computers { get; } = new();
     public ObservableCollection<RdpGroupRowViewModel> FilteredGroups { get; } = new();
     public ObservableCollection<FilterSegmentItem> RdpFilterSegments { get; private set; } = new();
     public ObservableCollection<FilterSegmentItem> ViewModeSegments { get; private set; } = new();
+    public ObservableCollection<ConnectionGroupFilterItem> GroupFilterOptions { get; } = new();
 
     [ObservableProperty] private string _searchText = string.Empty;
     [ObservableProperty] private bool _isBusy;
     [ObservableProperty] private bool _isVaultUnlocked;
     [ObservableProperty] private RdpListFilter _statusFilter = RdpListFilter.All;
     [ObservableProperty] private RdpViewMode _viewMode = RdpViewMode.Grid;
+    [ObservableProperty] private ConnectionGroupFilterItem? _selectedGroupFilter;
 
     public bool IsGridView => ViewMode == RdpViewMode.Grid;
+    public bool ShowGroupFilter => GroupFilterOptions.Count > 1;
 
     public int TotalCount => Computers.Count;
     public int ConnectedCount => Computers.Count(c => c.Status is RdpSessionStatus.Connected or RdpSessionStatus.Connecting);
@@ -100,6 +105,7 @@ public partial class RdpViewModel : ObservableObject
                 Computers.Add(row);
             }
 
+            RefreshGroupFilterOptions();
             ApplyFilter();
             RefreshStatistics();
         }
@@ -131,6 +137,12 @@ public partial class RdpViewModel : ObservableObject
 
     partial void OnStatusFilterChanged(RdpListFilter value) => ApplyFilter();
 
+    partial void OnSelectedGroupFilterChanged(ConnectionGroupFilterItem? value)
+    {
+        if (!_suppressGroupFilterApply)
+            ApplyFilter();
+    }
+
     [RelayCommand]
     private void SetStatusFilter(RdpListFilter filter) => StatusFilter = filter;
 
@@ -143,6 +155,9 @@ public partial class RdpViewModel : ObservableObject
         var matching = Computers.Where(computer =>
         {
             if (!MatchesStatusFilter(computer))
+                return false;
+
+            if (!MatchesGroupFilter(computer))
                 return false;
 
             return string.IsNullOrEmpty(query)
@@ -185,6 +200,69 @@ public partial class RdpViewModel : ObservableObject
         RdpListFilter.Error => computer.Status == RdpSessionStatus.Error,
         _ => true
     };
+
+    private bool MatchesGroupFilter(RdpTargetRowViewModel computer)
+    {
+        if (SelectedGroupFilter is null || SelectedGroupFilter.IsAll)
+            return true;
+
+        return string.Equals(
+            RdpGroupKey.Normalize(computer.GroupName),
+            SelectedGroupFilter.GroupKey,
+            StringComparison.OrdinalIgnoreCase);
+    }
+
+    private void RefreshGroupFilterOptions()
+    {
+        var previousIsAll = SelectedGroupFilter?.IsAll != false;
+        var previousKey = SelectedGroupFilter?.GroupKey;
+
+        var keys = Computers
+            .Select(c => RdpGroupKey.Normalize(c.GroupName))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        var namedKeys = keys
+            .Where(k => !RdpGroupKey.IsUngrouped(k))
+            .OrderBy(k => k, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        var hasUngrouped = keys.Any(RdpGroupKey.IsUngrouped);
+        var allItem = ConnectionGroupFilterItem.CreateAll(_localization.Get("Rdp.Group.FilterAll"));
+
+        _suppressGroupFilterApply = true;
+        try
+        {
+            GroupFilterOptions.Clear();
+            GroupFilterOptions.Add(allItem);
+
+            foreach (var key in namedKeys)
+                GroupFilterOptions.Add(ConnectionGroupFilterItem.Create(key, key));
+
+            if (hasUngrouped && namedKeys.Count > 0)
+            {
+                GroupFilterOptions.Add(ConnectionGroupFilterItem.Create(
+                    RdpGroupKey.Ungrouped,
+                    _localization.Get("Rdp.Group.Ungrouped")));
+            }
+
+            ConnectionGroupFilterItem? restored = null;
+            if (!previousIsAll && previousKey is not null)
+            {
+                restored = GroupFilterOptions.FirstOrDefault(o =>
+                    !o.IsAll
+                    && string.Equals(o.GroupKey, previousKey, StringComparison.OrdinalIgnoreCase));
+            }
+
+            SelectedGroupFilter = restored ?? allItem;
+        }
+        finally
+        {
+            _suppressGroupFilterApply = false;
+        }
+
+        OnPropertyChanged(nameof(ShowGroupFilter));
+    }
 
     private void OnGroupPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
@@ -259,6 +337,7 @@ public partial class RdpViewModel : ObservableObject
 
         RefreshFilterSegments();
         RefreshViewModeSegments();
+        RefreshGroupFilterOptions();
         RefreshStatistics();
     }
 
@@ -533,6 +612,7 @@ public partial class RdpViewModel : ObservableObject
         {
             await _targetService.SetGroupNameAsync(row.TargetId, selected).ConfigureAwait(true);
             row.GroupName = RdpGroupKey.IsUngrouped(selected) ? null : selected;
+            RefreshGroupFilterOptions();
             ApplyFilter();
         }
         catch (Exception ex)
@@ -572,6 +652,21 @@ public partial class RdpViewModel : ObservableObject
             foreach (var computer in Computers.Where(c => RdpGroupKey.Normalize(c.GroupName) == group.GroupKey))
                 computer.GroupName = RdpGroupKey.IsUngrouped(selected) ? null : selected;
 
+            if (SelectedGroupFilter is { IsAll: false } selectedFilter
+                && string.Equals(selectedFilter.GroupKey, group.GroupKey, StringComparison.OrdinalIgnoreCase))
+            {
+                _suppressGroupFilterApply = true;
+                try
+                {
+                    SelectedGroupFilter = ConnectionGroupFilterItem.Create(selected, selected);
+                }
+                finally
+                {
+                    _suppressGroupFilterApply = false;
+                }
+            }
+
+            RefreshGroupFilterOptions();
             ApplyFilter();
         }
         catch (Exception ex)

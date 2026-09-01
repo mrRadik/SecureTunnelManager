@@ -289,6 +289,9 @@ public partial class TunnelEditorViewModel : ObservableObject
     [ObservableProperty] private string _name = string.Empty;
     [ObservableProperty] private string _description = string.Empty;
     [ObservableProperty] private string _iconKey = ServiceIconCatalog.DefaultTunnelKey;
+    [ObservableProperty] private string _groupName = string.Empty;
+
+    public ObservableCollection<string> ExistingGroups { get; } = new();
 
     public ObservableCollection<JumpHostHopViewModel> JumpHosts { get; } = new();
     public ObservableCollection<string> FlowJumpHosts { get; } = new();
@@ -411,7 +414,7 @@ public partial class TunnelEditorViewModel : ObservableObject
 
     public bool DialogResult { get; private set; }
 
-    public Task InitializeAsync(TunnelProfile? profile)
+    public async Task InitializeAsync(TunnelProfile? profile)
     {
         ClearValidationErrors();
         JumpPassword = string.Empty;
@@ -419,11 +422,16 @@ public partial class TunnelEditorViewModel : ObservableObject
         JumpKeyPassphrase = string.Empty;
         TargetKeyPassphrase = string.Empty;
 
+        ExistingGroups.Clear();
+        foreach (var group in await _profileService.GetGroupNamesAsync().ConfigureAwait(true))
+            ExistingGroups.Add(group);
+
         if (profile is null)
         {
             ProfileId = 0;
             CurrentStep = 0;
             IconKey = ServiceIconCatalog.DefaultTunnelKey;
+            GroupName = string.Empty;
             UseTargetSsh = true;
             LocalBindAddress = "127.0.0.1";
             RemoteHost = string.Empty;
@@ -432,7 +440,7 @@ public partial class TunnelEditorViewModel : ObservableObject
             OnPropertyChanged(nameof(IsEditMode));
             NotifyStepPropertiesChanged();
             NotifyFlowDiagramChanged();
-            return Task.CompletedTask;
+            return;
         }
 
         ProfileId = profile.Id;
@@ -440,6 +448,7 @@ public partial class TunnelEditorViewModel : ObservableObject
         Name = profile.Name;
         Description = profile.Description;
         IconKey = string.IsNullOrWhiteSpace(profile.IconKey) ? ServiceIconCatalog.DefaultTunnelKey : profile.IconKey;
+        GroupName = profile.GroupName ?? string.Empty;
         profile.EnsureJumpHostsFromLegacy();
         ResetJumpHosts(profile.JumpHosts);
         TargetHost = profile.TargetHost;
@@ -461,7 +470,6 @@ public partial class TunnelEditorViewModel : ObservableObject
         NotifyAuthPropertiesChanged();
         NotifyStepPropertiesChanged();
         NotifyFlowDiagramChanged();
-        return Task.CompletedTask;
     }
 
     partial void OnCurrentStepChanged(int value) => NotifyStepPropertiesChanged();
@@ -824,6 +832,7 @@ public partial class TunnelEditorViewModel : ObservableObject
                 Name = Name.Trim(),
                 Description = Description.Trim(),
                 IconKey = string.IsNullOrWhiteSpace(IconKey) ? ServiceIconCatalog.DefaultTunnelKey : IconKey.Trim(),
+                GroupName = string.IsNullOrWhiteSpace(GroupName) ? null : GroupName.Trim(),
                 JumpHosts = jumpModels,
                 TargetHost = TargetHost.Trim(),
                 TargetPort = TargetPort,
@@ -1231,6 +1240,7 @@ public partial class TunnelEditorViewModel : ObservableObject
             Id = ProfileId,
             Name = string.IsNullOrWhiteSpace(Name) ? "test" : Name.Trim(),
             Description = Description.Trim(),
+            GroupName = string.IsNullOrWhiteSpace(GroupName) ? null : GroupName.Trim(),
             JumpHosts = JumpHosts.Select(h => h.ToModel()).ToList(),
             TargetHost = TargetHost.Trim(),
             TargetPort = TargetPort,

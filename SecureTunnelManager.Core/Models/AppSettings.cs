@@ -15,6 +15,7 @@ public class AppSettings
     public int CircuitBreakerBreakSeconds { get; set; } = 90;
     public bool StartAllTunnelsOnAppStart { get; set; }
     public bool CloseToTray { get; set; } = true;
+    public bool ShowNotificationPopups { get; set; } = true;
     public bool CheckForUpdatesOnStartup { get; set; } = true;
     public string? LastAcknowledgedVersion { get; set; }
     public string UiLanguage { get; set; } = "en";
@@ -22,4 +23,7 @@ public class AppSettings
 
     /// <summary>JSON array of collapsed RDP group keys (empty string = ungrouped).</summary>
     public string? RdpCollapsedGroupsJson { get; set; }
+
+    /// <summary>JSON array of collapsed tunnel group keys (empty string = ungrouped).</summary>
+    public string? TunnelCollapsedGroupsJson { get; set; }
 }

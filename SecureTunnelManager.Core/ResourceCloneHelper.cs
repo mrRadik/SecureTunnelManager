@@ -76,6 +76,7 @@ public static class ResourceCloneHelper
             Name = source.Name,
             Description = source.Description,
             IconKey = source.IconKey,
+            GroupName = source.GroupName,
             JumpHost = source.JumpHost,
             JumpPort = source.JumpPort,
             JumpUsername = source.JumpUsername,

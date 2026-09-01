@@ -1,5 +1,7 @@
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Reflection;
+using System.Text.Json;
 
 using CommunityToolkit.Mvvm.ComponentModel;
 
@@ -10,6 +12,7 @@ using SecureTunnelManager.Core.Models;
 
 using SecureTunnelManager.Core.Services;
 
+using SecureTunnelManager.UI.Helpers;
 using SecureTunnelManager.UI.Services;
 
 
@@ -43,6 +46,10 @@ public partial class MainViewModel : ObservableObject
     private readonly HashSet<int> _startupQuietProfiles = new();
 
     private readonly Dictionary<int, TunnelStatus> _tunnelStatuses = new();
+
+    private HashSet<string> _collapsedTunnelGroupKeys = new(StringComparer.OrdinalIgnoreCase);
+
+    private bool _suppressGroupFilterApply;
 
     private NavigationSection _lastSection = NavigationSection.Tunnels;
 
@@ -147,6 +154,7 @@ public partial class MainViewModel : ObservableObject
         _vaultService.VaultReset += (_, _) => _ = LoadAsync();
 
         RefreshFilterSegments();
+        RefreshGroupFilterOptions();
 
     }
 
@@ -155,6 +163,10 @@ public partial class MainViewModel : ObservableObject
     public ObservableCollection<TunnelRowViewModel> Tunnels { get; } = new();
 
     public ObservableCollection<TunnelRowViewModel> FilteredTunnels { get; } = new();
+
+    public ObservableCollection<TunnelGroupRowViewModel> FilteredTunnelGroups { get; } = new();
+
+    public ObservableCollection<ConnectionGroupFilterItem> GroupFilterOptions { get; } = new();
 
 
 
@@ -197,6 +209,16 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty]
 
     private TunnelListFilter _statusFilter = TunnelListFilter.All;
+
+
+
+    [ObservableProperty]
+
+    private ConnectionGroupFilterItem? _selectedGroupFilter;
+
+
+
+    public bool ShowGroupFilter => GroupFilterOptions.Count > 1;
 
 
 
@@ -267,6 +289,9 @@ public partial class MainViewModel : ObservableObject
 
             await Rdp.LoadAsync().ConfigureAwait(true);
 
+            var settings = await _settingsService.GetSettingsAsync().ConfigureAwait(true);
+            _collapsedTunnelGroupKeys = ParseCollapsedTunnelGroups(settings.TunnelCollapsedGroupsJson);
+
             var profiles = await _profileService.GetAllAsync().ConfigureAwait(true);
 
             Tunnels.Clear();
@@ -285,13 +310,13 @@ public partial class MainViewModel : ObservableObject
 
 
 
+            RefreshGroupFilterOptions();
+
             ApplyFilter();
 
             NotifyTunnelListChanged();
 
             SyncTunnelStatusBaselines();
-
-            var settings = await _settingsService.GetSettingsAsync().ConfigureAwait(true);
 
             var willAutoStart = !_tunnelAutoStartAttempted
 
@@ -347,6 +372,8 @@ public partial class MainViewModel : ObservableObject
 
 
 
+        RefreshGroupFilterOptions();
+
         ApplyFilter();
 
         NotifyTunnelListChanged();
@@ -373,13 +400,21 @@ public partial class MainViewModel : ObservableObject
 
     partial void OnStatusFilterChanged(TunnelListFilter value) => ApplyFilter();
 
+    partial void OnSelectedGroupFilterChanged(ConnectionGroupFilterItem? value)
+    {
+        if (!_suppressGroupFilterApply)
+            ApplyFilter();
+    }
+
 
 
     private void ApplyFilter()
 
     {
 
+        DisposeTunnelGroupSubscriptions();
         FilteredTunnels.Clear();
+        FilteredTunnelGroups.Clear();
 
         var query = SearchText.Trim();
 
@@ -393,13 +428,17 @@ public partial class MainViewModel : ObservableObject
 
                 continue;
 
+            if (!MatchesGroupFilter(tunnel))
+
+                continue;
+
 
 
             if (!string.IsNullOrEmpty(query))
 
             {
 
-                var haystack = $"{tunnel.Name} {tunnel.Description} {tunnel.LocalEndpoint} {tunnel.JumpHostDisplay} {tunnel.DestinationDisplay}";
+                var haystack = $"{tunnel.Name} {tunnel.Description} {tunnel.GroupName} {tunnel.LocalEndpoint} {tunnel.JumpHostDisplay} {tunnel.DestinationDisplay}";
 
                 if (!haystack.Contains(query, StringComparison.OrdinalIgnoreCase))
 
@@ -415,6 +454,27 @@ public partial class MainViewModel : ObservableObject
 
 
 
+        var grouped = FilteredTunnels
+            .GroupBy(t => RdpGroupKey.Normalize(t.GroupName))
+            .OrderBy(g => RdpGroupKey.IsUngrouped(g.Key) ? 1 : 0)
+            .ThenBy(g => g.Key, StringComparer.OrdinalIgnoreCase);
+
+        foreach (var group in grouped)
+        {
+            var row = new TunnelGroupRowViewModel(_localization)
+            {
+                GroupKey = group.Key,
+                IsExpanded = !_collapsedTunnelGroupKeys.Contains(group.Key)
+            };
+
+            foreach (var tunnel in group.OrderBy(t => t.Name, StringComparer.OrdinalIgnoreCase))
+                row.Tunnels.Add(tunnel);
+
+            row.PropertyChanged += OnTunnelGroupPropertyChanged;
+            row.RefreshHeader();
+            FilteredTunnelGroups.Add(row);
+        }
+
         OnPropertyChanged(nameof(HasFilteredTunnels));
 
         OnPropertyChanged(nameof(ShowNoResults));
@@ -422,6 +482,59 @@ public partial class MainViewModel : ObservableObject
     }
 
 
+
+    private void OnTunnelGroupPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName != nameof(TunnelGroupRowViewModel.IsExpanded)
+            || sender is not TunnelGroupRowViewModel group)
+            return;
+
+        if (group.IsExpanded)
+            _collapsedTunnelGroupKeys.Remove(group.GroupKey);
+        else
+            _collapsedTunnelGroupKeys.Add(group.GroupKey);
+
+        _ = PersistCollapsedTunnelGroupsAsync();
+    }
+
+    private void DisposeTunnelGroupSubscriptions()
+    {
+        foreach (var group in FilteredTunnelGroups)
+            group.PropertyChanged -= OnTunnelGroupPropertyChanged;
+    }
+
+    private async Task PersistCollapsedTunnelGroupsAsync()
+    {
+        try
+        {
+            var settings = await _settingsService.GetSettingsAsync().ConfigureAwait(true);
+            settings.TunnelCollapsedGroupsJson =
+                JsonSerializer.Serialize(_collapsedTunnelGroupKeys.OrderBy(k => k).ToList());
+            await _settingsService.SaveSettingsAsync(settings).ConfigureAwait(true);
+        }
+        catch
+        {
+            // Non-critical UI preference.
+        }
+    }
+
+    private static HashSet<string> ParseCollapsedTunnelGroups(string? json)
+    {
+        if (string.IsNullOrWhiteSpace(json))
+            return new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        try
+        {
+            var list = JsonSerializer.Deserialize<List<string>>(json);
+            return list is null
+                ? new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+                : new HashSet<string>(list, StringComparer.OrdinalIgnoreCase);
+        }
+        catch
+        {
+            return new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        }
+    }
 
     private bool MatchesFilter(TunnelRowViewModel tunnel) => StatusFilter switch
 
@@ -438,6 +551,69 @@ public partial class MainViewModel : ObservableObject
         _ => true
 
     };
+
+    private bool MatchesGroupFilter(TunnelRowViewModel tunnel)
+    {
+        if (SelectedGroupFilter is null || SelectedGroupFilter.IsAll)
+            return true;
+
+        return string.Equals(
+            RdpGroupKey.Normalize(tunnel.GroupName),
+            SelectedGroupFilter.GroupKey,
+            StringComparison.OrdinalIgnoreCase);
+    }
+
+    private void RefreshGroupFilterOptions()
+    {
+        var previousIsAll = SelectedGroupFilter?.IsAll != false;
+        var previousKey = SelectedGroupFilter?.GroupKey;
+
+        var keys = Tunnels
+            .Select(t => RdpGroupKey.Normalize(t.GroupName))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        var namedKeys = keys
+            .Where(k => !RdpGroupKey.IsUngrouped(k))
+            .OrderBy(k => k, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        var hasUngrouped = keys.Any(RdpGroupKey.IsUngrouped);
+        var allItem = ConnectionGroupFilterItem.CreateAll(_localization.Get("Tunnels.Group.FilterAll"));
+
+        _suppressGroupFilterApply = true;
+        try
+        {
+            GroupFilterOptions.Clear();
+            GroupFilterOptions.Add(allItem);
+
+            foreach (var key in namedKeys)
+                GroupFilterOptions.Add(ConnectionGroupFilterItem.Create(key, key));
+
+            if (hasUngrouped && namedKeys.Count > 0)
+            {
+                GroupFilterOptions.Add(ConnectionGroupFilterItem.Create(
+                    RdpGroupKey.Ungrouped,
+                    _localization.Get("Tunnels.Group.Ungrouped")));
+            }
+
+            ConnectionGroupFilterItem? restored = null;
+            if (!previousIsAll && previousKey is not null)
+            {
+                restored = GroupFilterOptions.FirstOrDefault(o =>
+                    !o.IsAll
+                    && string.Equals(o.GroupKey, previousKey, StringComparison.OrdinalIgnoreCase));
+            }
+
+            SelectedGroupFilter = restored ?? allItem;
+        }
+        finally
+        {
+            _suppressGroupFilterApply = false;
+        }
+
+        OnPropertyChanged(nameof(ShowGroupFilter));
+    }
 
 
 
@@ -491,7 +667,11 @@ public partial class MainViewModel : ObservableObject
 
         OnPropertyChanged(nameof(TotalSummary));
 
+        foreach (var group in FilteredTunnelGroups)
+            group.RefreshHeader();
+
         RefreshFilterSegments();
+        RefreshGroupFilterOptions();
 
         RefreshVaultState();
 
@@ -780,6 +960,88 @@ public partial class MainViewModel : ObservableObject
 
         await RefreshTunnelListAsync().ConfigureAwait(true);
 
+    }
+
+    [RelayCommand]
+    private async Task MoveTunnelToGroupAsync(TunnelRowViewModel? row)
+    {
+        if (row is null) return;
+
+        var existingGroups = await _profileService.GetGroupNamesAsync().ConfigureAwait(true);
+        var selected = await _dialogService.PickRdpGroupAsync(
+            _localization.Get("Tunnels.Group.MoveTitle"),
+            _localization.Format("Tunnels.Group.MoveMessage", row.Name),
+            existingGroups,
+            row.GroupName).ConfigureAwait(true);
+
+        if (selected is null)
+            return;
+
+        try
+        {
+            await _profileService.SetGroupNameAsync(row.ProfileId, selected).ConfigureAwait(true);
+            row.GroupName = RdpGroupKey.IsUngrouped(selected) ? null : selected;
+            RefreshGroupFilterOptions();
+            ApplyFilter();
+        }
+        catch (Exception ex)
+        {
+            _dialogService.ShowError(ex.Message);
+        }
+    }
+
+    [RelayCommand]
+    private async Task RenameTunnelGroupAsync(TunnelGroupRowViewModel? group)
+    {
+        if (group is null || RdpGroupKey.IsUngrouped(group.GroupKey))
+            return;
+
+        var existingGroups = await _profileService.GetGroupNamesAsync().ConfigureAwait(true);
+        var selected = await _dialogService.PickRdpGroupAsync(
+            _localization.Get("Tunnels.Group.RenameTitle"),
+            _localization.Format("Tunnels.Group.RenameMessage", group.DisplayName),
+            existingGroups,
+            group.GroupKey,
+            allowClear: false).ConfigureAwait(true);
+
+        if (selected is null || string.Equals(selected, group.GroupKey, StringComparison.OrdinalIgnoreCase))
+            return;
+
+        try
+        {
+            await _profileService.RenameGroupAsync(group.GroupKey, selected).ConfigureAwait(true);
+
+            if (_collapsedTunnelGroupKeys.Remove(group.GroupKey))
+            {
+                if (!RdpGroupKey.IsUngrouped(selected))
+                    _collapsedTunnelGroupKeys.Add(selected);
+                await PersistCollapsedTunnelGroupsAsync().ConfigureAwait(true);
+            }
+
+            foreach (var tunnel in Tunnels.Where(t => RdpGroupKey.Normalize(t.GroupName) == group.GroupKey))
+                tunnel.GroupName = RdpGroupKey.IsUngrouped(selected) ? null : selected;
+
+            if (SelectedGroupFilter is { IsAll: false } selectedFilter
+                && string.Equals(selectedFilter.GroupKey, group.GroupKey, StringComparison.OrdinalIgnoreCase))
+            {
+                _suppressGroupFilterApply = true;
+                try
+                {
+                    SelectedGroupFilter = ConnectionGroupFilterItem.Create(selected, selected);
+                }
+                finally
+                {
+                    _suppressGroupFilterApply = false;
+                }
+            }
+
+            RefreshGroupFilterOptions();
+            ApplyFilter();
+        }
+        catch (Exception ex)
+        {
+            _dialogService.ShowError(ex.Message);
+        }
     }
 
 

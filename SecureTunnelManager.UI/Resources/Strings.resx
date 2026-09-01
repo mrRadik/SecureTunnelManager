@@ -106,6 +106,7 @@
   <data name="Settings.LanguageEnglish" xml:space="preserve"><value>English</value></data>
   <data name="Settings.LanguageRussian" xml:space="preserve"><value>Russian</value></data>
   <data name="Settings.Appearance" xml:space="preserve"><value>Appearance</value></data>
+  <data name="Settings.ShowNotificationPopups" xml:space="preserve"><value>Show notification popups</value></data>
   <data name="Settings.Updates" xml:space="preserve"><value>Updates</value></data>
   <data name="Settings.CurrentVersion" xml:space="preserve"><value>Current version</value></data>
   <data name="Settings.CheckForUpdatesOnStartup" xml:space="preserve"><value>Check for updates automatically</value></data>
@@ -228,6 +229,7 @@ This update includes improvements and bug fixes.</value></data>
   <data name="Rdp.DeleteTitle" xml:space="preserve"><value>Delete computer</value></data>
   <data name="Rdp.DeleteConfirm" xml:space="preserve"><value>Delete “{0}”?</value></data>
   <data name="Rdp.UnexpectedError" xml:space="preserve"><value>An unexpected error occurred.</value></data>
+  <data name="Rdp.Group.FilterAll" xml:space="preserve"><value>All groups</value></data>
   <data name="Rdp.Group.Ungrouped" xml:space="preserve"><value>Ungrouped</value></data>
   <data name="Rdp.Group.Header" xml:space="preserve"><value>{0} ({1})</value></data>
   <data name="Rdp.Group.Connected" xml:space="preserve"><value>{0} connected</value></data>
@@ -242,6 +244,19 @@ This update includes improvements and bug fixes.</value></data>
   <data name="Rdp.Group.Menu.Expand" xml:space="preserve"><value>Expand</value></data>
   <data name="Rdp.Group.Menu.Collapse" xml:space="preserve"><value>Collapse</value></data>
   <data name="Rdp.Menu.MoveToGroup" xml:space="preserve"><value>Move to group…</value></data>
+  <data name="Tunnels.Group.FilterAll" xml:space="preserve"><value>All groups</value></data>
+  <data name="Tunnels.Group.Ungrouped" xml:space="preserve"><value>Ungrouped</value></data>
+  <data name="Tunnels.Group.Header" xml:space="preserve"><value>{0} ({1})</value></data>
+  <data name="Tunnels.Group.Connected" xml:space="preserve"><value>{0} connected</value></data>
+  <data name="Tunnels.Group.Label" xml:space="preserve"><value>Group</value></data>
+  <data name="Tunnels.Group.EditorHint" xml:space="preserve"><value>Type a new name to create a group, or pick an existing one.</value></data>
+  <data name="Tunnels.Group.MoveTitle" xml:space="preserve"><value>Move to group…</value></data>
+  <data name="Tunnels.Group.MoveMessage" xml:space="preserve"><value>Choose a group for “{0}”. Type a new name to create a group.</value></data>
+  <data name="Tunnels.Group.RenameTitle" xml:space="preserve"><value>Rename group</value></data>
+  <data name="Tunnels.Group.RenameMessage" xml:space="preserve"><value>Enter a new name for “{0}”.</value></data>
+  <data name="Tunnels.Group.Menu.Rename" xml:space="preserve"><value>Rename group</value></data>
+  <data name="Tunnels.Group.Menu.Expand" xml:space="preserve"><value>Expand</value></data>
+  <data name="Tunnels.Group.Menu.Collapse" xml:space="preserve"><value>Collapse</value></data>
   <data name="StatusBar.ActiveConnections" xml:space="preserve"><value>{0} active connections</value></data>
   <data name="StatusBar.VaultTooltip" xml:space="preserve"><value>Click to lock or unlock the vault</value></data>
   <data name="Editor.Icon" xml:space="preserve"><value>Icon</value></data>

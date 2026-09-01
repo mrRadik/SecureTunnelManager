@@ -21,7 +21,6 @@ public partial class GroupPickerWindow : StmChromeWindow
         string title,
         string message,
         string groupLabel,
-        string noGroupLabel,
         IReadOnlyList<string> existingGroups,
         string? currentGroup,
         bool allowClear = true)
@@ -32,34 +31,32 @@ public partial class GroupPickerWindow : StmChromeWindow
         TitleBar.Title = title;
         MessageText.Text = message;
         GroupLabel.Text = groupLabel;
-        NoGroupCheckBox.Content = noGroupLabel;
-        NoGroupCheckBox.Visibility = allowClear ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed;
 
         foreach (var group in existingGroups.OrderBy(g => g, StringComparer.OrdinalIgnoreCase))
             GroupCombo.Items.Add(group);
 
         var normalized = RdpGroupKey.Normalize(currentGroup);
-        if (RdpGroupKey.IsUngrouped(normalized))
-            NoGroupCheckBox.IsChecked = true;
-        else
+        if (!RdpGroupKey.IsUngrouped(normalized))
             GroupCombo.Text = normalized;
-
-        NoGroupCheckBox.Checked += (_, _) => GroupCombo.Text = string.Empty;
-        GroupCombo.SelectionChanged += (_, _) => NoGroupCheckBox.IsChecked = false;
-        GroupCombo.AddHandler(System.Windows.Controls.Primitives.TextBoxBase.TextChangedEvent,
-            new System.Windows.Controls.TextChangedEventHandler((_, _) => NoGroupCheckBox.IsChecked = false));
     }
 
     public string? SelectedGroup
     {
         get
         {
-            if (_allowClear && NoGroupCheckBox.IsChecked == true)
-                return RdpGroupKey.Ungrouped;
+            var normalized = RdpGroupKey.Normalize(GroupCombo.Text);
+            if (!_allowClear && RdpGroupKey.IsUngrouped(normalized))
+                return null;
 
-            return RdpGroupKey.Normalize(GroupCombo.Text);
+            return normalized;
         }
     }
 
-    private void OnOkClick(object sender, System.Windows.RoutedEventArgs e) => DialogResult = true;
+    private void OnOkClick(object sender, System.Windows.RoutedEventArgs e)
+    {
+        if (!_allowClear && RdpGroupKey.IsUngrouped(RdpGroupKey.Normalize(GroupCombo.Text)))
+            return;
+
+        DialogResult = true;
+    }
 }

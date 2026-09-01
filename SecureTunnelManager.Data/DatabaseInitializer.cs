@@ -13,6 +13,7 @@ public static class DatabaseInitializer
         await EnsureColumnAsync(db, "TunnelProfiles", "LocalBindAddress", "TEXT NOT NULL DEFAULT '127.0.0.1'", cancellationToken).ConfigureAwait(false);
         await EnsureColumnAsync(db, "TunnelProfiles", "JumpHostsJson", "TEXT", cancellationToken).ConfigureAwait(false);
         await EnsureColumnAsync(db, "TunnelProfiles", "UseTargetSsh", "INTEGER NOT NULL DEFAULT 1", cancellationToken).ConfigureAwait(false);
+        await EnsureColumnAsync(db, "TunnelProfiles", "GroupName", "TEXT", cancellationToken).ConfigureAwait(false);
         await EnsureRdpTargetsTableAsync(db, cancellationToken).ConfigureAwait(false);
         await EnsureColumnAsync(db, "RdpTargets", "GroupName", "TEXT", cancellationToken).ConfigureAwait(false);
         await EnsureColumnAsync(db, "TunnelProfiles", "IconKey", "TEXT NOT NULL DEFAULT 'tunnel'", cancellationToken).ConfigureAwait(false);

@@ -10,6 +10,7 @@ public partial class TunnelRowViewModel : ObservableObject
     public string Name { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
     public string IconKey { get; set; } = string.Empty;
+    public string? GroupName { get; set; }
     public string LocalEndpoint { get; set; } = string.Empty;
     public string JumpHostDisplay { get; set; } = string.Empty;
     public IReadOnlyList<string> JumpHostDisplays { get; set; } = Array.Empty<string>();
@@ -106,7 +107,8 @@ public partial class TunnelRowViewModel : ObservableObject
         {
             ProfileId = profile.Id,
             Description = profile.Description,
-            IconKey = profile.IconKey
+            IconKey = profile.IconKey,
+            GroupName = profile.GroupName
         };
         var state = runtime ?? new TunnelRuntimeState { ProfileId = profile.Id, Status = TunnelStatus.Stopped };
         TunnelDisplayHelper.ApplyRoute(state, profile);

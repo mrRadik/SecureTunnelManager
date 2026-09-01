@@ -106,6 +106,7 @@
   <data name="Settings.LanguageEnglish" xml:space="preserve"><value>English</value></data>
   <data name="Settings.LanguageRussian" xml:space="preserve"><value>Русский</value></data>
   <data name="Settings.Appearance" xml:space="preserve"><value>Интерфейс</value></data>
+  <data name="Settings.ShowNotificationPopups" xml:space="preserve"><value>Показывать всплывающие уведомления</value></data>
   <data name="Settings.Updates" xml:space="preserve"><value>Обновления</value></data>
   <data name="Settings.CurrentVersion" xml:space="preserve"><value>Текущая версия</value></data>
   <data name="Settings.CheckForUpdatesOnStartup" xml:space="preserve"><value>Автоматически проверять обновления</value></data>
@@ -228,6 +229,7 @@
   <data name="Rdp.DeleteTitle" xml:space="preserve"><value>Удалить компьютер</value></data>
   <data name="Rdp.DeleteConfirm" xml:space="preserve"><value>Удалить «{0}»?</value></data>
   <data name="Rdp.UnexpectedError" xml:space="preserve"><value>Произошла непредвиденная ошибка.</value></data>
+  <data name="Rdp.Group.FilterAll" xml:space="preserve"><value>Все группы</value></data>
   <data name="Rdp.Group.Ungrouped" xml:space="preserve"><value>Без группы</value></data>
   <data name="Rdp.Group.Header" xml:space="preserve"><value>{0} ({1})</value></data>
   <data name="Rdp.Group.Connected" xml:space="preserve"><value>{0} подключено</value></data>
@@ -242,6 +244,19 @@
   <data name="Rdp.Group.Menu.Expand" xml:space="preserve"><value>Развернуть</value></data>
   <data name="Rdp.Group.Menu.Collapse" xml:space="preserve"><value>Свернуть</value></data>
   <data name="Rdp.Menu.MoveToGroup" xml:space="preserve"><value>Переместить в группу…</value></data>
+  <data name="Tunnels.Group.FilterAll" xml:space="preserve"><value>Все группы</value></data>
+  <data name="Tunnels.Group.Ungrouped" xml:space="preserve"><value>Без группы</value></data>
+  <data name="Tunnels.Group.Header" xml:space="preserve"><value>{0} ({1})</value></data>
+  <data name="Tunnels.Group.Connected" xml:space="preserve"><value>{0} подключено</value></data>
+  <data name="Tunnels.Group.Label" xml:space="preserve"><value>Группа</value></data>
+  <data name="Tunnels.Group.EditorHint" xml:space="preserve"><value>Введите новое имя, чтобы создать группу, или выберите из списка.</value></data>
+  <data name="Tunnels.Group.MoveTitle" xml:space="preserve"><value>Переместить в группу…</value></data>
+  <data name="Tunnels.Group.MoveMessage" xml:space="preserve"><value>Выберите группу для «{0}». Новое имя создаст группу.</value></data>
+  <data name="Tunnels.Group.RenameTitle" xml:space="preserve"><value>Переименовать группу</value></data>
+  <data name="Tunnels.Group.RenameMessage" xml:space="preserve"><value>Введите новое имя для «{0}».</value></data>
+  <data name="Tunnels.Group.Menu.Rename" xml:space="preserve"><value>Переименовать группу</value></data>
+  <data name="Tunnels.Group.Menu.Expand" xml:space="preserve"><value>Развернуть</value></data>
+  <data name="Tunnels.Group.Menu.Collapse" xml:space="preserve"><value>Свернуть</value></data>
   <data name="StatusBar.ActiveConnections" xml:space="preserve"><value>{0} активных подключений</value></data>
   <data name="StatusBar.VaultTooltip" xml:space="preserve"><value>Нажмите, чтобы заблокировать или разблокировать хранилище</value></data>
   <data name="Editor.Icon" xml:space="preserve"><value>Иконка</value></data>

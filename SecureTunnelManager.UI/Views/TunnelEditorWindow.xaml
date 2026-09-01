@@ -150,6 +150,16 @@
                                                     FallbackKey="tunnel"
                                                     Margin="0,0,0,20"/>
 
+                        <TextBlock Text="{loc:Loc Tunnels.Group.Label}" Style="{DynamicResource StmWizardFieldLabel}"/>
+                        <TextBlock Text="{loc:Loc Tunnels.Group.EditorHint}" Style="{DynamicResource StmWizardHint}"/>
+                        <ComboBox ItemsSource="{Binding ExistingGroups}"
+                                  Text="{Binding GroupName, UpdateSourceTrigger=PropertyChanged}"
+                                  Style="{DynamicResource StmComboBox}"
+                                  IsEditable="True"
+                                  FontSize="13"
+                                  MinHeight="40"
+                                  Margin="0,0,0,20"/>
+
                         <CheckBox Content="{loc:Loc Tunnel.Editor.StartWithWindows}"
                                   IsChecked="{Binding StartWithWindows}"
                                   Style="{DynamicResource StmCheckBox}"

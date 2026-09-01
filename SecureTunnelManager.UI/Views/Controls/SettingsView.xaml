@@ -124,6 +124,11 @@
                                      Margin="0"
                                      IsChecked="{Binding Settings.UiTheme, Converter={StaticResource StringEqualsToBoolConverter}, ConverterParameter=system, Mode=TwoWay}"/>
                     </StackPanel>
+
+                    <CheckBox Content="{loc:Loc Settings.ShowNotificationPopups}"
+                              IsChecked="{Binding Settings.ShowNotificationPopups}"
+                              Style="{DynamicResource StmSettingsCheckBox}"
+                              Margin="0,14,0,0"/>
                 </StackPanel>
 
                 <Border Style="{DynamicResource StmSettingsSectionDivider}"/>

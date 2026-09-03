@@ -15,6 +15,7 @@ public partial class RdpViewModel : ObservableObject
 {
     private readonly IRdpTargetService _targetService;
     private readonly IRdpSessionService _sessionService;
+    private readonly ICredentialService _credentialService;
     private readonly IVaultService _vaultService;
     private readonly IDialogService _dialogService;
     private readonly ISettingsService _settingsService;
@@ -27,6 +28,7 @@ public partial class RdpViewModel : ObservableObject
     public RdpViewModel(
         IRdpTargetService targetService,
         IRdpSessionService sessionService,
+        ICredentialService credentialService,
         IVaultService vaultService,
         IDialogService dialogService,
         ISettingsService settingsService,
@@ -35,6 +37,7 @@ public partial class RdpViewModel : ObservableObject
     {
         _targetService = targetService;
         _sessionService = sessionService;
+        _credentialService = credentialService;
         _vaultService = vaultService;
         _dialogService = dialogService;
         _settingsService = settingsService;
@@ -526,6 +529,7 @@ public partial class RdpViewModel : ObservableObject
         var all = await _targetService.GetAllAsync().ConfigureAwait(true);
         var clone = ResourceCloneHelper.CloneRdpTarget(source);
         clone.Name = ResourceCloneHelper.GenerateCopyName(source.Name, all.Select(t => t.Name));
+        await ResourceCredentialCloner.DetachCredentialsAsync(clone, _credentialService).ConfigureAwait(true);
 
         try
         {

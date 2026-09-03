@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
 using System.Text.RegularExpressions;
@@ -6,6 +7,17 @@ namespace SecureTunnelManager.Core.Validation;
 
 public static class NetworkAddressValidator
 {
+#if DEBUG
+    static NetworkAddressValidator()
+    {
+        Debug.Assert(IsValidHostOrIp("vision.inside.astralsoft.ru"));
+        Debug.Assert(IsValidHostOrIp("192.168.1.10"));
+        Debug.Assert(!IsValidHostOrIp("192.168.1"));
+        Debug.Assert(!IsIpFormatAttempt("vision.inside.astralsoft.ru"));
+        Debug.Assert(IsIpFormatAttempt("192.168.1"));
+    }
+#endif
+
     private static readonly Regex StrictIpv4Pattern = new(
         @"^(?:(?:25[0-5]|2[0-4]\d|1?\d?\d)\.){3}(?:25[0-5]|2[0-4]\d|1?\d?\d)$",
         RegexOptions.Compiled | RegexOptions.CultureInvariant);
@@ -29,14 +41,38 @@ public static class NetworkAddressValidator
 
         var trimmed = value.Trim();
 
-        if (LooksLikeIpAddress(trimmed))
-            return IsStrictIpAddress(trimmed);
+        if (LooksLikeIpAddress(trimmed) && IsStrictIpAddress(trimmed))
+            return true;
 
         if (trimmed.Equals("localhost", StringComparison.OrdinalIgnoreCase))
             return true;
 
         return Uri.CheckHostName(trimmed) == UriHostNameType.Dns
                && HostnamePattern.IsMatch(trimmed);
+    }
+
+    /// <summary>
+    /// True when the value looks like an IP address attempt (digits/dots or IPv6), not a DNS name.
+    /// </summary>
+    public static bool IsIpFormatAttempt(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return false;
+
+        var trimmed = value.Trim();
+        if (!LooksLikeIpAddress(trimmed))
+            return false;
+
+        if (trimmed.Contains(':'))
+            return true;
+
+        foreach (var ch in trimmed)
+        {
+            if (ch is not (>= '0' and <= '9' or '.'))
+                return false;
+        }
+
+        return true;
     }
 
     public static bool TryValidateIpAddress(string? value, out string errorMessage)

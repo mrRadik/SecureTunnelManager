@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using SecureTunnelManager.Core;
 using SecureTunnelManager.Core.Models;
 using SecureTunnelManager.Core.Services;
 using SecureTunnelManager.Data;
@@ -127,5 +128,29 @@ public class CredentialService : ICredentialService
 
         if (entity is null) return null;
         return await _vaultService.DecryptSecretAsync(entity.EncryptedPassword, cancellationToken).ConfigureAwait(false);
+    }
+
+    public async Task<int?> CloneAsync(int sourceId, string newName, CancellationToken cancellationToken = default)
+    {
+        var source = await GetByIdAsync(sourceId, cancellationToken).ConfigureAwait(false);
+        if (source is null)
+            return null;
+
+        var password = await GetPasswordAsync(sourceId, cancellationToken).ConfigureAwait(false);
+        if (password is null)
+            return null;
+
+        var trimmedName = newName.Trim();
+        if (string.IsNullOrEmpty(trimmedName))
+            throw new ArgumentException("Credential name is required.", nameof(newName));
+
+        if (await GetByNameAsync(trimmedName, cancellationToken).ConfigureAwait(false) is not null)
+        {
+            var existingNames = (await GetAllAsync(cancellationToken).ConfigureAwait(false))
+                .Select(c => c.Name);
+            trimmedName = ResourceCloneHelper.GenerateCopyName(trimmedName, existingNames);
+        }
+
+        return await CreateAsync(trimmedName, source.Username, password, cancellationToken).ConfigureAwait(false);
     }
 }

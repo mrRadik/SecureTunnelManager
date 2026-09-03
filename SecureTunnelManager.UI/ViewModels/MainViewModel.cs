@@ -29,6 +29,8 @@ public partial class MainViewModel : ObservableObject
 
     private readonly ITunnelManagerService _tunnelManager;
 
+    private readonly ICredentialService _credentialService;
+
     private readonly IVaultService _vaultService;
 
     private readonly IDialogService _dialogService;
@@ -69,6 +71,8 @@ public partial class MainViewModel : ObservableObject
 
         ITunnelManagerService tunnelManager,
 
+        ICredentialService credentialService,
+
         IVaultService vaultService,
 
         IDialogService dialogService,
@@ -94,6 +98,8 @@ public partial class MainViewModel : ObservableObject
         _profileService = profileService;
 
         _tunnelManager = tunnelManager;
+
+        _credentialService = credentialService;
 
         _vaultService = vaultService;
 
@@ -863,6 +869,8 @@ public partial class MainViewModel : ObservableObject
         clone.Name = ResourceCloneHelper.GenerateCopyName(profile.Name, all.Select(p => p.Name));
 
         clone.LocalPort = ResourceCloneHelper.ResolveTunnelLocalPort(clone.LocalPort, clone.LocalBindAddress, all);
+
+        await ResourceCredentialCloner.DetachCredentialsAsync(clone, _credentialService).ConfigureAwait(true);
 
 
 

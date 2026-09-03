@@ -16,4 +16,5 @@ public interface ICredentialService
     Task<int> DeleteUnreferencedAsync(CancellationToken cancellationToken = default);
     Task<bool> VerifyPasswordAsync(int id, string password, CancellationToken cancellationToken = default);
     Task<string?> GetPasswordAsync(int credentialId, CancellationToken cancellationToken = default);
+    Task<int?> CloneAsync(int sourceId, string newName, CancellationToken cancellationToken = default);
 }

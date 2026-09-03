@@ -476,7 +476,7 @@ public partial class RdpEditorViewModel : ObservableObject
     }
 
     private string GetInvalidHostMessage(string value) =>
-        _localization.Get(value.Contains('.') || value.Contains(':')
+        _localization.Get(NetworkAddressValidator.IsIpFormatAttempt(value)
             ? "Editor.Validation.InvalidIpAddress"
             : "Editor.Validation.InvalidHost");
 

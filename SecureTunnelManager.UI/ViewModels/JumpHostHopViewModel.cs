@@ -122,7 +122,7 @@ public partial class JumpHostHopViewModel : ObservableObject
         }
         else if (!NetworkAddressValidator.IsValidHostOrIp(Host))
         {
-            HostError = _localization.Get(Host.Contains('.') || Host.Contains(':')
+            HostError = _localization.Get(NetworkAddressValidator.IsIpFormatAttempt(Host)
                 ? "Editor.Validation.InvalidIpAddress"
                 : "Editor.Validation.InvalidHost");
             valid = false;

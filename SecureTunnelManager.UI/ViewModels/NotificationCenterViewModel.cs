@@ -179,6 +179,7 @@ public partial class NotificationCenterViewModel : ObservableObject
 
         _toastHideTimer?.Stop();
         IsToastVisible = false;
+        System.Windows.Application.Current?.MainWindow?.Activate();
         await ExecuteActionAsync(item).ConfigureAwait(true);
     }
 
@@ -187,6 +188,7 @@ public partial class NotificationCenterViewModel : ObservableObject
     {
         HideToast();
         IsPanelOpen = true;
+        System.Windows.Application.Current?.MainWindow?.Activate();
     }
 
     [RelayCommand]
@@ -301,7 +303,12 @@ public partial class NotificationCenterViewModel : ObservableObject
     private static bool CanShowInAppToast()
     {
         var mainWindow = System.Windows.Application.Current?.MainWindow;
-        return mainWindow is { IsVisible: true, WindowState: not System.Windows.WindowState.Minimized };
+        return mainWindow is
+        {
+            IsVisible: true,
+            IsActive: true,
+            WindowState: not System.Windows.WindowState.Minimized
+        };
     }
 
     private void OnToastHideTick(object? sender, EventArgs e) => HideToast();

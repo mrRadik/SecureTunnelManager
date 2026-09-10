@@ -370,7 +370,11 @@
   <data name="Rdp.Editor.StepJumpHosts" xml:space="preserve"><value>Промежуточный хост</value></data>
   <data name="Rdp.Editor.StepRemoteDesktop" xml:space="preserve"><value>Удалённый рабочий стол</value></data>
   <data name="Rdp.Editor.JumpHostsIntro" xml:space="preserve"><value>Промежуточные серверы между компьютером и RDP-хостом. Добавьте ещё, если маршрут проходит через несколько хостов. Последний хост открывает проброс порта.</value></data>
+  <data name="Rdp.Editor.DirectConnectionIntro" xml:space="preserve"><value>Прямое подключение открывает удалённый рабочий стол без SSH-туннеля. Используйте, если RDP-хост доступен с вашего компьютера.</value></data>
+  <data name="Rdp.Editor.UseJumpHost" xml:space="preserve"><value>Подключаться через SSH jump host</value></data>
+  <data name="Rdp.Editor.DirectConnection" xml:space="preserve"><value>Прямое подключение</value></data>
   <data name="Rdp.Editor.RemoteDesktopIntro" xml:space="preserve"><value>Windows-хост, доступный через промежуточный хост. После запуска туннеля откроется удалённый рабочий стол (mstsc).</value></data>
+  <data name="Rdp.Editor.RemoteDesktopDirectIntro" xml:space="preserve"><value>Windows-хост для прямого подключения через удалённый рабочий стол (mstsc). SSH-туннель не создаётся.</value></data>
   <data name="Rdp.Editor.RdpHost" xml:space="preserve"><value>RDP-хост</value></data>
   <data name="Rdp.Editor.LocalBind" xml:space="preserve"><value>Локальный адрес</value></data>
   <data name="Rdp.Editor.LocalPortHint" xml:space="preserve"><value>Локальный порт 0 выбирает свободный порт для каждого сеанса.</value></data>

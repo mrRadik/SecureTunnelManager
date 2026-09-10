@@ -162,28 +162,35 @@
 
                     <!-- Step 2: Jump Host -->
                     <StackPanel Visibility="{Binding CurrentStep, Converter={StaticResource IntEqualsConverter}, ConverterParameter=1}">
-                        <TextBlock Text="{loc:Loc Rdp.Editor.JumpHostsIntro}"
+                        <TextBlock Text="{Binding JumpHostsIntro}"
                                    Style="{DynamicResource StmWizardStepIntro}"/>
 
-                        <ItemsControl ItemsSource="{Binding JumpHosts}">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate DataType="{x:Type vm:JumpHostHopViewModel}">
-                                    <controls:JumpHostHopEditor/>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
+                        <CheckBox Content="{loc:Loc Rdp.Editor.UseJumpHost}"
+                                  IsChecked="{Binding UseJumpHost}"
+                                  Style="{DynamicResource StmCheckBox}"
+                                  Margin="0,0,0,16"/>
 
-                        <Button Content="{loc:Loc Editor.AddJumpHost}"
-                                Command="{Binding AddJumpHostCommand}"
-                                Style="{DynamicResource StmSecondaryButton}"
-                                HorizontalAlignment="Left"
-                                FontSize="13"
-                                MinHeight="34"/>
+                        <StackPanel Visibility="{Binding UseJumpHost, Converter={StaticResource BooleanToVisibilityConverter}}">
+                            <ItemsControl ItemsSource="{Binding JumpHosts}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate DataType="{x:Type vm:JumpHostHopViewModel}">
+                                        <controls:JumpHostHopEditor/>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+
+                            <Button Content="{loc:Loc Editor.AddJumpHost}"
+                                    Command="{Binding AddJumpHostCommand}"
+                                    Style="{DynamicResource StmSecondaryButton}"
+                                    HorizontalAlignment="Left"
+                                    FontSize="13"
+                                    MinHeight="34"/>
+                        </StackPanel>
                     </StackPanel>
 
                     <!-- Step 3: Remote Desktop -->
                     <StackPanel Visibility="{Binding CurrentStep, Converter={StaticResource IntEqualsConverter}, ConverterParameter=2}">
-                        <TextBlock Text="{loc:Loc Rdp.Editor.RemoteDesktopIntro}"
+                        <TextBlock Text="{Binding RemoteDesktopIntro}"
                                    Style="{DynamicResource StmWizardStepIntro}"/>
 
                         <Grid Margin="0,0,0,20">
@@ -205,25 +212,27 @@
                             </StackPanel>
                         </Grid>
 
-                        <Grid Margin="0,0,0,20">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="120"/>
-                            </Grid.ColumnDefinitions>
-                            <StackPanel Grid.Column="0" Margin="0,0,12,0">
-                                <TextBlock Text="{loc:Loc Rdp.Editor.LocalBind}" Style="{DynamicResource StmWizardFieldLabel}"/>
-                                <TextBox Text="{Binding LocalBindAddress, UpdateSourceTrigger=PropertyChanged}" Style="{DynamicResource StmInput}"/>
-                            </StackPanel>
-                            <StackPanel Grid.Column="1">
-                                <TextBlock Text="{loc:Loc Tunnel.Editor.LocalPort}" Style="{DynamicResource StmWizardFieldLabel}"/>
-                                <TextBox Text="{Binding LocalPort, UpdateSourceTrigger=PropertyChanged}" Style="{DynamicResource StmInput}"/>
-                                <TextBlock Text="{Binding LocalPortError}" Style="{DynamicResource StmValidationError}"
-                                           Visibility="{Binding LocalPortError, Converter={StaticResource StringNotEmptyToVisibilityConverter}}"/>
-                            </StackPanel>
-                        </Grid>
-                        <TextBlock Text="{loc:Loc Rdp.Editor.LocalPortHint}"
-                                   Style="{DynamicResource StmWizardHint}"
-                                   Margin="0,-12,0,20"/>
+                        <StackPanel Visibility="{Binding UseJumpHost, Converter={StaticResource BooleanToVisibilityConverter}}">
+                            <Grid Margin="0,0,0,20">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="120"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0" Margin="0,0,12,0">
+                                    <TextBlock Text="{loc:Loc Rdp.Editor.LocalBind}" Style="{DynamicResource StmWizardFieldLabel}"/>
+                                    <TextBox Text="{Binding LocalBindAddress, UpdateSourceTrigger=PropertyChanged}" Style="{DynamicResource StmInput}"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="1">
+                                    <TextBlock Text="{loc:Loc Tunnel.Editor.LocalPort}" Style="{DynamicResource StmWizardFieldLabel}"/>
+                                    <TextBox Text="{Binding LocalPort, UpdateSourceTrigger=PropertyChanged}" Style="{DynamicResource StmInput}"/>
+                                    <TextBlock Text="{Binding LocalPortError}" Style="{DynamicResource StmValidationError}"
+                                               Visibility="{Binding LocalPortError, Converter={StaticResource StringNotEmptyToVisibilityConverter}}"/>
+                                </StackPanel>
+                            </Grid>
+                            <TextBlock Text="{loc:Loc Rdp.Editor.LocalPortHint}"
+                                       Style="{DynamicResource StmWizardHint}"
+                                       Margin="0,-12,0,20"/>
+                        </StackPanel>
 
                         <TextBlock Text="{loc:Loc Rdp.Editor.SignInNameOptional}" Style="{DynamicResource StmWizardFieldLabel}"/>
                         <TextBox Text="{Binding RdpUsername, UpdateSourceTrigger=PropertyChanged}"

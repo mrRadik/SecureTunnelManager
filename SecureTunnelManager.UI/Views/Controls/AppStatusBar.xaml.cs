@@ -2,6 +2,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
+using System.Windows.Threading;
 using SecureTunnelManager.UI.ViewModels;
 
 namespace SecureTunnelManager.UI.Views.Controls;
@@ -99,6 +100,7 @@ public partial class AppStatusBar : System.Windows.Controls.UserControl
         _ownerWindow.SizeChanged += OnOwnerWindowLayoutChanged;
         _ownerWindow.StateChanged += OnOwnerWindowStateChanged;
         _ownerWindow.IsVisibleChanged += OnOwnerWindowVisibilityChanged;
+        _ownerWindow.Deactivated += OnOwnerWindowDeactivated;
     }
 
     private void OnUnloaded(object sender, RoutedEventArgs e)
@@ -110,6 +112,7 @@ public partial class AppStatusBar : System.Windows.Controls.UserControl
         _ownerWindow.SizeChanged -= OnOwnerWindowLayoutChanged;
         _ownerWindow.StateChanged -= OnOwnerWindowStateChanged;
         _ownerWindow.IsVisibleChanged -= OnOwnerWindowVisibilityChanged;
+        _ownerWindow.Deactivated -= OnOwnerWindowDeactivated;
         _ownerWindow = null;
     }
 
@@ -125,6 +128,23 @@ public partial class AppStatusBar : System.Windows.Controls.UserControl
     {
         if (_ownerWindow is { IsVisible: false })
             NotificationCenter?.DismissTransientUi();
+    }
+
+    private void OnOwnerWindowDeactivated(object? sender, EventArgs e)
+    {
+        // ponytail: defer until after popup click handlers so toast actions still work
+        Dispatcher.BeginInvoke(DismissTransientUiUnlessOverToast, DispatcherPriority.ApplicationIdle);
+    }
+
+    private void DismissTransientUiUnlessOverToast()
+    {
+        if (_ownerWindow?.IsActive == true)
+            return;
+
+        if (NotificationToastPopup.IsOpen && NotificationToastPopup.IsMouseOver)
+            return;
+
+        NotificationCenter?.DismissTransientUi();
     }
 
     private void RefreshOpenPopups()

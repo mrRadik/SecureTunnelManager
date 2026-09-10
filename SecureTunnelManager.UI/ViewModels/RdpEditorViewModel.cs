@@ -61,6 +61,8 @@ public partial class RdpEditorViewModel : ObservableObject
     public ObservableCollection<JumpHostHopViewModel> JumpHosts { get; } = new();
     public ObservableCollection<string> FlowJumpHosts { get; } = new();
 
+    [ObservableProperty] private bool _useJumpHost = true;
+
     [ObservableProperty] private string _rdpHost = string.Empty;
     [ObservableProperty] private int _rdpPort = 3389;
     [ObservableProperty] private int _localPort;
@@ -80,9 +82,19 @@ public partial class RdpEditorViewModel : ObservableObject
     public bool DialogResult { get; private set; }
     public event EventHandler? RequestClose;
 
-    public string FlowMyComputer => LocalPort == 0
-        ? $"{LocalBindAddress}:auto"
-        : $"{LocalBindAddress}:{LocalPort}";
+    public string JumpHostsIntro => UseJumpHost
+        ? _localization.Get("Rdp.Editor.JumpHostsIntro")
+        : _localization.Get("Rdp.Editor.DirectConnectionIntro");
+
+    public string RemoteDesktopIntro => UseJumpHost
+        ? _localization.Get("Rdp.Editor.RemoteDesktopIntro")
+        : _localization.Get("Rdp.Editor.RemoteDesktopDirectIntro");
+
+    public string FlowMyComputer => !UseJumpHost
+        ? _localization.Get("Rdp.Editor.DirectConnection")
+        : LocalPort == 0
+            ? $"{LocalBindAddress}:auto"
+            : $"{LocalBindAddress}:{LocalPort}";
 
     public string FlowRdpServer => FormatRdpEndpoint(
         RdpUsername,
@@ -108,6 +120,7 @@ public partial class RdpEditorViewModel : ObservableObject
             Description = string.Empty;
             IconKey = ServiceIconCatalog.DefaultRdpKey;
             GroupName = string.Empty;
+            UseJumpHost = true;
             RdpHost = string.Empty;
             RdpPort = 3389;
             LocalPort = 0;
@@ -130,7 +143,8 @@ public partial class RdpEditorViewModel : ObservableObject
             LocalPort = target.LocalPort;
             LocalBindAddress = string.IsNullOrWhiteSpace(target.LocalBindAddress) ? "127.0.0.1" : target.LocalBindAddress;
             RdpCredentialId = target.RdpCredentialId;
-            ResetJumpHosts(target.JumpHosts.Count > 0 ? target.JumpHosts : new List<JumpHostHop> { new() { Port = 22 } });
+            UseJumpHost = target.JumpHosts.Count > 0;
+            ResetJumpHosts(UseJumpHost ? target.JumpHosts : Array.Empty<JumpHostHop>());
 
             RdpUsername = string.Empty;
             if (target.RdpCredentialId.HasValue)
@@ -159,6 +173,18 @@ public partial class RdpEditorViewModel : ObservableObject
     partial void OnLocalPortChanged(int value) => NotifyFlowDiagramChanged();
 
     partial void OnLocalBindAddressChanged(string value) => NotifyFlowDiagramChanged();
+
+    partial void OnUseJumpHostChanged(bool value)
+    {
+        ErrorMessage = string.Empty;
+        if (value && JumpHosts.Count == 0)
+            JumpHosts.Add(CreateJumpHostViewModel(new JumpHostHop { Port = 22 }, 0));
+
+        RefreshJumpHostIndexes();
+        OnPropertyChanged(nameof(JumpHostsIntro));
+        OnPropertyChanged(nameof(RemoteDesktopIntro));
+        NotifyFlowDiagramChanged();
+    }
 
     partial void OnRdpUsernameChanged(string value)
     {
@@ -214,7 +240,7 @@ public partial class RdpEditorViewModel : ObservableObject
             CurrentStep++;
     }
 
-    [RelayCommand]
+    [RelayCommand(CanExecute = nameof(UseJumpHost))]
     private void AddJumpHost()
     {
         var hop = CreateJumpHostViewModel(new JumpHostHop { Port = 22 }, JumpHosts.Count);
@@ -259,29 +285,32 @@ public partial class RdpEditorViewModel : ObservableObject
         try
         {
             var jumpModels = new List<JumpHostHop>();
-            for (var i = 0; i < JumpHosts.Count; i++)
+            if (UseJumpHost)
             {
-                var hopVm = JumpHosts[i];
-                if (hopVm.AuthMethod == AuthMethod.Password)
+                for (var i = 0; i < JumpHosts.Count; i++)
                 {
-                    hopVm.CredentialId = await UpsertPasswordCredentialAsync(
-                        hopVm.CredentialId,
-                        BuildCredentialName($"jump-{i + 1}"),
-                        hopVm.Username,
-                        hopVm.Password).ConfigureAwait(true);
-                    hopVm.KeyPassphraseCredentialId = null;
-                    hopVm.PrivateKeyPath = null;
-                }
-                else
-                {
-                    hopVm.CredentialId = null;
-                    hopVm.KeyPassphraseCredentialId = await UpsertOptionalSecretAsync(
-                        hopVm.KeyPassphraseCredentialId,
-                        BuildCredentialName($"jump-{i + 1}-passphrase"),
-                        hopVm.KeyPassphrase).ConfigureAwait(true);
-                }
+                    var hopVm = JumpHosts[i];
+                    if (hopVm.AuthMethod == AuthMethod.Password)
+                    {
+                        hopVm.CredentialId = await UpsertPasswordCredentialAsync(
+                            hopVm.CredentialId,
+                            BuildCredentialName($"jump-{i + 1}"),
+                            hopVm.Username,
+                            hopVm.Password).ConfigureAwait(true);
+                        hopVm.KeyPassphraseCredentialId = null;
+                        hopVm.PrivateKeyPath = null;
+                    }
+                    else
+                    {
+                        hopVm.CredentialId = null;
+                        hopVm.KeyPassphraseCredentialId = await UpsertOptionalSecretAsync(
+                            hopVm.KeyPassphraseCredentialId,
+                            BuildCredentialName($"jump-{i + 1}-passphrase"),
+                            hopVm.KeyPassphrase).ConfigureAwait(true);
+                    }
 
-                jumpModels.Add(hopVm.ToModel());
+                    jumpModels.Add(hopVm.ToModel());
+                }
             }
 
             var username = RdpUsername.Trim();
@@ -354,6 +383,9 @@ public partial class RdpEditorViewModel : ObservableObject
                 }
                 break;
             case 1:
+                if (!UseJumpHost)
+                    break;
+
                 if (JumpHosts.Count == 0)
                 {
                     ErrorMessage = _localization.Get("Editor.Validation.JumpHostRequired");
@@ -385,7 +417,7 @@ public partial class RdpEditorViewModel : ObservableObject
                     valid = false;
                 }
 
-                if (LocalPort is < 0 or > 65535)
+                if (UseJumpHost && LocalPort is < 0 or > 65535)
                 {
                     LocalPortError = _localization.Get("Rdp.Editor.Validation.LocalPortRange");
                     valid = false;
@@ -425,10 +457,11 @@ public partial class RdpEditorViewModel : ObservableObject
         for (var i = 0; i < hops.Count; i++)
             JumpHosts.Add(CreateJumpHostViewModel(hops[i], i));
 
-        if (JumpHosts.Count == 0)
+        if (UseJumpHost && JumpHosts.Count == 0)
             JumpHosts.Add(CreateJumpHostViewModel(new JumpHostHop { Port = 22 }, 0));
 
         RefreshJumpHostIndexes();
+        AddJumpHostCommand.NotifyCanExecuteChanged();
     }
 
     private JumpHostHopViewModel CreateJumpHostViewModel(JumpHostHop hop, int index)
@@ -444,8 +477,11 @@ public partial class RdpEditorViewModel : ObservableObject
         OnPropertyChanged(nameof(FlowRdpServer));
 
         FlowJumpHosts.Clear();
-        foreach (var hop in JumpHosts)
-            FlowJumpHosts.Add(hop.FlowDisplay);
+        if (UseJumpHost)
+        {
+            foreach (var hop in JumpHosts)
+                FlowJumpHosts.Add(hop.FlowDisplay);
+        }
     }
 
     private static string FormatEndpoint(string username, string host, int port, string placeholder)
@@ -485,6 +521,8 @@ public partial class RdpEditorViewModel : ObservableObject
         OnPropertyChanged(nameof(WindowTitle));
         OnPropertyChanged(nameof(CurrentStepTitle));
         OnPropertyChanged(nameof(StepIndicator));
+        OnPropertyChanged(nameof(JumpHostsIntro));
+        OnPropertyChanged(nameof(RemoteDesktopIntro));
         foreach (var hop in JumpHosts)
             hop.RefreshLocalizedText();
         NotifyFlowDiagramChanged();

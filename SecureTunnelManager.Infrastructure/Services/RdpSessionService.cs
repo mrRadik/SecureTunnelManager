@@ -172,15 +172,31 @@ public sealed class RdpSessionService : IRdpSessionService, IDisposable
 
         try
         {
-            connection = new SshRdpConnection(_logger, _resilience);
-            await connection.ConnectAsync(target, _credentialService, cancellationToken).ConfigureAwait(false);
+            string bindAddress;
+            int bindPort;
 
-            var endpoint = $"{connection.BoundLocalAddress}:{connection.BoundLocalPort}";
+            if (target.JumpHosts.Count == 0)
+            {
+                if (string.IsNullOrWhiteSpace(target.RdpHost))
+                    throw new InvalidOperationException("RDP host is required.");
+
+                bindAddress = target.RdpHost.Trim();
+                bindPort = target.RdpPort;
+            }
+            else
+            {
+                connection = new SshRdpConnection(_logger, _resilience);
+                await connection.ConnectAsync(target, _credentialService, cancellationToken).ConfigureAwait(false);
+                bindAddress = connection.BoundLocalAddress;
+                bindPort = connection.BoundLocalPort;
+            }
+
+            var endpoint = $"{bindAddress}:{bindPort}";
             UpdateState(
                 targetId,
                 RdpSessionStatus.Connected,
                 error: null,
-                localPort: connection.BoundLocalPort,
+                localPort: bindPort,
                 localEndpoint: endpoint,
                 markConnected: true);
 
@@ -195,18 +211,10 @@ public sealed class RdpSessionService : IRdpSessionService, IDisposable
 
             if (!string.IsNullOrWhiteSpace(username) && !string.IsNullOrEmpty(password))
             {
-                cmdkeyTargets = StoreWindowsCredentials(
-                    connection.BoundLocalAddress,
-                    connection.BoundLocalPort,
-                    username,
-                    password);
+                cmdkeyTargets = StoreWindowsCredentials(bindAddress, bindPort, username, password);
             }
 
-            rdpFilePath = WriteTempRdpFile(
-                connection.BoundLocalAddress,
-                connection.BoundLocalPort,
-                username,
-                password);
+            rdpFilePath = WriteTempRdpFile(bindAddress, bindPort, username, password);
             mstsc = StartMstsc(rdpFilePath);
 
             await mstsc.WaitForExitAsync(cancellationToken).ConfigureAwait(false);

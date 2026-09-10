@@ -45,6 +45,6 @@ public partial class TunnelErrorIndicator : System.Windows.Controls.UserControl
 
     private void ApplyToolTip(string? text)
     {
-        ToolTipService.SetToolTip(IndicatorBorder, string.IsNullOrWhiteSpace(text) ? null : text);
+        ToolTipService.SetToolTip(IndicatorGlyph, string.IsNullOrWhiteSpace(text) ? null : text);
     }
 }

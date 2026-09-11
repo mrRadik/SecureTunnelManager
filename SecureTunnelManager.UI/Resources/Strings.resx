@@ -55,7 +55,20 @@
   <data name="Nav.System" xml:space="preserve"><value>SYSTEM</value></data>
   <data name="Nav.Tunnels" xml:space="preserve"><value>Tunnels</value></data>
   <data name="Nav.Rdp" xml:space="preserve"><value>RDP</value></data>
+  <data name="Nav.JumpHosts" xml:space="preserve"><value>Jump Hosts</value></data>
   <data name="Nav.Settings" xml:space="preserve"><value>Settings</value></data>
+  <data name="JumpHosts.Title" xml:space="preserve"><value>Jump Hosts</value></data>
+  <data name="JumpHosts.Subtitle" xml:space="preserve"><value>Reusable bastion servers. Edit a jump host here to update credentials for every tunnel and RDP profile that uses it.</value></data>
+  <data name="JumpHosts.AddButton" xml:space="preserve"><value>Add jump host</value></data>
+  <data name="JumpHosts.EditButton" xml:space="preserve"><value>Edit</value></data>
+  <data name="JumpHosts.DeleteButton" xml:space="preserve"><value>Delete</value></data>
+  <data name="JumpHosts.EmptyTitle" xml:space="preserve"><value>No jump hosts yet</value></data>
+  <data name="JumpHosts.EmptySubtitle" xml:space="preserve"><value>Create a jump host to reuse it across tunnels and RDP connections.</value></data>
+  <data name="JumpHosts.NotUsed" xml:space="preserve"><value>Not used by any profile</value></data>
+  <data name="JumpHosts.UsedByProfiles" xml:space="preserve"><value>Used by {0} profile(s)</value></data>
+  <data name="JumpHosts.DeleteTitle" xml:space="preserve"><value>Delete jump host</value></data>
+  <data name="JumpHosts.DeleteConfirm" xml:space="preserve"><value>Delete jump host "{0}"?</value></data>
+  <data name="JumpHosts.DeleteConfirmInUse" xml:space="preserve"><value>Delete jump host "{0}"? It is used by {1} profile(s).</value></data>
   <data name="Nav.Share" xml:space="preserve"><value>Share</value></data>
   <data name="Share.Title" xml:space="preserve"><value>Share connections</value></data>
   <data name="Share.Subtitle" xml:space="preserve"><value>Export or import tunnel and RDP profiles. Passwords are not included.</value></data>
@@ -328,11 +341,24 @@ This update includes improvements and bug fixes.</value></data>
   <data name="Editor.ForwardedService" xml:space="preserve"><value>Forwarded service</value></data>
   <data name="Editor.RdpServer" xml:space="preserve"><value>RDP Server</value></data>
   <data name="Editor.AddJumpHost" xml:space="preserve"><value>+ Add jump host</value></data>
+  <data name="Editor.SavedJumpHost" xml:space="preserve"><value>Saved jump host</value></data>
+  <data name="Editor.AddSavedJumpHost" xml:space="preserve"><value>Add new…</value></data>
+  <data name="Editor.JumpHostCustom" xml:space="preserve"><value>Enter manually</value></data>
+  <data name="Editor.JumpHostUseExistingTitle" xml:space="preserve"><value>Use existing jump host</value></data>
+  <data name="Editor.JumpHostUseExistingHint" xml:space="preserve"><value>Select from your saved jump hosts.</value></data>
+  <data name="Editor.JumpHostAddNewTitle" xml:space="preserve"><value>Add new jump host</value></data>
+  <data name="Editor.JumpHostAddNewHint" xml:space="preserve"><value>Enter connection details manually.</value></data>
+  <data name="Editor.TogglePasswordVisibility" xml:space="preserve"><value>Show or hide password</value></data>
+  <data name="JumpHost.Editor.NewTitle" xml:space="preserve"><value>New jump host</value></data>
+  <data name="JumpHost.Editor.EditTitle" xml:space="preserve"><value>Edit jump host</value></data>
+  <data name="Editor.EditSavedJumpHost" xml:space="preserve"><value>Edit…</value></data>
+  <data name="JumpHost.Editor.Intro" xml:space="preserve"><value>Save this jump host to the library so you can reuse it in tunnels and RDP connections. Password changes apply everywhere it is used.</value></data>
   <data name="Editor.JumpHostsIntro" xml:space="preserve"><value>Intermediate servers between your PC and the target. Add more if your route uses multiple jump hosts.</value></data>
   <data name="Editor.StepIndicator" xml:space="preserve"><value>Step {0} of {1}</value></data>
   <data name="Editor.JumpHostTitle" xml:space="preserve"><value>Jump host {0}</value></data>
   <data name="Editor.Validation.NameRequired" xml:space="preserve"><value>Name is required</value></data>
   <data name="Editor.Validation.JumpHostRequired" xml:space="preserve"><value>Add at least one jump host.</value></data>
+  <data name="Editor.Validation.JumpHostSelectRequired" xml:space="preserve"><value>Select a jump host from the list.</value></data>
   <data name="Editor.Validation.HostRequired" xml:space="preserve"><value>Host is required</value></data>
   <data name="Editor.Validation.InvalidIpAddress" xml:space="preserve"><value>Enter a full IPv4 address (four octets) or a valid IPv6 address</value></data>
   <data name="Editor.Validation.InvalidHost" xml:space="preserve"><value>Enter a valid IP address or hostname</value></data>

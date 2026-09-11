@@ -61,6 +61,8 @@ public partial class MainViewModel : ObservableObject
 
     public ShareViewModel Share { get; }
 
+    public JumpHostsViewModel JumpHosts { get; }
+
     public NotificationCenterViewModel Notifications { get; }
 
 
@@ -91,7 +93,9 @@ public partial class MainViewModel : ObservableObject
 
         RdpViewModel rdp,
 
-        ShareViewModel share)
+        ShareViewModel share,
+
+        JumpHostsViewModel jumpHosts)
 
     {
 
@@ -120,6 +124,8 @@ public partial class MainViewModel : ObservableObject
         Rdp = rdp;
 
         Share = share;
+
+        JumpHosts = jumpHosts;
 
 
 
@@ -1184,6 +1190,12 @@ public partial class MainViewModel : ObservableObject
             return;
         }
 
+        if (value == NavigationSection.JumpHosts)
+        {
+            _ = LoadJumpHostsSectionAsync();
+            return;
+        }
+
         if (value == NavigationSection.Settings)
 
             _ = Settings.LoadCommand.ExecuteAsync(null);
@@ -1217,6 +1229,30 @@ public partial class MainViewModel : ObservableObject
         _lastSection = NavigationSection.Share;
 
         await Share.LoadAsync().ConfigureAwait(true);
+
+    }
+
+
+
+    private async Task LoadJumpHostsSectionAsync()
+
+    {
+
+        if (!await EnsureVaultUnlockedAsync().ConfigureAwait(true))
+
+        {
+
+            SelectedSection = _lastSection;
+
+            return;
+
+        }
+
+
+
+        _lastSection = NavigationSection.JumpHosts;
+
+        await JumpHosts.LoadCommand.ExecuteAsync(null).ConfigureAwait(true);
 
     }
 

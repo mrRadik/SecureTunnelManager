@@ -12,6 +12,7 @@ public class AppDbContext : DbContext
     public DbSet<TunnelProfileEntity> TunnelProfiles => Set<TunnelProfileEntity>();
     public DbSet<RdpTargetEntity> RdpTargets => Set<RdpTargetEntity>();
     public DbSet<CredentialEntity> Credentials => Set<CredentialEntity>();
+    public DbSet<JumpHostEntity> JumpHosts => Set<JumpHostEntity>();
     public DbSet<SettingEntity> Settings => Set<SettingEntity>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -51,6 +52,16 @@ public class AppDbContext : DbContext
             entity.Property(e => e.Name).HasMaxLength(200).IsRequired();
             entity.Property(e => e.Username).HasMaxLength(128).IsRequired();
             entity.Property(e => e.EncryptedPassword).IsRequired();
+            entity.HasIndex(e => e.Name).IsUnique();
+        });
+
+        modelBuilder.Entity<JumpHostEntity>(entity =>
+        {
+            entity.ToTable("JumpHosts");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Name).HasMaxLength(200).IsRequired();
+            entity.Property(e => e.Host).HasMaxLength(255).IsRequired();
+            entity.Property(e => e.Username).HasMaxLength(128).IsRequired();
             entity.HasIndex(e => e.Name).IsUnique();
         });
 

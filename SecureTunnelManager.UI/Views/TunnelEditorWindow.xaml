@@ -48,6 +48,13 @@
             <Setter Property="FontSize" Value="13"/>
         </Style>
 
+        <Style x:Key="StmHopAddButton" TargetType="Button" BasedOn="{StaticResource StmPrimaryButton}">
+            <Setter Property="MinHeight" Value="28"/>
+            <Setter Property="Padding" Value="10,4"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Margin" Value="0"/>
+        </Style>
+
         <Style x:Key="StmWizardPlaceholder" TargetType="TextBlock" BasedOn="{StaticResource StmFontBase}">
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="Foreground" Value="{DynamicResource StmTextSecondaryBrush}"/>
@@ -79,11 +86,11 @@
                        Margin="0,4,0,0"/>
         </StackPanel>
 
-        <Grid Grid.Row="2" Margin="28,24,28,0">
+        <Grid Grid.Row="2" Margin="28,16,28,0">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="1.15*"/>
-                <ColumnDefinition Width="60"/>
-                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="6*"/>
+                <ColumnDefinition Width="48"/>
+                <ColumnDefinition Width="4*"/>
             </Grid.ColumnDefinitions>
 
             <ScrollViewer Grid.Column="0" VerticalScrollBarVisibility="Auto">
@@ -159,17 +166,13 @@
                                   FontSize="13"
                                   MinHeight="40"
                                   Margin="0,0,0,20"/>
-
-                        <CheckBox Content="{loc:Loc Tunnel.Editor.StartWithWindows}"
-                                  IsChecked="{Binding StartWithWindows}"
-                                  Style="{DynamicResource StmCheckBox}"
-                                  FontSize="13"/>
                     </StackPanel>
 
                     <!-- Step 2 -->
                     <StackPanel Visibility="{Binding CurrentStep, Converter={StaticResource IntEqualsConverter}, ConverterParameter=1}">
                         <TextBlock Text="{loc:Loc Editor.JumpHostsIntro}"
-                                   Style="{DynamicResource StmWizardStepIntro}"/>
+                                   Style="{DynamicResource StmWizardStepIntro}"
+                                   Margin="0,0,0,12"/>
 
                         <ItemsControl ItemsSource="{Binding JumpHosts}">
                             <ItemsControl.ItemTemplate>
@@ -181,10 +184,8 @@
 
                         <Button Content="{loc:Loc Editor.AddJumpHost}"
                                 Command="{Binding AddJumpHostCommand}"
-                                Style="{DynamicResource StmSecondaryButton}"
-                                HorizontalAlignment="Left"
-                                FontSize="13"
-                                MinHeight="34"/>
+                                Style="{StaticResource StmHopAddButton}"
+                                HorizontalAlignment="Left"/>
                     </StackPanel>
 
                     <!-- Step 3 -->

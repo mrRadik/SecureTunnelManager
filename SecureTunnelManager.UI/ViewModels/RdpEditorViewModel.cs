@@ -13,19 +13,25 @@ public partial class RdpEditorViewModel : ObservableObject
 {
     private readonly IRdpTargetService _targetService;
     private readonly ICredentialService _credentialService;
+    private readonly IJumpHostService _jumpHostService;
     private readonly IVaultService _vaultService;
     private readonly ILocalizationService _localization;
+    private readonly IDialogService _dialogService;
 
     public RdpEditorViewModel(
         IRdpTargetService targetService,
         ICredentialService credentialService,
+        IJumpHostService jumpHostService,
         IVaultService vaultService,
-        ILocalizationService localization)
+        ILocalizationService localization,
+        IDialogService dialogService)
     {
         _targetService = targetService;
         _credentialService = credentialService;
+        _jumpHostService = jumpHostService;
         _vaultService = vaultService;
         _localization = localization;
+        _dialogService = dialogService;
         _localization.LanguageChanged += (_, _) => RefreshLocalizedText();
     }
 
@@ -59,6 +65,7 @@ public partial class RdpEditorViewModel : ObservableObject
     public ObservableCollection<string> ExistingGroups { get; } = new();
 
     public ObservableCollection<JumpHostHopViewModel> JumpHosts { get; } = new();
+    public ObservableCollection<JumpHost> SavedJumpHosts { get; } = new();
     public ObservableCollection<string> FlowJumpHosts { get; } = new();
 
     [ObservableProperty] private bool _useJumpHost = true;
@@ -111,6 +118,8 @@ public partial class RdpEditorViewModel : ObservableObject
         foreach (var group in await _targetService.GetGroupNamesAsync().ConfigureAwait(true))
             ExistingGroups.Add(group);
 
+        await RefreshSavedJumpHostsAsync().ConfigureAwait(true);
+
         if (target is null)
         {
             TargetId = 0;
@@ -145,6 +154,7 @@ public partial class RdpEditorViewModel : ObservableObject
             RdpCredentialId = target.RdpCredentialId;
             UseJumpHost = target.JumpHosts.Count > 0;
             ResetJumpHosts(UseJumpHost ? target.JumpHosts : Array.Empty<JumpHostHop>());
+            BindJumpHostLibrarySelections();
 
             RdpUsername = string.Empty;
             if (target.RdpCredentialId.HasValue)
@@ -153,7 +163,6 @@ public partial class RdpEditorViewModel : ObservableObject
                 RdpUsername = cred?.Username ?? string.Empty;
             }
 
-            await LoadJumpHostCredentialUsernamesAsync().ConfigureAwait(true);
         }
 
         OnPropertyChanged(nameof(WindowTitle));
@@ -195,21 +204,6 @@ public partial class RdpEditorViewModel : ObservableObject
     private bool HasStoredRdpCredential =>
         RdpCredentialId.HasValue || (IsEditMode && _initialRdpCredentialId.HasValue);
 
-    private async Task LoadJumpHostCredentialUsernamesAsync()
-    {
-        foreach (var hop in JumpHosts)
-        {
-            if (!hop.CredentialId.HasValue)
-                continue;
-
-            var cred = await _credentialService.GetByIdAsync(hop.CredentialId.Value).ConfigureAwait(true);
-            if (cred is null || !string.IsNullOrWhiteSpace(hop.Username))
-                continue;
-
-            hop.Username = cred.Username;
-        }
-    }
-
     partial void OnCurrentStepChanged(int value) => NotifyStepPropertiesChanged();
 
     private void NotifyStepPropertiesChanged()
@@ -250,6 +244,43 @@ public partial class RdpEditorViewModel : ObservableObject
     }
 
     [RelayCommand]
+    private async Task AddNewJumpHostAsync(JumpHostHopViewModel? hop)
+    {
+        var created = await _dialogService.ShowJumpHostEditorAsync().ConfigureAwait(true);
+        if (created is null)
+            return;
+
+        await RefreshSavedJumpHostsAsync().ConfigureAwait(true);
+        if (hop is not null)
+        {
+            var saved = SavedJumpHosts.FirstOrDefault(j => j.Id == created.Id);
+            if (saved is not null)
+                hop.BindSavedJumpHost(saved);
+        }
+    }
+
+    private async Task RefreshSavedJumpHostsAsync()
+    {
+        SavedJumpHosts.Clear();
+        foreach (var jumpHost in await _jumpHostService.GetAllAsync().ConfigureAwait(true))
+            SavedJumpHosts.Add(jumpHost);
+
+        foreach (var hop in JumpHosts)
+            hop.RefreshSavedJumpHostFromList(SavedJumpHosts);
+    }
+
+    private void BindJumpHostLibrarySelections()
+    {
+        foreach (var hop in JumpHosts)
+        {
+            hop.TryBindPendingSavedJumpHost(SavedJumpHosts);
+            hop.RefreshSavedJumpHostFromList(SavedJumpHosts);
+            if (hop.SelectedSavedJumpHost is null && SavedJumpHosts.Count > 0)
+                hop.BindSavedJumpHost(SavedJumpHosts[0]);
+        }
+    }
+
+    [RelayCommand]
     private void RemoveJumpHost(JumpHostHopViewModel? hop)
     {
         if (hop is null || JumpHosts.Count <= 1)
@@ -287,30 +318,8 @@ public partial class RdpEditorViewModel : ObservableObject
             var jumpModels = new List<JumpHostHop>();
             if (UseJumpHost)
             {
-                for (var i = 0; i < JumpHosts.Count; i++)
-                {
-                    var hopVm = JumpHosts[i];
-                    if (hopVm.AuthMethod == AuthMethod.Password)
-                    {
-                        hopVm.CredentialId = await UpsertPasswordCredentialAsync(
-                            hopVm.CredentialId,
-                            BuildCredentialName($"jump-{i + 1}"),
-                            hopVm.Username,
-                            hopVm.Password).ConfigureAwait(true);
-                        hopVm.KeyPassphraseCredentialId = null;
-                        hopVm.PrivateKeyPath = null;
-                    }
-                    else
-                    {
-                        hopVm.CredentialId = null;
-                        hopVm.KeyPassphraseCredentialId = await UpsertOptionalSecretAsync(
-                            hopVm.KeyPassphraseCredentialId,
-                            BuildCredentialName($"jump-{i + 1}-passphrase"),
-                            hopVm.KeyPassphrase).ConfigureAwait(true);
-                    }
-
+                foreach (var hopVm in JumpHosts)
                     jumpModels.Add(hopVm.ToModel());
-                }
             }
 
             var username = RdpUsername.Trim();
@@ -467,8 +476,60 @@ public partial class RdpEditorViewModel : ObservableObject
     private JumpHostHopViewModel CreateJumpHostViewModel(JumpHostHop hop, int index)
     {
         var vm = JumpHostHopViewModel.FromModel(hop, index, _localization);
+        vm.SetSavedJumpHostsLookup(() => SavedJumpHosts);
+        vm.SetCredentialPasswordLoader(LoadCredentialPasswordAsync);
         vm.FlowChanged += (_, _) => NotifyFlowDiagramChanged();
+        vm.EditSavedJumpHostHandler = EditSavedJumpHostAsync;
+        vm.DeleteSavedJumpHostHandler = DeleteSavedJumpHostFromHopAsync;
         return vm;
+    }
+
+    private async Task<string?> LoadCredentialPasswordAsync(int credentialId)
+    {
+        if (!_vaultService.IsUnlocked)
+            return null;
+
+        return await _credentialService.GetPasswordAsync(credentialId).ConfigureAwait(false);
+    }
+
+    private async Task DeleteSavedJumpHostFromHopAsync(JumpHostHopViewModel hop)
+    {
+        if (hop.SelectedSavedJumpHost is not JumpHost jumpHost)
+            return;
+
+        var refCounts = await _jumpHostService.GetReferenceCountsAsync().ConfigureAwait(true);
+        refCounts.TryGetValue(jumpHost.Id, out var refCount);
+
+        var message = refCount > 0
+            ? _localization.Format("JumpHosts.DeleteConfirmInUse", jumpHost.Name, refCount)
+            : _localization.Format("JumpHosts.DeleteConfirm", jumpHost.Name);
+
+        if (!_dialogService.ShowConfirm(message, _localization.Get("JumpHosts.DeleteTitle"), destructiveConfirm: true))
+            return;
+
+        try
+        {
+            await _jumpHostService.DeleteAsync(jumpHost.Id).ConfigureAwait(true);
+            await RefreshSavedJumpHostsAsync().ConfigureAwait(true);
+            hop.ClearLibrarySelection();
+
+            if (SavedJumpHosts.Count > 0)
+                hop.BindSavedJumpHost(SavedJumpHosts[0]);
+        }
+        catch (Exception ex)
+        {
+            _dialogService.ShowError(ex.Message);
+        }
+    }
+
+    private async Task<JumpHost?> EditSavedJumpHostAsync(JumpHost existing)
+    {
+        var updated = await _dialogService.ShowJumpHostEditorAsync(existing).ConfigureAwait(true);
+        if (updated is null)
+            return null;
+
+        await RefreshSavedJumpHostsAsync().ConfigureAwait(true);
+        return SavedJumpHosts.FirstOrDefault(j => j.Id == updated.Id) ?? updated;
     }
 
     private void NotifyFlowDiagramChanged()

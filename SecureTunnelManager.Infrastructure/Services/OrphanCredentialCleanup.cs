@@ -92,6 +92,16 @@ internal static class OrphanCredentialCleanup
                 ids.Add(id);
         }
 
+        var jumpHosts = await db.JumpHosts.AsNoTracking()
+            .ToListAsync(cancellationToken)
+            .ConfigureAwait(false);
+
+        foreach (var jumpHost in jumpHosts)
+        {
+            foreach (var id in JumpHostReferenceHelper.CollectCredentialIds(EntityMapper.ToModel(jumpHost)))
+                ids.Add(id);
+        }
+
         return ids;
     }
 }

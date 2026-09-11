@@ -31,6 +31,7 @@ internal sealed class SshRdpConnection : IDisposable
     public async Task ConnectAsync(
         RdpTarget target,
         ICredentialService credentialService,
+        IJumpHostService jumpHostService,
         CancellationToken cancellationToken)
     {
         await StopInternalAsync().ConfigureAwait(false);
@@ -47,6 +48,7 @@ internal sealed class SshRdpConnection : IDisposable
         _hopChain = await SshHopChain.ConnectHopsAsync(
             target.JumpHosts,
             credentialService,
+            jumpHostService,
             _resilience,
             cancellationToken).ConfigureAwait(false);
 

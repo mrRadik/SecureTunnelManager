@@ -13,15 +13,18 @@ public class SshTunnelTestService : ISshTunnelTestService
     private static readonly TimeSpan TestTimeout = TimeSpan.FromSeconds(10);
     private static readonly TimeSpan ServiceProbeTimeout = TimeSpan.FromSeconds(3);
     private readonly ICredentialService _credentialService;
+    private readonly IJumpHostService _jumpHostService;
     private readonly SshResiliencePolicyProvider _resilience;
     private readonly ILogger<SshTunnelTestService> _logger;
 
     public SshTunnelTestService(
         ICredentialService credentialService,
+        IJumpHostService jumpHostService,
         SshResiliencePolicyProvider resilience,
         ILogger<SshTunnelTestService> logger)
     {
         _credentialService = credentialService;
+        _jumpHostService = jumpHostService;
         _resilience = resilience;
         _logger = logger;
     }
@@ -108,6 +111,7 @@ public class SshTunnelTestService : ISshTunnelTestService
             var chain = await SshHopChain.ConnectAsync(
                 request.Profile,
                 _credentialService,
+                _jumpHostService,
                 _resilience,
                 request.JumpAuthOverrides,
                 request.TargetAuthOverride,
@@ -117,9 +121,11 @@ public class SshTunnelTestService : ISshTunnelTestService
         }
         else
         {
+            request.Profile.EnsureJumpHostsFromLegacy();
             var chain = await SshHopChain.ConnectHopsAsync(
                 request.Profile.GetEffectiveJumpHosts(),
                 _credentialService,
+                _jumpHostService,
                 _resilience,
                 request.JumpAuthOverrides,
                 cancellationToken,

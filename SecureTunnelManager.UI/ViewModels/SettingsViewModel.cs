@@ -11,6 +11,7 @@ public enum NavigationSection
     Tunnels,
     Rdp,
     Share,
+    JumpHosts,
     Settings
 }
 

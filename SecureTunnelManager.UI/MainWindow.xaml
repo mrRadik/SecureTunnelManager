@@ -49,6 +49,9 @@
                                                  Section="{x:Static vm:NavigationSection.Share}"/>
 
                         <TextBlock Text="{loc:Loc Nav.System}" Style="{DynamicResource StmNavSectionHeader}"/>
+                        <controls:NavigationItem IconGlyph="&#xE774;"
+                                                 LocKey="Nav.JumpHosts"
+                                                 Section="{x:Static vm:NavigationSection.JumpHosts}"/>
                         <controls:NavigationItem IconGlyph="&#xE713;"
                                                  LocKey="Nav.Settings"
                                                  Section="{x:Static vm:NavigationSection.Settings}"/>
@@ -63,6 +66,8 @@
                     Visibility="{Binding DataContext.SelectedSection, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource NavigationSectionVisibilityConverter}, ConverterParameter=Rdp}"/>
                 <controls:ShareView DataContext="{Binding Share}"
                     Visibility="{Binding DataContext.SelectedSection, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource NavigationSectionVisibilityConverter}, ConverterParameter=Share}"/>
+                <controls:JumpHostsView DataContext="{Binding JumpHosts}"
+                    Visibility="{Binding DataContext.SelectedSection, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource NavigationSectionVisibilityConverter}, ConverterParameter=JumpHosts}"/>
                 <controls:SettingsView DataContext="{Binding}"
                     Visibility="{Binding SelectedSection, Converter={StaticResource NavigationSectionVisibilityConverter}, ConverterParameter=Settings}"/>
             </Grid>

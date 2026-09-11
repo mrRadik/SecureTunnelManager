@@ -5,6 +5,7 @@ using Microsoft.Extensions.Hosting;
 using SecureTunnelManager.Core.Services;
 using SecureTunnelManager.Data;
 using SecureTunnelManager.Infrastructure;
+using SecureTunnelManager.Infrastructure.Services;
 using SecureTunnelManager.UI.Services;
 using SecureTunnelManager.UI.ViewModels;
 
@@ -62,15 +63,19 @@ public partial class App : System.Windows.Application
                 services.AddSingleton<SettingsViewModel>();
                 services.AddSingleton<RdpViewModel>();
                 services.AddSingleton<ShareViewModel>();
+                services.AddSingleton<JumpHostsViewModel>();
                 services.AddTransient<VaultSetupViewModel>();
                 services.AddTransient<UnlockVaultViewModel>();
                 services.AddTransient<TunnelEditorViewModel>();
                 services.AddTransient<RdpEditorViewModel>();
+                services.AddTransient<JumpHostEditorViewModel>();
             })
             .Build();
 
         await _host.StartAsync().ConfigureAwait(true);
         await DatabaseInitializer.InitializeAsync(_host.Services).ConfigureAwait(true);
+        await InlineJumpHostMigration.MigrateAsync(_host.Services).ConfigureAwait(true);
+        await JumpHostConsolidationMigration.MigrateAsync(_host.Services).ConfigureAwait(true);
         await Services.GetRequiredService<ICredentialService>()
             .DeleteUnreferencedAsync()
             .ConfigureAwait(true);

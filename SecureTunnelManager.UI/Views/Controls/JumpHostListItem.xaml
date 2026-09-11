@@ -1,0 +1,50 @@
+<UserControl x:Class="SecureTunnelManager.UI.Views.Controls.JumpHostListItem"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Name="Root">
+
+    <Border x:Name="ItemBorder" Style="{DynamicResource StmTunnelCard}">
+        <Border.ContextMenu>
+            <ContextMenu Opened="OnContextMenuOpened"
+                         Style="{DynamicResource StmContextMenu}">
+                <MenuItem Tag="Edit" Click="OnEditClick"/>
+                <MenuItem Tag="Delete" Click="OnDeleteClick"/>
+            </ContextMenu>
+        </Border.ContextMenu>
+
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <Border Grid.Column="0"
+                    Style="{DynamicResource StmCardIconHost}"
+                    Margin="0,0,12,0"
+                    VerticalAlignment="Center">
+                <TextBlock Text="&#xE774;" Style="{DynamicResource StmCardIconGlyph}"/>
+            </Border>
+
+            <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="0,0,12,0">
+                <TextBlock Text="{Binding Name}"
+                           Style="{DynamicResource StmCardTitleText}"
+                           TextTrimming="CharacterEllipsis"/>
+                <TextBlock Text="{Binding EndpointDisplay}"
+                           Style="{DynamicResource StmCardSecondaryText}"
+                           TextTrimming="CharacterEllipsis"
+                           MinHeight="18"/>
+                <TextBlock Text="{Binding ReferenceCountDisplay}"
+                           Style="{DynamicResource StmCardSecondaryText}"
+                           TextTrimming="CharacterEllipsis"/>
+            </StackPanel>
+
+            <Button Grid.Column="2"
+                    x:Name="MenuButton"
+                    Content="&#xE712;"
+                    Style="{DynamicResource StmCardMenuButton}"
+                    VerticalAlignment="Center"
+                    Click="OnMenuClick"/>
+        </Grid>
+    </Border>
+</UserControl>

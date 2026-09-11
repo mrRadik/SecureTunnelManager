@@ -31,6 +31,7 @@ public static class DependencyInjection
             new VaultUnlockCacheService(Path.Combine(Path.GetDirectoryName(databasePath)!, "vault-unlock.dat")));
         services.AddSingleton<IVaultService, VaultService>();
         services.AddSingleton<ICredentialService, CredentialService>();
+        services.AddSingleton<IJumpHostService, JumpHostService>();
         services.AddSingleton<ITunnelProfileService, TunnelProfileService>();
         services.AddSingleton<IRdpTargetService, RdpTargetService>();
         services.AddSingleton<SshResiliencePolicyProvider>();

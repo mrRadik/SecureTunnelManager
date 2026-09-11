@@ -120,6 +120,7 @@ public static class ResourceCloneHelper
 
     private static JumpHostHop CloneJumpHost(JumpHostHop hop) => new()
     {
+        JumpHostEntityId = hop.JumpHostEntityId,
         Host = hop.Host,
         Port = hop.Port,
         Username = hop.Username,

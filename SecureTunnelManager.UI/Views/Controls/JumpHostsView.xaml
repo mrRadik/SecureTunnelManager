@@ -1,0 +1,60 @@
+<UserControl x:Class="SecureTunnelManager.UI.Views.Controls.JumpHostsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:SecureTunnelManager.UI.Views.Controls"
+             xmlns:loc="clr-namespace:SecureTunnelManager.UI.Localization"
+             xmlns:vm="clr-namespace:SecureTunnelManager.UI.ViewModels"
+             Background="Transparent">
+
+    <Grid Style="{DynamicResource StmPageLayout}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <controls:PageHeader Grid.Row="0">
+            <controls:PageHeader.PrimaryActions>
+                <StackPanel>
+                    <TextBlock Text="{loc:Loc JumpHosts.Title}" Style="{DynamicResource StmPageTitle}"/>
+                    <TextBlock Text="{loc:Loc JumpHosts.Subtitle}"
+                               Style="{DynamicResource StmPageSubtitle}"
+                               TextWrapping="Wrap"
+                               MaxWidth="640"/>
+                </StackPanel>
+            </controls:PageHeader.PrimaryActions>
+        </controls:PageHeader>
+
+        <Grid Grid.Row="1">
+            <StackPanel VerticalAlignment="Center"
+                        HorizontalAlignment="Center"
+                        Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <ProgressBar Style="{DynamicResource StmProgressBar}" Width="240" IsIndeterminate="True"/>
+            </StackPanel>
+
+            <controls:EmptyState VerticalAlignment="Center"
+                                 HorizontalAlignment="Center"
+                                 ShowIcon="True"
+                                 IconGlyph="&#xE774;"
+                                 Title="{loc:Loc JumpHosts.EmptyTitle}"
+                                 Subtitle="{loc:Loc JumpHosts.EmptySubtitle}"
+                                 Visibility="{Binding ShowEmptyState, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+
+            <ScrollViewer VerticalScrollBarVisibility="Auto"
+                          Visibility="{Binding HasItems, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <ItemsControl ItemsSource="{Binding Items}"
+                              Margin="{StaticResource StmFabScrollPadding}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate DataType="{x:Type vm:JumpHostListItemViewModel}">
+                            <controls:JumpHostListItem/>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+
+            <Button Content="+"
+                    Command="{Binding AddCommand}"
+                    Style="{DynamicResource StmFabButton}"
+                    ToolTip="{loc:Loc JumpHosts.AddButton}"/>
+        </Grid>
+    </Grid>
+</UserControl>

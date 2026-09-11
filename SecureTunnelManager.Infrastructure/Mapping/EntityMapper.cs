@@ -5,6 +5,48 @@ namespace SecureTunnelManager.Infrastructure.Mapping;
 
 internal static class EntityMapper
 {
+    public static JumpHost ToModel(JumpHostEntity entity) => new()
+    {
+        Id = entity.Id,
+        Name = entity.Name,
+        Host = entity.Host,
+        Port = entity.Port,
+        Username = entity.Username,
+        AuthMethod = (AuthMethod)entity.AuthMethod,
+        CredentialId = entity.CredentialId,
+        PrivateKeyPath = entity.PrivateKeyPath,
+        KeyPassphraseCredentialId = entity.KeyPassphraseCredentialId,
+        CreatedDate = entity.CreatedDate,
+        ModifiedDate = entity.ModifiedDate
+    };
+
+    public static JumpHostEntity ToEntity(JumpHost jumpHost) => new()
+    {
+        Id = jumpHost.Id,
+        Name = jumpHost.Name,
+        Host = jumpHost.Host,
+        Port = jumpHost.Port,
+        Username = jumpHost.Username,
+        AuthMethod = (int)jumpHost.AuthMethod,
+        CredentialId = jumpHost.CredentialId,
+        PrivateKeyPath = jumpHost.PrivateKeyPath,
+        KeyPassphraseCredentialId = jumpHost.KeyPassphraseCredentialId,
+        CreatedDate = jumpHost.CreatedDate,
+        ModifiedDate = jumpHost.ModifiedDate
+    };
+
+    public static void UpdateEntity(JumpHostEntity entity, JumpHost jumpHost)
+    {
+        entity.Name = jumpHost.Name;
+        entity.Host = jumpHost.Host;
+        entity.Port = jumpHost.Port;
+        entity.Username = jumpHost.Username;
+        entity.AuthMethod = (int)jumpHost.AuthMethod;
+        entity.CredentialId = jumpHost.CredentialId;
+        entity.PrivateKeyPath = jumpHost.PrivateKeyPath;
+        entity.KeyPassphraseCredentialId = jumpHost.KeyPassphraseCredentialId;
+    }
+
     public static Credential ToModel(CredentialEntity entity) => new()
     {
         Id = entity.Id,

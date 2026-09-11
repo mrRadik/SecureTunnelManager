@@ -241,25 +241,31 @@ public partial class TunnelEditorViewModel : ObservableObject
 {
     private readonly ITunnelProfileService _profileService;
     private readonly ICredentialService _credentialService;
+    private readonly IJumpHostService _jumpHostService;
     private readonly IVaultService _vaultService;
     private readonly ISshTunnelTestService _tunnelTestService;
     private readonly ILocalizationService _localization;
     private readonly INotificationService _notifications;
+    private readonly IDialogService _dialogService;
 
     public TunnelEditorViewModel(
         ITunnelProfileService profileService,
         ICredentialService credentialService,
+        IJumpHostService jumpHostService,
         IVaultService vaultService,
         ISshTunnelTestService tunnelTestService,
         ILocalizationService localization,
-        INotificationService notifications)
+        INotificationService notifications,
+        IDialogService dialogService)
     {
         _profileService = profileService;
         _credentialService = credentialService;
+        _jumpHostService = jumpHostService;
         _vaultService = vaultService;
         _tunnelTestService = tunnelTestService;
         _localization = localization;
         _notifications = notifications;
+        _dialogService = dialogService;
         _localization.LanguageChanged += (_, _) => RefreshLocalizedText();
     }
 
@@ -294,6 +300,7 @@ public partial class TunnelEditorViewModel : ObservableObject
     public ObservableCollection<string> ExistingGroups { get; } = new();
 
     public ObservableCollection<JumpHostHopViewModel> JumpHosts { get; } = new();
+    public ObservableCollection<JumpHost> SavedJumpHosts { get; } = new();
     public ObservableCollection<string> FlowJumpHosts { get; } = new();
 
     [ObservableProperty] private string _jumpHost = string.Empty;
@@ -426,6 +433,8 @@ public partial class TunnelEditorViewModel : ObservableObject
         foreach (var group in await _profileService.GetGroupNamesAsync().ConfigureAwait(true))
             ExistingGroups.Add(group);
 
+        await RefreshSavedJumpHostsAsync().ConfigureAwait(true);
+
         if (profile is null)
         {
             ProfileId = 0;
@@ -451,6 +460,7 @@ public partial class TunnelEditorViewModel : ObservableObject
         GroupName = profile.GroupName ?? string.Empty;
         profile.EnsureJumpHostsFromLegacy();
         ResetJumpHosts(profile.JumpHosts);
+        BindJumpHostLibrarySelections();
         TargetHost = profile.TargetHost;
         TargetPort = profile.TargetPort;
         TargetUsername = profile.TargetUsername;
@@ -784,30 +794,8 @@ public partial class TunnelEditorViewModel : ObservableObject
         try
         {
             var jumpModels = new List<JumpHostHop>();
-            for (var i = 0; i < JumpHosts.Count; i++)
-            {
-                var hopVm = JumpHosts[i];
-                if (hopVm.AuthMethod == AuthMethod.Password)
-                {
-                    hopVm.CredentialId = await UpsertPasswordCredentialAsync(
-                        hopVm.CredentialId,
-                        BuildCredentialName($"jump-{i + 1}"),
-                        hopVm.Username,
-                        hopVm.Password).ConfigureAwait(true);
-                    hopVm.KeyPassphraseCredentialId = null;
-                    hopVm.PrivateKeyPath = null;
-                }
-                else
-                {
-                    hopVm.CredentialId = null;
-                    hopVm.KeyPassphraseCredentialId = await UpsertOptionalSecretAsync(
-                        hopVm.KeyPassphraseCredentialId,
-                        BuildCredentialName($"jump-{i + 1}-passphrase"),
-                        hopVm.KeyPassphrase).ConfigureAwait(true);
-                }
-
+            foreach (var hopVm in JumpHosts)
                 jumpModels.Add(hopVm.ToModel());
-            }
 
             if (UseTargetSsh && TargetAuthMethod == AuthMethod.Password)
             {
@@ -1151,6 +1139,43 @@ public partial class TunnelEditorViewModel : ObservableObject
     }
 
     [RelayCommand]
+    private async Task AddNewJumpHostAsync(JumpHostHopViewModel? hop)
+    {
+        var created = await _dialogService.ShowJumpHostEditorAsync().ConfigureAwait(true);
+        if (created is null)
+            return;
+
+        await RefreshSavedJumpHostsAsync().ConfigureAwait(true);
+        if (hop is not null)
+        {
+            var saved = SavedJumpHosts.FirstOrDefault(j => j.Id == created.Id);
+            if (saved is not null)
+                hop.BindSavedJumpHost(saved);
+        }
+    }
+
+    private async Task RefreshSavedJumpHostsAsync()
+    {
+        SavedJumpHosts.Clear();
+        foreach (var jumpHost in await _jumpHostService.GetAllAsync().ConfigureAwait(true))
+            SavedJumpHosts.Add(jumpHost);
+
+        foreach (var hop in JumpHosts)
+            hop.RefreshSavedJumpHostFromList(SavedJumpHosts);
+    }
+
+    private void BindJumpHostLibrarySelections()
+    {
+        foreach (var hop in JumpHosts)
+        {
+            hop.TryBindPendingSavedJumpHost(SavedJumpHosts);
+            hop.RefreshSavedJumpHostFromList(SavedJumpHosts);
+            if (hop.SelectedSavedJumpHost is null && SavedJumpHosts.Count > 0)
+                hop.BindSavedJumpHost(SavedJumpHosts[0]);
+        }
+    }
+
+    [RelayCommand]
     private void RemoveJumpHost(JumpHostHopViewModel? hop)
     {
         if (hop is null || JumpHosts.Count <= 1)
@@ -1176,8 +1201,60 @@ public partial class TunnelEditorViewModel : ObservableObject
     private JumpHostHopViewModel CreateJumpHostViewModel(JumpHostHop hop, int index)
     {
         var vm = JumpHostHopViewModel.FromModel(hop, index, _localization);
+        vm.SetSavedJumpHostsLookup(() => SavedJumpHosts);
+        vm.SetCredentialPasswordLoader(LoadCredentialPasswordAsync);
         vm.FlowChanged += (_, _) => NotifyFlowDiagramChanged();
+        vm.EditSavedJumpHostHandler = EditSavedJumpHostAsync;
+        vm.DeleteSavedJumpHostHandler = DeleteSavedJumpHostFromHopAsync;
         return vm;
+    }
+
+    private async Task<string?> LoadCredentialPasswordAsync(int credentialId)
+    {
+        if (!_vaultService.IsUnlocked)
+            return null;
+
+        return await _credentialService.GetPasswordAsync(credentialId).ConfigureAwait(false);
+    }
+
+    private async Task DeleteSavedJumpHostFromHopAsync(JumpHostHopViewModel hop)
+    {
+        if (hop.SelectedSavedJumpHost is not JumpHost jumpHost)
+            return;
+
+        var refCounts = await _jumpHostService.GetReferenceCountsAsync().ConfigureAwait(true);
+        refCounts.TryGetValue(jumpHost.Id, out var refCount);
+
+        var message = refCount > 0
+            ? _localization.Format("JumpHosts.DeleteConfirmInUse", jumpHost.Name, refCount)
+            : _localization.Format("JumpHosts.DeleteConfirm", jumpHost.Name);
+
+        if (!_dialogService.ShowConfirm(message, _localization.Get("JumpHosts.DeleteTitle"), destructiveConfirm: true))
+            return;
+
+        try
+        {
+            await _jumpHostService.DeleteAsync(jumpHost.Id).ConfigureAwait(true);
+            await RefreshSavedJumpHostsAsync().ConfigureAwait(true);
+            hop.ClearLibrarySelection();
+
+            if (SavedJumpHosts.Count > 0)
+                hop.BindSavedJumpHost(SavedJumpHosts[0]);
+        }
+        catch (Exception ex)
+        {
+            _dialogService.ShowError(ex.Message);
+        }
+    }
+
+    private async Task<JumpHost?> EditSavedJumpHostAsync(JumpHost existing)
+    {
+        var updated = await _dialogService.ShowJumpHostEditorAsync(existing).ConfigureAwait(true);
+        if (updated is null)
+            return null;
+
+        await RefreshSavedJumpHostsAsync().ConfigureAwait(true);
+        return SavedJumpHosts.FirstOrDefault(j => j.Id == updated.Id) ?? updated;
     }
 
     private void UpdateJumpHostIndices()
@@ -1264,11 +1341,7 @@ public partial class TunnelEditorViewModel : ObservableObject
     private TunnelTestRequest BuildTestRequest() => new()
     {
         Profile = BuildDraftProfile(),
-        JumpAuthOverrides = JumpHosts.Select(h => new TunnelAuthOverride
-        {
-            Password = string.IsNullOrEmpty(h.Password) ? null : h.Password,
-            KeyPassphrase = string.IsNullOrEmpty(h.KeyPassphrase) ? null : h.KeyPassphrase
-        }).ToList(),
+        JumpAuthOverrides = JumpHosts.Select(_ => new TunnelAuthOverride()).ToList(),
         TargetAuthOverride = new TunnelAuthOverride
         {
             Password = string.IsNullOrEmpty(TargetPassword) ? null : TargetPassword,

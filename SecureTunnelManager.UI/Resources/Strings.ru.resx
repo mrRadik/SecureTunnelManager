@@ -55,7 +55,20 @@
   <data name="Nav.System" xml:space="preserve"><value>СИСТЕМА</value></data>
   <data name="Nav.Tunnels" xml:space="preserve"><value>Туннели</value></data>
   <data name="Nav.Rdp" xml:space="preserve"><value>RDP</value></data>
+  <data name="Nav.JumpHosts" xml:space="preserve"><value>Jump Hosts</value></data>
   <data name="Nav.Settings" xml:space="preserve"><value>Настройки</value></data>
+  <data name="JumpHosts.Title" xml:space="preserve"><value>Jump Hosts</value></data>
+  <data name="JumpHosts.Subtitle" xml:space="preserve"><value>Общие промежуточные серверы. Изменение здесь обновит учётные данные во всех туннелях и RDP, где используется этот хост.</value></data>
+  <data name="JumpHosts.AddButton" xml:space="preserve"><value>Добавить jump host</value></data>
+  <data name="JumpHosts.EditButton" xml:space="preserve"><value>Изменить</value></data>
+  <data name="JumpHosts.DeleteButton" xml:space="preserve"><value>Удалить</value></data>
+  <data name="JumpHosts.EmptyTitle" xml:space="preserve"><value>Jump host'ов пока нет</value></data>
+  <data name="JumpHosts.EmptySubtitle" xml:space="preserve"><value>Создайте jump host, чтобы использовать его в туннелях и RDP-подключениях.</value></data>
+  <data name="JumpHosts.NotUsed" xml:space="preserve"><value>Не используется</value></data>
+  <data name="JumpHosts.UsedByProfiles" xml:space="preserve"><value>Используется в {0} профиле(ах)</value></data>
+  <data name="JumpHosts.DeleteTitle" xml:space="preserve"><value>Удалить jump host</value></data>
+  <data name="JumpHosts.DeleteConfirm" xml:space="preserve"><value>Удалить jump host «{0}»?</value></data>
+  <data name="JumpHosts.DeleteConfirmInUse" xml:space="preserve"><value>Удалить jump host «{0}»? Он используется в {1} профиле(ах).</value></data>
   <data name="Nav.Share" xml:space="preserve"><value>Поделиться</value></data>
   <data name="Share.Title" xml:space="preserve"><value>Обмен соединениями</value></data>
   <data name="Share.Subtitle" xml:space="preserve"><value>Экспорт или импорт профилей туннелей и RDP. Пароли не включаются.</value></data>
@@ -328,11 +341,24 @@
   <data name="Editor.ForwardedService" xml:space="preserve"><value>Пробрасываемый сервис</value></data>
   <data name="Editor.RdpServer" xml:space="preserve"><value>RDP-сервер</value></data>
   <data name="Editor.AddJumpHost" xml:space="preserve"><value>+ Добавить промежуточный хост</value></data>
+  <data name="Editor.SavedJumpHost" xml:space="preserve"><value>Сохранённый jump host</value></data>
+  <data name="Editor.AddSavedJumpHost" xml:space="preserve"><value>Добавить…</value></data>
+  <data name="Editor.JumpHostCustom" xml:space="preserve"><value>Ввести вручную</value></data>
+  <data name="Editor.JumpHostUseExistingTitle" xml:space="preserve"><value>Использовать сохранённый</value></data>
+  <data name="Editor.JumpHostUseExistingHint" xml:space="preserve"><value>Выберите из сохранённых jump host.</value></data>
+  <data name="Editor.JumpHostAddNewTitle" xml:space="preserve"><value>Добавить новый</value></data>
+  <data name="Editor.JumpHostAddNewHint" xml:space="preserve"><value>Введите параметры подключения вручную.</value></data>
+  <data name="Editor.TogglePasswordVisibility" xml:space="preserve"><value>Показать или скрыть пароль</value></data>
+  <data name="JumpHost.Editor.NewTitle" xml:space="preserve"><value>Новый jump host</value></data>
+  <data name="JumpHost.Editor.EditTitle" xml:space="preserve"><value>Изменить jump host</value></data>
+  <data name="Editor.EditSavedJumpHost" xml:space="preserve"><value>Изменить…</value></data>
+  <data name="JumpHost.Editor.Intro" xml:space="preserve"><value>Сохраните jump host в библиотеке, чтобы использовать его в туннелях и RDP. Смена пароля применится ко всем профилям, где он выбран.</value></data>
   <data name="Editor.JumpHostsIntro" xml:space="preserve"><value>Промежуточные серверы между компьютером и целью. Добавьте ещё, если маршрут проходит через несколько хостов.</value></data>
   <data name="Editor.StepIndicator" xml:space="preserve"><value>Шаг {0} из {1}</value></data>
   <data name="Editor.JumpHostTitle" xml:space="preserve"><value>Промежуточный хост {0}</value></data>
   <data name="Editor.Validation.NameRequired" xml:space="preserve"><value>Укажите имя</value></data>
   <data name="Editor.Validation.JumpHostRequired" xml:space="preserve"><value>Добавьте хотя бы один промежуточный хост.</value></data>
+  <data name="Editor.Validation.JumpHostSelectRequired" xml:space="preserve"><value>Выберите jump host из списка.</value></data>
   <data name="Editor.Validation.HostRequired" xml:space="preserve"><value>Укажите хост</value></data>
   <data name="Editor.Validation.InvalidIpAddress" xml:space="preserve"><value>Введите полный адрес IPv4 (четыре октета) или корректный адрес IPv6</value></data>
   <data name="Editor.Validation.InvalidHost" xml:space="preserve"><value>Введите корректный IP-адрес или имя хоста</value></data>

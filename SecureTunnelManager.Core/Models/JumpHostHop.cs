@@ -5,6 +5,9 @@ namespace SecureTunnelManager.Core.Models;
 /// </summary>
 public class JumpHostHop
 {
+    /// <summary>When set, auth and connection settings are loaded from the jump host library.</summary>
+    public int? JumpHostEntityId { get; set; }
+
     public string Host { get; set; } = string.Empty;
     public int Port { get; set; } = 22;
     public string Username { get; set; } = string.Empty;

@@ -53,6 +53,16 @@ public class DialogService : IDialogService
         return await ShowModalAsync(vm, window).ConfigureAwait(true);
     }
 
+    public async Task<JumpHost?> ShowJumpHostEditorAsync(JumpHost? existing = null)
+    {
+        var vm = _serviceProvider.GetRequiredService<JumpHostEditorViewModel>();
+        vm.Initialize(existing);
+        var window = new JumpHostEditorWindow { DataContext = vm };
+        PrepareDialog(window);
+        var ok = await ShowModalAsync(vm, window).ConfigureAwait(true);
+        return ok ? vm.SavedJumpHost : null;
+    }
+
     public Task<string?> PickRdpGroupAsync(
         string title,
         string message,
@@ -142,6 +152,9 @@ public class DialogService : IDialogService
         => ShowModalAsync(window, () => vm.DialogResult, h => vm.RequestClose += h);
 
     private static Task<bool> ShowModalAsync(RdpEditorViewModel vm, RdpEditorWindow window)
+        => ShowModalAsync(window, () => vm.DialogResult, h => vm.RequestClose += h);
+
+    private static Task<bool> ShowModalAsync(JumpHostEditorViewModel vm, JumpHostEditorWindow window)
         => ShowModalAsync(window, () => vm.DialogResult, h => vm.RequestClose += h);
 
     private static Task<bool> ShowModalAsync(

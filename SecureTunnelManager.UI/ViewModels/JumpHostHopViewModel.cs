@@ -1,7 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using SecureTunnelManager.Core.Models;
-using SecureTunnelManager.Core.Validation;
 using SecureTunnelManager.UI.Services;
 
 namespace SecureTunnelManager.UI.ViewModels;
@@ -19,149 +18,269 @@ public partial class JumpHostHopViewModel : ObservableObject
     [ObservableProperty] private int _port = 22;
     [ObservableProperty] private string _username = string.Empty;
     [ObservableProperty] private AuthMethod _authMethod = AuthMethod.Password;
-    [ObservableProperty] private int? _credentialId;
-    [ObservableProperty] private string? _privateKeyPath;
-    [ObservableProperty] private int? _keyPassphraseCredentialId;
-
-    [ObservableProperty] private string _hostError = string.Empty;
-    [ObservableProperty] private string _usernameError = string.Empty;
-    [ObservableProperty] private string _credentialError = string.Empty;
-    [ObservableProperty] private string _privateKeyError = string.Empty;
-
-    public string Password { get; set; } = string.Empty;
-    public string KeyPassphrase { get; set; } = string.Empty;
+    [ObservableProperty] private JumpHost? _selectedSavedJumpHost;
+    [ObservableProperty] private int? _selectedSavedJumpHostId;
+    [ObservableProperty] private bool _isLibraryPasswordRevealed;
+    [ObservableProperty] private string _libraryPassword = string.Empty;
+    [ObservableProperty] private string _libraryError = string.Empty;
 
     [ObservableProperty] private int _index;
     public string Title => _localization.Format("Editor.JumpHostTitle", Index + 1);
 
     [ObservableProperty] private bool _canRemove = true;
 
-    partial void OnIndexChanged(int value) => OnPropertyChanged(nameof(Title));
+    public bool HasLibraryPassword => !string.IsNullOrEmpty(LibraryPassword);
+    public bool CanEditLibraryHost => SelectedSavedJumpHost is not null;
+    public bool CanDeleteLibraryHost => CanEditLibraryHost;
 
-    public bool IsPasswordAuth
-    {
-        get => AuthMethod == AuthMethod.Password;
-        set { if (value) AuthMethod = AuthMethod.Password; }
-    }
+    public string HostSummary => SelectedSavedJumpHost is null
+        ? "—"
+        : SelectedSavedJumpHost.Port == 22
+            ? SelectedSavedJumpHost.Host
+            : $"{SelectedSavedJumpHost.Host}:{SelectedSavedJumpHost.Port}";
 
-    public bool IsPrivateKeyAuth
-    {
-        get => AuthMethod == AuthMethod.PrivateKey;
-        set
-        {
-            if (value)
-                AuthMethod = AuthMethod.PrivateKey;
-            else if (AuthMethod == AuthMethod.PrivateKey)
-                AuthMethod = AuthMethod.Password;
-        }
-    }
+    public string UserSummary => SelectedSavedJumpHost?.Username ?? "—";
 
-    partial void OnHostChanged(string value)
-    {
-        HostError = string.Empty;
-        FlowChanged?.Invoke(this, EventArgs.Empty);
-    }
+    public string AuthSummary => SelectedSavedJumpHost?.AuthMethod == AuthMethod.PrivateKey
+        ? _localization.Get("Editor.CertificateKeyFile")
+        : _localization.Get("Editor.Password");
 
-    partial void OnPortChanged(int value) => FlowChanged?.Invoke(this, EventArgs.Empty);
+    public string LibraryPasswordDisplay => !HasLibraryPassword
+        ? "—"
+        : IsLibraryPasswordRevealed
+            ? LibraryPassword
+            : "••••••••";
 
-    partial void OnUsernameChanged(string value)
-    {
-        UsernameError = string.Empty;
-        FlowChanged?.Invoke(this, EventArgs.Empty);
-    }
+    public string LibraryKeyFileSummary => string.IsNullOrWhiteSpace(SelectedSavedJumpHost?.PrivateKeyPath)
+        ? "—"
+        : SelectedSavedJumpHost!.PrivateKeyPath!;
 
-    partial void OnAuthMethodChanged(AuthMethod value)
-    {
-        OnPropertyChanged(nameof(IsPasswordAuth));
-        OnPropertyChanged(nameof(IsPrivateKeyAuth));
-        FlowChanged?.Invoke(this, EventArgs.Empty);
-    }
+    public bool ShowLibraryPasswordRow =>
+        SelectedSavedJumpHost?.AuthMethod == AuthMethod.Password;
 
-    public string FlowDisplay => FormatEndpoint(Username, Host, Port, Title);
+    public bool ShowLibraryKeyRow =>
+        SelectedSavedJumpHost?.AuthMethod == AuthMethod.PrivateKey;
 
     public event EventHandler? FlowChanged;
+
+    public int? PendingJumpHostEntityId { get; private set; }
+
+    private Func<IEnumerable<JumpHost>>? _savedJumpHostsLookup;
+    private Func<int, Task<string?>>? _credentialPasswordLoader;
+
+    public Func<JumpHost, Task<JumpHost?>>? EditSavedJumpHostHandler { get; set; }
+    public Func<JumpHostHopViewModel, Task>? DeleteSavedJumpHostHandler { get; set; }
+
+    public void SetSavedJumpHostsLookup(Func<IEnumerable<JumpHost>> lookup) =>
+        _savedJumpHostsLookup = lookup;
+
+    public void SetCredentialPasswordLoader(Func<int, Task<string?>> loader) =>
+        _credentialPasswordLoader = loader;
+
+    partial void OnIndexChanged(int value) => OnPropertyChanged(nameof(Title));
+
+    partial void OnSelectedSavedJumpHostChanged(JumpHost? value)
+    {
+        LibraryError = string.Empty;
+        if (SelectedSavedJumpHostId != value?.Id)
+            SelectedSavedJumpHostId = value?.Id;
+
+        if (value is not null)
+            ApplyFromJumpHost(value);
+
+        NotifySummaryPropertiesChanged();
+        OnPropertyChanged(nameof(CanEditLibraryHost));
+        OnPropertyChanged(nameof(CanDeleteLibraryHost));
+        _ = LoadLibraryPasswordAsync();
+        FlowChanged?.Invoke(this, EventArgs.Empty);
+    }
+
+    partial void OnSelectedSavedJumpHostIdChanged(int? value)
+    {
+        if (SelectedSavedJumpHost?.Id == value)
+            return;
+
+        if (value is null or <= 0)
+        {
+            if (SelectedSavedJumpHost is not null)
+                SelectedSavedJumpHost = null;
+            return;
+        }
+
+        var match = _savedJumpHostsLookup?.Invoke()?.FirstOrDefault(j => j.Id == value);
+        if (match is not null)
+            SelectedSavedJumpHost = match;
+    }
+
+    partial void OnIsLibraryPasswordRevealedChanged(bool value) =>
+        OnPropertyChanged(nameof(LibraryPasswordDisplay));
+
+    public string FlowDisplay
+    {
+        get
+        {
+            if (SelectedSavedJumpHost is not null)
+                return FormatEndpoint(
+                    SelectedSavedJumpHost.Username,
+                    SelectedSavedJumpHost.Host,
+                    SelectedSavedJumpHost.Port,
+                    SelectedSavedJumpHost.Name);
+
+            return FormatEndpoint(Username, Host, Port, Title);
+        }
+    }
 
     public static JumpHostHopViewModel FromModel(
         JumpHostHop hop,
         int index,
-        ILocalizationService localization) => new(localization)
+        ILocalizationService localization)
     {
-        Index = index,
-        Host = hop.Host,
-        Port = hop.Port,
-        Username = hop.Username,
-        AuthMethod = hop.AuthMethod,
-        CredentialId = hop.CredentialId,
-        PrivateKeyPath = hop.PrivateKeyPath,
-        KeyPassphraseCredentialId = hop.KeyPassphraseCredentialId
-    };
+        return new JumpHostHopViewModel(localization)
+        {
+            Index = index,
+            Host = hop.Host,
+            Port = hop.Port,
+            Username = hop.Username,
+            AuthMethod = hop.AuthMethod,
+            PendingJumpHostEntityId = hop.JumpHostEntityId
+        };
+    }
 
-    public JumpHostHop ToModel() => new()
+    public void BindSavedJumpHost(JumpHost jumpHost)
     {
-        Host = Host.Trim(),
-        Port = Port,
-        Username = Username.Trim(),
-        AuthMethod = AuthMethod,
-        CredentialId = CredentialId,
-        PrivateKeyPath = PrivateKeyPath,
-        KeyPassphraseCredentialId = KeyPassphraseCredentialId
-    };
+        PendingJumpHostEntityId = null;
+        SelectedSavedJumpHost = jumpHost;
+        SelectedSavedJumpHostId = jumpHost.Id;
+    }
 
-    public bool Validate(bool isEditMode)
+    public void TryBindPendingSavedJumpHost(IEnumerable<JumpHost> savedJumpHosts)
     {
-        var valid = true;
-        HostError = string.Empty;
-        UsernameError = string.Empty;
-        CredentialError = string.Empty;
-        PrivateKeyError = string.Empty;
+        var id = PendingJumpHostEntityId ?? SelectedSavedJumpHostId;
+        if (id is not int entityId || entityId <= 0)
+            return;
 
-        if (string.IsNullOrWhiteSpace(Host))
-        {
-            HostError = _localization.Get("Editor.Validation.HostRequired");
-            valid = false;
-        }
-        else if (!NetworkAddressValidator.IsValidHostOrIp(Host))
-        {
-            HostError = _localization.Get(NetworkAddressValidator.IsIpFormatAttempt(Host)
-                ? "Editor.Validation.InvalidIpAddress"
-                : "Editor.Validation.InvalidHost");
-            valid = false;
-        }
+        var match = savedJumpHosts.FirstOrDefault(j => j.Id == entityId);
+        if (match is not null)
+            BindSavedJumpHost(match);
+    }
 
-        if (string.IsNullOrWhiteSpace(Username))
-        {
-            UsernameError = _localization.Get("Editor.Validation.UsernameRequired");
-            valid = false;
-        }
+    public void RefreshSavedJumpHostFromList(IEnumerable<JumpHost> savedJumpHosts)
+    {
+        var id = SelectedSavedJumpHostId ?? PendingJumpHostEntityId;
+        if (id is not int entityId || entityId <= 0)
+            return;
 
-        if (AuthMethod == AuthMethod.Password && string.IsNullOrEmpty(Password) && !CredentialId.HasValue)
-        {
-            CredentialError = _localization.Get("Editor.Validation.PasswordRequired");
-            valid = false;
-        }
+        var match = savedJumpHosts.FirstOrDefault(j => j.Id == entityId);
+        if (match is not null && !ReferenceEquals(SelectedSavedJumpHost, match))
+            BindSavedJumpHost(match);
+    }
 
-        if (AuthMethod == AuthMethod.PrivateKey && string.IsNullOrWhiteSpace(PrivateKeyPath))
-        {
-            PrivateKeyError = _localization.Get("Editor.Validation.PrivateKeyRequired");
-            valid = false;
-        }
+    public void ClearLibrarySelection()
+    {
+        PendingJumpHostEntityId = null;
+        SelectedSavedJumpHostId = null;
+        SelectedSavedJumpHost = null;
+        LibraryPassword = string.Empty;
+        IsLibraryPasswordRevealed = false;
+        NotifySummaryPropertiesChanged();
+    }
 
-        return valid;
+    public void ApplyFromJumpHost(JumpHost jumpHost)
+    {
+        Host = jumpHost.Host;
+        Port = jumpHost.Port;
+        Username = jumpHost.Username;
+        AuthMethod = jumpHost.AuthMethod;
+        OnPropertyChanged(nameof(FlowDisplay));
     }
 
     [RelayCommand]
-    private void BrowseKey()
+    private async Task EditSavedJumpHostAsync()
     {
-        var dialog = new Microsoft.Win32.OpenFileDialog
-        {
-            Filter = _localization.Get("Editor.PrivateKeyFilter")
-        };
-
-        if (dialog.ShowDialog() != true)
+        if (SelectedSavedJumpHost is null || EditSavedJumpHostHandler is null)
             return;
 
-        PrivateKeyPath = dialog.FileName;
-        PrivateKeyError = string.Empty;
+        var updated = await EditSavedJumpHostHandler(SelectedSavedJumpHost).ConfigureAwait(true);
+        if (updated is not null)
+            BindSavedJumpHost(updated);
+    }
+
+    [RelayCommand]
+    private async Task DeleteSavedJumpHostAsync()
+    {
+        if (SelectedSavedJumpHost is null || DeleteSavedJumpHostHandler is null)
+            return;
+
+        await DeleteSavedJumpHostHandler(this).ConfigureAwait(true);
+    }
+
+    [RelayCommand]
+    private void ToggleLibraryPasswordReveal() =>
+        IsLibraryPasswordRevealed = !IsLibraryPasswordRevealed;
+
+    public JumpHostHop ToModel()
+    {
+        if (SelectedSavedJumpHost is null)
+            throw new InvalidOperationException("Jump host must be selected from the library.");
+
+        return new JumpHostHop
+        {
+            JumpHostEntityId = SelectedSavedJumpHost.Id,
+            Host = SelectedSavedJumpHost.Host,
+            Port = SelectedSavedJumpHost.Port,
+            Username = SelectedSavedJumpHost.Username,
+            AuthMethod = SelectedSavedJumpHost.AuthMethod
+        };
+    }
+
+    public bool Validate(bool isEditMode)
+    {
+        LibraryError = string.Empty;
+
+        if (SelectedSavedJumpHost is null || SelectedSavedJumpHost.Id <= 0)
+        {
+            LibraryError = _localization.Get("Editor.Validation.JumpHostSelectRequired");
+            return false;
+        }
+
+        return true;
+    }
+
+    public void RefreshLocalizedText()
+    {
+        OnPropertyChanged(nameof(Title));
+        OnPropertyChanged(nameof(FlowDisplay));
+        OnPropertyChanged(nameof(AuthSummary));
+        NotifySummaryPropertiesChanged();
+    }
+
+    private async Task LoadLibraryPasswordAsync()
+    {
+        LibraryPassword = string.Empty;
+        IsLibraryPasswordRevealed = false;
+
+        if (SelectedSavedJumpHost?.AuthMethod != AuthMethod.Password
+            || SelectedSavedJumpHost.CredentialId is not int credentialId
+            || _credentialPasswordLoader is null)
+        {
+            NotifySummaryPropertiesChanged();
+            return;
+        }
+
+        LibraryPassword = await _credentialPasswordLoader(credentialId).ConfigureAwait(true) ?? string.Empty;
+        NotifySummaryPropertiesChanged();
+    }
+
+    private void NotifySummaryPropertiesChanged()
+    {
+        OnPropertyChanged(nameof(HostSummary));
+        OnPropertyChanged(nameof(UserSummary));
+        OnPropertyChanged(nameof(AuthSummary));
+        OnPropertyChanged(nameof(LibraryPasswordDisplay));
+        OnPropertyChanged(nameof(LibraryKeyFileSummary));
+        OnPropertyChanged(nameof(HasLibraryPassword));
+        OnPropertyChanged(nameof(ShowLibraryPasswordRow));
+        OnPropertyChanged(nameof(ShowLibraryKeyRow));
     }
 
     private static string FormatEndpoint(string username, string host, int port, string placeholder)
@@ -171,11 +290,5 @@ public partial class JumpHostHopViewModel : ObservableObject
 
         var label = string.IsNullOrWhiteSpace(username) ? host : $"{username}@{host}";
         return port == 22 ? label : $"{label}:{port}";
-    }
-
-    public void RefreshLocalizedText()
-    {
-        OnPropertyChanged(nameof(Title));
-        OnPropertyChanged(nameof(FlowDisplay));
     }
 }

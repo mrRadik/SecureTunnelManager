@@ -1,13 +1,59 @@
 ﻿<UserControl x:Class="SecureTunnelManager.UI.Views.Controls.JumpHostHopEditor"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:vm="clr-namespace:SecureTunnelManager.UI.ViewModels"
              xmlns:loc="clr-namespace:SecureTunnelManager.UI.Localization">
 
-    <StackPanel Margin="0,0,0,24">
-        <Grid Margin="0,0,0,12">
+    <UserControl.Resources>
+        <Style x:Key="StmHopActionButton" TargetType="Button" BasedOn="{StaticResource StmIconButton}">
+            <Setter Property="Width" Value="28"/>
+            <Setter Property="Height" Value="28"/>
+            <Setter Property="MinWidth" Value="28"/>
+            <Setter Property="MinHeight" Value="28"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Margin" Value="0"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="Normal"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+        </Style>
+
+        <Style x:Key="StmHopSummaryLabel" TargetType="TextBlock" BasedOn="{StaticResource StmFontBase}">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Foreground" Value="{DynamicResource StmTextSecondaryBrush}"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Width" Value="88"/>
+            <Setter Property="Margin" Value="8,0,8,0"/>
+        </Style>
+
+        <Style x:Key="StmHopSummaryValue" TargetType="TextBlock" BasedOn="{StaticResource StmFontBase}">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+        </Style>
+
+        <Style x:Key="StmHopSummaryIcon" TargetType="Border" BasedOn="{StaticResource StmCardIconHost}">
+            <Setter Property="Width" Value="20"/>
+            <Setter Property="Height" Value="20"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+        </Style>
+
+        <Style x:Key="StmHopSummaryCard" TargetType="Border">
+            <Setter Property="Background" Value="{DynamicResource StmCardBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource StmBorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="{StaticResource StmCardCornerRadius}"/>
+            <Setter Property="Padding" Value="10,8"/>
+            <Setter Property="Margin" Value="0"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+        </Style>
+    </UserControl.Resources>
+
+    <StackPanel Margin="0,0,0,12">
+        <Grid Margin="0,0,0,8">
             <TextBlock Text="{Binding Title}"
-                       FontSize="15"
+                       FontSize="14"
                        FontWeight="SemiBold"
                        VerticalAlignment="Center"/>
             <Button Content="{loc:Loc Common.Remove}"
@@ -15,76 +61,144 @@
                     CommandParameter="{Binding}"
                     Style="{DynamicResource StmGhostButton}"
                     HorizontalAlignment="Right"
-                    Padding="0,4"
-                    FontSize="13"
+                    Padding="0,2"
+                    FontSize="12"
                     Visibility="{Binding CanRemove, Converter={StaticResource BooleanToVisibilityConverter}}"/>
         </Grid>
 
-        <Grid Margin="0,0,0,4">
+        <Grid Margin="0,0,0,8" Height="32">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="120"/>
+                <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <StackPanel Grid.Column="0" Margin="0,0,12,0">
-                <TextBlock Text="{loc:Loc Editor.HostAddress}" Style="{DynamicResource StmLabel}"/>
-                <TextBox Text="{Binding Host, UpdateSourceTrigger=PropertyChanged}" Style="{DynamicResource StmInput}"/>
-                <TextBlock Text="{Binding HostError}" Style="{DynamicResource StmValidationError}"
-                           Visibility="{Binding HostError, Converter={StaticResource StringNotEmptyToVisibilityConverter}}"/>
-            </StackPanel>
-            <StackPanel Grid.Column="1">
-                <TextBlock Text="{loc:Loc Editor.Port}" Style="{DynamicResource StmLabel}"/>
-                <TextBox Text="{Binding Port, UpdateSourceTrigger=PropertyChanged}" Style="{DynamicResource StmInput}"/>
-            </StackPanel>
+            <ComboBox Grid.Column="0"
+                      ItemsSource="{Binding DataContext.SavedJumpHosts, RelativeSource={RelativeSource AncestorType=Window}}"
+                      SelectedValue="{Binding SelectedSavedJumpHostId, Mode=TwoWay}"
+                      SelectedValuePath="Id"
+                      Style="{DynamicResource StmComboBox}"
+                      Height="32"
+                      Margin="0"
+                      FontSize="13"
+                      VerticalAlignment="Center">
+                <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Name}"/>
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+            </ComboBox>
+            <UniformGrid Grid.Column="1"
+                         Rows="1"
+                         Columns="3"
+                         Width="88"
+                         Height="32"
+                         Margin="6,0,0,0"
+                         VerticalAlignment="Center">
+                <Button Command="{Binding EditSavedJumpHostCommand}"
+                        Style="{StaticResource StmHopActionButton}"
+                        ToolTip="{loc:Loc JumpHosts.EditButton}"
+                        IsEnabled="{Binding CanEditLibraryHost}"
+                        Content="&#xE70F;"/>
+                <Button Command="{Binding DataContext.AddNewJumpHostCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                        CommandParameter="{Binding}"
+                        Style="{StaticResource StmHopActionButton}"
+                        ToolTip="{loc:Loc JumpHosts.AddButton}"
+                        Content="&#xE710;"/>
+                <Button Command="{Binding DeleteSavedJumpHostCommand}"
+                        Style="{StaticResource StmHopActionButton}"
+                        ToolTip="{loc:Loc JumpHosts.DeleteButton}"
+                        IsEnabled="{Binding CanDeleteLibraryHost}"
+                        Foreground="{DynamicResource StmDestructiveBrush}"
+                        Content="&#xE74D;"/>
+            </UniformGrid>
         </Grid>
 
-        <TextBlock Text="{loc:Loc Editor.SignInName}" Style="{DynamicResource StmLabel}"/>
-        <TextBox Text="{Binding Username, UpdateSourceTrigger=PropertyChanged}" Style="{DynamicResource StmInput}"/>
-        <TextBlock Text="{Binding UsernameError}" Style="{DynamicResource StmValidationError}"
-                   Visibility="{Binding UsernameError, Converter={StaticResource StringNotEmptyToVisibilityConverter}}"/>
+        <TextBlock Text="{Binding LibraryError}"
+                   Style="{DynamicResource StmValidationError}"
+                   Margin="0,0,0,6"
+                   Visibility="{Binding LibraryError, Converter={StaticResource StringNotEmptyToVisibilityConverter}}"/>
 
-        <TextBlock Text="{loc:Loc Editor.SignInMethod}" Style="{DynamicResource StmLabel}" Margin="0,16,0,8"/>
-        <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
-            <RadioButton Content="{loc:Loc Editor.Password}"
-                         GroupName="{Binding Title}"
-                         Style="{DynamicResource StmRadioButton}"
-                         IsChecked="{Binding IsPasswordAuth, Mode=TwoWay}"/>
-            <RadioButton Content="{loc:Loc Editor.CertificateKeyFile}"
-                         GroupName="{Binding Title}"
-                         Style="{DynamicResource StmRadioButton}"
-                         IsChecked="{Binding IsPrivateKeyAuth, Mode=TwoWay}"/>
-        </StackPanel>
-
-        <StackPanel Visibility="{Binding IsPasswordAuth, Converter={StaticResource BoolToVisibilityConverter}}">
-            <TextBlock Text="{loc:Loc Editor.Password}" Style="{DynamicResource StmLabel}"/>
-            <PasswordBox x:Name="PasswordBox"
-                         Style="{DynamicResource StmInputPassword}"
-                         PasswordChanged="OnPasswordChanged"/>
-            <TextBlock Text="{loc:Loc Editor.KeepPasswordHint}"
-                       Style="{DynamicResource StmPageSubtitle}"
-                       Visibility="{Binding DataContext.IsEditMode, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-            <TextBlock Text="{Binding CredentialError}" Style="{DynamicResource StmValidationError}"
-                       Visibility="{Binding CredentialError, Converter={StaticResource StringNotEmptyToVisibilityConverter}}"/>
-        </StackPanel>
-
-        <StackPanel Visibility="{Binding IsPrivateKeyAuth, Converter={StaticResource BoolToVisibilityConverter}}">
-            <TextBlock Text="{loc:Loc Editor.KeyFile}" Style="{DynamicResource StmLabel}"/>
+        <Border Style="{StaticResource StmHopSummaryCard}"
+                Visibility="{Binding CanEditLibraryHost, Converter={StaticResource BooleanToVisibilityConverter}}">
             <Grid>
                 <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="28"/>
+                    <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <TextBox Grid.Column="0" Text="{Binding PrivateKeyPath, UpdateSourceTrigger=PropertyChanged}" Style="{DynamicResource StmInput}"/>
-                <Button Grid.Column="1" Content="{loc:Loc Share.Browse}" Command="{Binding BrowseKeyCommand}" Style="{DynamicResource StmSecondaryButton}" Margin="8,0,0,4" MinWidth="90"/>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource StmHopSummaryIcon}">
+                    <TextBlock Text="&#xE968;" Style="{DynamicResource StmCardIconGlyph}" FontSize="10"/>
+                </Border>
+                <TextBlock Grid.Row="0" Grid.Column="1" Text="{loc:Loc Editor.HostAddress}" Style="{StaticResource StmHopSummaryLabel}"/>
+                <TextBlock Grid.Row="0" Grid.Column="2" Text="{Binding HostSummary}" Style="{StaticResource StmHopSummaryValue}"/>
+
+                <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource StmHopSummaryIcon}">
+                    <TextBlock Text="&#xE77B;" Style="{DynamicResource StmCardIconGlyph}" FontSize="10"/>
+                </Border>
+                <TextBlock Grid.Row="1" Grid.Column="1" Text="{loc:Loc Editor.SignInName}" Style="{StaticResource StmHopSummaryLabel}"/>
+                <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding UserSummary}" Style="{StaticResource StmHopSummaryValue}"/>
+
+                <Border Grid.Row="2" Grid.Column="0" Style="{StaticResource StmHopSummaryIcon}">
+                    <TextBlock Text="&#xE192;" Style="{DynamicResource StmCardIconGlyph}" FontSize="10"/>
+                </Border>
+                <TextBlock Grid.Row="2" Grid.Column="1" Text="{loc:Loc Editor.SignInMethod}" Style="{StaticResource StmHopSummaryLabel}"/>
+                <TextBlock Grid.Row="2" Grid.Column="2" Text="{Binding AuthSummary}" Style="{StaticResource StmHopSummaryValue}"/>
+
+                <Border Grid.Row="3"
+                        Grid.Column="0"
+                        Style="{StaticResource StmHopSummaryIcon}"
+                        Visibility="{Binding ShowLibraryPasswordRow, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <TextBlock Text="&#xE72E;" Style="{DynamicResource StmCardIconGlyph}" FontSize="10"/>
+                </Border>
+                <TextBlock Grid.Row="3"
+                           Grid.Column="1"
+                           Text="{loc:Loc Editor.Password}"
+                           Style="{StaticResource StmHopSummaryLabel}"
+                           Visibility="{Binding ShowLibraryPasswordRow, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                <TextBlock Grid.Row="3"
+                           Grid.Column="2"
+                           Text="{Binding LibraryPasswordDisplay}"
+                           Style="{StaticResource StmHopSummaryValue}"
+                           Visibility="{Binding ShowLibraryPasswordRow, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                <Button Grid.Row="3"
+                        Grid.Column="3"
+                        Command="{Binding ToggleLibraryPasswordRevealCommand}"
+                        Style="{StaticResource StmHopActionButton}"
+                        ToolTip="{loc:Loc Editor.TogglePasswordVisibility}"
+                        Visibility="{Binding ShowLibraryPasswordRow, Converter={StaticResource BooleanToVisibilityConverter}}"
+                        Content="&#xED1A;"/>
+
+                <Border Grid.Row="4"
+                        Grid.Column="0"
+                        Style="{StaticResource StmHopSummaryIcon}"
+                        Visibility="{Binding ShowLibraryKeyRow, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <TextBlock Text="&#xE8B7;" Style="{DynamicResource StmCardIconGlyph}" FontSize="10"/>
+                </Border>
+                <TextBlock Grid.Row="4"
+                           Grid.Column="1"
+                           Text="{loc:Loc Editor.KeyFile}"
+                           Style="{StaticResource StmHopSummaryLabel}"
+                           Visibility="{Binding ShowLibraryKeyRow, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                <TextBlock Grid.Row="4"
+                           Grid.Column="2"
+                           Text="{Binding LibraryKeyFileSummary}"
+                           Style="{StaticResource StmHopSummaryValue}"
+                           ToolTip="{Binding LibraryKeyFileSummary}"
+                           Visibility="{Binding ShowLibraryKeyRow, Converter={StaticResource BooleanToVisibilityConverter}}"/>
             </Grid>
-            <TextBlock Text="{Binding PrivateKeyError}" Style="{DynamicResource StmValidationError}"
-                       Visibility="{Binding PrivateKeyError, Converter={StaticResource StringNotEmptyToVisibilityConverter}}"/>
-            <TextBlock Text="{loc:Loc Editor.KeyPassphraseOptional}" Style="{DynamicResource StmLabel}"/>
-            <PasswordBox x:Name="KeyPassphraseBox" Style="{DynamicResource StmInputPassword}" PasswordChanged="OnKeyPassphraseChanged"/>
-        </StackPanel>
+        </Border>
 
         <Border Height="1"
                 Background="{DynamicResource StmBorderBrush}"
-                Opacity="0.55"
-                Margin="0,8,0,0"/>
+                Opacity="0.45"
+                Margin="0,4,0,0"/>
     </StackPanel>
 </UserControl>

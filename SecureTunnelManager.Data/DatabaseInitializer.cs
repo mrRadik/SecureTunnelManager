@@ -18,6 +18,34 @@ public static class DatabaseInitializer
         await EnsureColumnAsync(db, "RdpTargets", "GroupName", "TEXT", cancellationToken).ConfigureAwait(false);
         await EnsureColumnAsync(db, "TunnelProfiles", "IconKey", "TEXT NOT NULL DEFAULT 'tunnel'", cancellationToken).ConfigureAwait(false);
         await EnsureColumnAsync(db, "RdpTargets", "IconKey", "TEXT NOT NULL DEFAULT 'rdp'", cancellationToken).ConfigureAwait(false);
+        await EnsureJumpHostsTableAsync(db, cancellationToken).ConfigureAwait(false);
+    }
+
+    private static async Task EnsureJumpHostsTableAsync(AppDbContext db, CancellationToken cancellationToken)
+    {
+        await db.Database.ExecuteSqlRawAsync(
+            """
+            CREATE TABLE IF NOT EXISTS "JumpHosts" (
+                "Id" INTEGER NOT NULL CONSTRAINT "PK_JumpHosts" PRIMARY KEY AUTOINCREMENT,
+                "Name" TEXT NOT NULL,
+                "Host" TEXT NOT NULL,
+                "Port" INTEGER NOT NULL,
+                "Username" TEXT NOT NULL,
+                "AuthMethod" INTEGER NOT NULL,
+                "CredentialId" INTEGER NULL,
+                "PrivateKeyPath" TEXT NULL,
+                "KeyPassphraseCredentialId" INTEGER NULL,
+                "CreatedDate" TEXT NOT NULL,
+                "ModifiedDate" TEXT NOT NULL
+            );
+            """,
+            cancellationToken).ConfigureAwait(false);
+
+        await db.Database.ExecuteSqlRawAsync(
+            """
+            CREATE UNIQUE INDEX IF NOT EXISTS "IX_JumpHosts_Name" ON "JumpHosts" ("Name");
+            """,
+            cancellationToken).ConfigureAwait(false);
     }
 
     private static async Task EnsureRdpTargetsTableAsync(AppDbContext db, CancellationToken cancellationToken)

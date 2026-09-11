@@ -29,6 +29,7 @@ internal sealed class SshTunnelConnection : IDisposable
     public async Task ConnectAsync(
         TunnelProfile profile,
         ICredentialService credentialService,
+        IJumpHostService jumpHostService,
         CancellationToken cancellationToken)
     {
         await StopInternalAsync().ConfigureAwait(false);
@@ -38,15 +39,18 @@ internal sealed class SshTunnelConnection : IDisposable
             _hopChain = await SshHopChain.ConnectAsync(
                 profile,
                 credentialService,
+                jumpHostService,
                 _resilience,
                 cancellationToken).ConfigureAwait(false);
             _forwardingClient = _hopChain.TargetClient!;
         }
         else
         {
+            profile.EnsureJumpHostsFromLegacy();
             _hopChain = await SshHopChain.ConnectHopsAsync(
                 profile.GetEffectiveJumpHosts(),
                 credentialService,
+                jumpHostService,
                 _resilience,
                 cancellationToken).ConfigureAwait(false);
             _forwardingClient = _hopChain.LastHopClient;

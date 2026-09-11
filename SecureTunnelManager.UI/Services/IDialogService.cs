@@ -9,6 +9,7 @@ public interface IDialogService
     Task<bool> ShowVaultSetupAsync();
     Task<bool> ShowTunnelEditorAsync(TunnelProfile? profile = null);
     Task<bool> ShowRdpEditorAsync(RdpTarget? target = null);
+    Task<JumpHost?> ShowJumpHostEditorAsync(JumpHost? existing = null);
     Task<string?> PickRdpGroupAsync(
         string title,
         string message,

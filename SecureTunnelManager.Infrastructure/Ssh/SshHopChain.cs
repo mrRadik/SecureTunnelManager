@@ -22,13 +22,15 @@ internal sealed class SshHopChain : IDisposable
     public static Task<SshHopChain> ConnectAsync(
         TunnelProfile profile,
         ICredentialService credentialService,
+        IJumpHostService jumpHostService,
         SshResiliencePolicyProvider resilience,
         CancellationToken cancellationToken) =>
-        ConnectAsync(profile, credentialService, resilience, jumpAuthOverrides: null, targetAuthOverride: null, cancellationToken);
+        ConnectAsync(profile, credentialService, jumpHostService, resilience, jumpAuthOverrides: null, targetAuthOverride: null, cancellationToken);
 
     public static async Task<SshHopChain> ConnectAsync(
         TunnelProfile profile,
         ICredentialService credentialService,
+        IJumpHostService jumpHostService,
         SshResiliencePolicyProvider resilience,
         IReadOnlyList<TunnelAuthOverride>? jumpAuthOverrides,
         TunnelAuthOverride? targetAuthOverride,
@@ -40,6 +42,7 @@ internal sealed class SshHopChain : IDisposable
         await chain.ConnectInternalAsync(
             profile,
             credentialService,
+            jumpHostService,
             resilience,
             jumpAuthOverrides,
             targetAuthOverride,
@@ -54,11 +57,13 @@ internal sealed class SshHopChain : IDisposable
     public static async Task<SshHopChain> ConnectHopsAsync(
         IReadOnlyList<JumpHostHop> hops,
         ICredentialService credentialService,
+        IJumpHostService jumpHostService,
         SshResiliencePolicyProvider resilience,
         CancellationToken cancellationToken)
         => await ConnectHopsAsync(
             hops,
             credentialService,
+            jumpHostService,
             resilience,
             jumpAuthOverrides: null,
             cancellationToken).ConfigureAwait(false);
@@ -66,6 +71,7 @@ internal sealed class SshHopChain : IDisposable
     public static async Task<SshHopChain> ConnectHopsAsync(
         IReadOnlyList<JumpHostHop> hops,
         ICredentialService credentialService,
+        IJumpHostService jumpHostService,
         SshResiliencePolicyProvider resilience,
         IReadOnlyList<TunnelAuthOverride>? jumpAuthOverrides,
         CancellationToken cancellationToken,
@@ -76,6 +82,7 @@ internal sealed class SshHopChain : IDisposable
         await chain.ConnectHopsInternalAsync(
             hops,
             credentialService,
+            jumpHostService,
             resilience,
             jumpAuthOverrides,
             cancellationToken,
@@ -86,16 +93,18 @@ internal sealed class SshHopChain : IDisposable
     private async Task ConnectInternalAsync(
         TunnelProfile profile,
         ICredentialService credentialService,
+        IJumpHostService jumpHostService,
         SshResiliencePolicyProvider resilience,
         IReadOnlyList<TunnelAuthOverride>? jumpAuthOverrides,
         TunnelAuthOverride? targetAuthOverride,
         CancellationToken cancellationToken,
         SshConnectOptions? options)
     {
-        var hops = profile.GetEffectiveJumpHosts();
+        profile.EnsureJumpHostsFromLegacy();
         await ConnectHopsInternalAsync(
-            hops,
+            profile.GetEffectiveJumpHosts(),
             credentialService,
+            jumpHostService,
             resilience,
             jumpAuthOverrides,
             cancellationToken,
@@ -132,11 +141,14 @@ internal sealed class SshHopChain : IDisposable
     private async Task ConnectHopsInternalAsync(
         IReadOnlyList<JumpHostHop> hops,
         ICredentialService credentialService,
+        IJumpHostService jumpHostService,
         SshResiliencePolicyProvider resilience,
         IReadOnlyList<TunnelAuthOverride>? jumpAuthOverrides,
         CancellationToken cancellationToken,
         SshConnectOptions? options)
     {
+        hops = await jumpHostService.ResolveHopsAsync(hops, cancellationToken).ConfigureAwait(false);
+
         if (hops.Count == 0)
             throw new InvalidOperationException("At least one jump host is required.");
 

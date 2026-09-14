@@ -17,6 +17,7 @@ public class TunnelManagerService : ITunnelManagerService, IDisposable
     private readonly ILogger<TunnelManagerService> _logger;
     private readonly ConcurrentDictionary<int, TunnelWorker> _workers = new();
     private readonly ConcurrentDictionary<int, TunnelRuntimeState> _states = new();
+    private readonly ConcurrentDictionary<int, int> _loopGenerations = new();
 
     public TunnelManagerService(
         ITunnelProfileService profileService,
@@ -40,13 +41,15 @@ public class TunnelManagerService : ITunnelManagerService, IDisposable
         EnsureState(profile);
         await StopWorkerAsync(profileId).ConfigureAwait(false);
 
-        var worker = new TunnelWorker(profileId, this);
+        var generation = BumpLoopGeneration(profileId);
+        var worker = new TunnelWorker(profileId, generation, this);
         _workers[profileId] = worker;
         worker.Start();
     }
 
     public async Task StopTunnelAsync(int profileId, CancellationToken cancellationToken = default)
     {
+        BumpLoopGeneration(profileId);
         await StopWorkerAsync(profileId).ConfigureAwait(false);
         await _sshTunnelService.StopAsync(profileId, cancellationToken).ConfigureAwait(false);
         UpdateState(profileId, TunnelStatus.Stopped, error: null, reconnectAttempt: 0);
@@ -89,23 +92,25 @@ public class TunnelManagerService : ITunnelManagerService, IDisposable
     public TunnelRuntimeState? GetRuntimeState(int profileId)
         => _states.TryGetValue(profileId, out var state) ? state : null;
 
-    internal async Task RunTunnelLoopAsync(int profileId, CancellationToken cancellationToken)
+    internal async Task RunTunnelLoopAsync(int profileId, int generation, CancellationToken cancellationToken)
     {
         var attempt = 0;
         string? lastError = null;
 
-        while (!cancellationToken.IsCancellationRequested)
+        while (!cancellationToken.IsCancellationRequested && IsLoopGenerationCurrent(profileId, generation))
         {
             var profile = await _profileService.GetByIdAsync(profileId, cancellationToken).ConfigureAwait(false);
             if (profile is null)
             {
                 lastError = "Profile not found";
-                UpdateState(profileId, TunnelStatus.Error, lastError, reconnectAttempt: attempt);
+                if (!TryUpdateState(profileId, generation, TunnelStatus.Error, lastError, reconnectAttempt: attempt))
+                    break;
                 break;
             }
 
             EnsureState(profile);
-            UpdateState(profileId, TunnelStatus.Connecting, lastError, reconnectAttempt: attempt);
+            if (!TryUpdateState(profileId, generation, TunnelStatus.Connecting, lastError, reconnectAttempt: attempt))
+                break;
 
             try
             {
@@ -114,11 +119,12 @@ public class TunnelManagerService : ITunnelManagerService, IDisposable
                     ct => _sshTunnelService.StartAsync(profile, ct),
                     cancellationToken).ConfigureAwait(false);
 
-                UpdateState(profileId, TunnelStatus.Connected, error: null, reconnectAttempt: 0);
+                if (!TryUpdateState(profileId, generation, TunnelStatus.Connected, error: null, reconnectAttempt: 0))
+                    break;
                 attempt = 0;
                 lastError = null;
 
-                while (!cancellationToken.IsCancellationRequested)
+                while (!cancellationToken.IsCancellationRequested && IsLoopGenerationCurrent(profileId, generation))
                 {
                     await Task.Delay(TimeSpan.FromSeconds(5), cancellationToken).ConfigureAwait(false);
 
@@ -138,7 +144,8 @@ public class TunnelManagerService : ITunnelManagerService, IDisposable
             {
                 lastError = BuildCircuitBreakerMessage(lastError);
                 _logger.LogWarning("Tunnel {ProfileId} reconnect circuit open", profileId);
-                UpdateState(profileId, TunnelStatus.Error, lastError, reconnectAttempt: attempt);
+                if (!TryUpdateState(profileId, generation, TunnelStatus.Error, lastError, reconnectAttempt: attempt))
+                    break;
 
                 try
                 {
@@ -156,10 +163,11 @@ public class TunnelManagerService : ITunnelManagerService, IDisposable
             {
                 _logger.LogError(ex, "Tunnel {ProfileId} error", profileId);
                 lastError = ex.Message;
-                UpdateState(profileId, TunnelStatus.Error, ex.Message, reconnectAttempt: attempt);
+                if (!TryUpdateState(profileId, generation, TunnelStatus.Error, ex.Message, reconnectAttempt: attempt))
+                    break;
             }
 
-            if (cancellationToken.IsCancellationRequested)
+            if (cancellationToken.IsCancellationRequested || !IsLoopGenerationCurrent(profileId, generation))
                 break;
 
             attempt++;
@@ -169,11 +177,12 @@ public class TunnelManagerService : ITunnelManagerService, IDisposable
                 attempt,
                 profileId,
                 delay.TotalSeconds);
-            UpdateState(profileId, TunnelStatus.Error, lastError, reconnectAttempt: attempt);
+            if (!TryUpdateState(profileId, generation, TunnelStatus.Error, lastError, reconnectAttempt: attempt))
+                break;
 
             try
             {
-                await _sshTunnelService.StopAsync(profileId, CancellationToken.None).ConfigureAwait(false);
+                await _sshTunnelService.StopAsync(profileId, cancellationToken).ConfigureAwait(false);
                 await Task.Delay(delay, cancellationToken).ConfigureAwait(false);
             }
             catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
@@ -182,8 +191,9 @@ public class TunnelManagerService : ITunnelManagerService, IDisposable
             }
         }
 
-        await _sshTunnelService.StopAsync(profileId, CancellationToken.None).ConfigureAwait(false);
-        if (!cancellationToken.IsCancellationRequested)
+        if (IsLoopGenerationCurrent(profileId, generation))
+            await _sshTunnelService.StopAsync(profileId, cancellationToken).ConfigureAwait(false);
+        if (!cancellationToken.IsCancellationRequested && IsLoopGenerationCurrent(profileId, generation))
             UpdateState(profileId, TunnelStatus.Stopped, error: null, reconnectAttempt: 0);
     }
 
@@ -242,6 +252,26 @@ public class TunnelManagerService : ITunnelManagerService, IDisposable
         state.LocalPort = profile.LocalPort;
     }
 
+    private int BumpLoopGeneration(int profileId) =>
+        _loopGenerations.AddOrUpdate(profileId, 1, static (_, generation) => generation + 1);
+
+    private bool IsLoopGenerationCurrent(int profileId, int generation) =>
+        _loopGenerations.TryGetValue(profileId, out var current) && current == generation;
+
+    private bool TryUpdateState(
+        int profileId,
+        int generation,
+        TunnelStatus status,
+        string? error,
+        int reconnectAttempt)
+    {
+        if (!IsLoopGenerationCurrent(profileId, generation))
+            return false;
+
+        UpdateState(profileId, status, error, reconnectAttempt);
+        return true;
+    }
+
     private void UpdateState(int profileId, TunnelStatus status, string? error, int reconnectAttempt)
     {
         if (!_states.TryGetValue(profileId, out var state))
@@ -277,9 +307,9 @@ public class TunnelManagerService : ITunnelManagerService, IDisposable
         private readonly Task _task;
         private bool _disposed;
 
-        public TunnelWorker(int profileId, TunnelManagerService manager)
+        public TunnelWorker(int profileId, int generation, TunnelManagerService manager)
         {
-            _task = manager.RunTunnelLoopAsync(profileId, _cts.Token);
+            _task = manager.RunTunnelLoopAsync(profileId, generation, _cts.Token);
         }
 
         public void Start() { /* task already running */ }

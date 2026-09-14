@@ -7,6 +7,7 @@
         xmlns:windows="clr-namespace:SecureTunnelManager.UI.Windows"
         Title="{loc:Loc App.Title}"
         Style="{DynamicResource StmMainWindow}"
+        ShowFrameBorder="False"
         Width="1200"
         Height="760"
         WindowStartupLocation="CenterScreen">

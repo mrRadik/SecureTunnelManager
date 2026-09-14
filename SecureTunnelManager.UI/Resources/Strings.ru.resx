@@ -69,6 +69,7 @@
   <data name="JumpHosts.DeleteTitle" xml:space="preserve"><value>Удалить jump host</value></data>
   <data name="JumpHosts.DeleteConfirm" xml:space="preserve"><value>Удалить jump host «{0}»?</value></data>
   <data name="JumpHosts.DeleteConfirmInUse" xml:space="preserve"><value>Удалить jump host «{0}»? Он используется в {1} профиле(ах).</value></data>
+  <data name="JumpHosts.PasswordExpires" xml:space="preserve"><value>Пароль истекает: {0}</value></data>
   <data name="Nav.Share" xml:space="preserve"><value>Поделиться</value></data>
   <data name="Share.Title" xml:space="preserve"><value>Обмен соединениями</value></data>
   <data name="Share.Subtitle" xml:space="preserve"><value>Экспорт или импорт профилей туннелей и RDP. Пароли не включаются.</value></data>
@@ -311,6 +312,8 @@
   <data name="Notification.RdpDuplicated" xml:space="preserve"><value>Компьютер скопирован: {0}</value></data>
   <data name="Notification.DuplicateFailed" xml:space="preserve"><value>Не удалось скопировать: {0}</value></data>
   <data name="Notification.OpenTerminalFailed" xml:space="preserve"><value>Не удалось открыть терминал: {0}</value></data>
+  <data name="Notification.JumpHostPasswordExpiring" xml:space="preserve"><value>Скоро истекает пароль jump host ({0}): {1}</value></data>
+  <data name="Notification.EditJumpHost" xml:space="preserve"><value>Открыть</value></data>
   <data name="Notification.Time.JustNow" xml:space="preserve"><value>Только что</value></data>
   <data name="Notification.Time.MinutesAgo" xml:space="preserve"><value>{0} мин назад</value></data>
   <data name="Notification.Time.Yesterday" xml:space="preserve"><value>Вчера</value></data>

@@ -17,6 +17,7 @@ public sealed class RdpSessionService : IRdpSessionService, IDisposable
     private readonly ICredentialService _credentialService;
     private readonly IJumpHostService _jumpHostService;
     private readonly IVaultService _vaultService;
+    private readonly JumpHostPasswordExpiryService? _passwordExpiryProbe;
     private readonly SshResiliencePolicyProvider _resilience;
     private readonly ILogger<RdpSessionService> _logger;
     private readonly object _sync = new();
@@ -30,7 +31,8 @@ public sealed class RdpSessionService : IRdpSessionService, IDisposable
         IJumpHostService jumpHostService,
         IVaultService vaultService,
         SshResiliencePolicyProvider resilience,
-        ILogger<RdpSessionService> logger)
+        ILogger<RdpSessionService> logger,
+        JumpHostPasswordExpiryService? passwordExpiryProbe = null)
     {
         _targetService = targetService;
         _credentialService = credentialService;
@@ -38,6 +40,7 @@ public sealed class RdpSessionService : IRdpSessionService, IDisposable
         _vaultService = vaultService;
         _resilience = resilience;
         _logger = logger;
+        _passwordExpiryProbe = passwordExpiryProbe;
 
         _vaultService.VaultLocked += OnVaultLocked;
     }
@@ -188,7 +191,7 @@ public sealed class RdpSessionService : IRdpSessionService, IDisposable
             }
             else
             {
-                connection = new SshRdpConnection(_logger, _resilience);
+                connection = new SshRdpConnection(_logger, _resilience, _passwordExpiryProbe);
                 await connection.ConnectAsync(target, _credentialService, _jumpHostService, cancellationToken).ConfigureAwait(false);
                 bindAddress = connection.BoundLocalAddress;
                 bindPort = connection.BoundLocalPort;

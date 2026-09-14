@@ -14,6 +14,7 @@ public class SshTunnelTestService : ISshTunnelTestService
     private static readonly TimeSpan ServiceProbeTimeout = TimeSpan.FromSeconds(3);
     private readonly ICredentialService _credentialService;
     private readonly IJumpHostService _jumpHostService;
+    private readonly JumpHostPasswordExpiryService? _passwordExpiryProbe;
     private readonly SshResiliencePolicyProvider _resilience;
     private readonly ILogger<SshTunnelTestService> _logger;
 
@@ -21,12 +22,14 @@ public class SshTunnelTestService : ISshTunnelTestService
         ICredentialService credentialService,
         IJumpHostService jumpHostService,
         SshResiliencePolicyProvider resilience,
-        ILogger<SshTunnelTestService> logger)
+        ILogger<SshTunnelTestService> logger,
+        JumpHostPasswordExpiryService? passwordExpiryProbe = null)
     {
         _credentialService = credentialService;
         _jumpHostService = jumpHostService;
         _resilience = resilience;
         _logger = logger;
+        _passwordExpiryProbe = passwordExpiryProbe;
     }
 
     public async Task<TunnelTestResult> TestAsync(TunnelTestRequest request, CancellationToken cancellationToken = default)
@@ -39,7 +42,10 @@ public class SshTunnelTestService : ISshTunnelTestService
         SshClient? forwardingClient = null;
         ForwardedPortLocal? testForward = null;
         var testLocalPort = 0;
-        var connectOptions = SshConnectOptions.ForQuickTest(TestTimeout, created => chain = created);
+        var connectOptions = SshConnectOptions.ForQuickTest(TestTimeout, created => chain = created) with
+        {
+            PasswordExpiryProbe = _passwordExpiryProbe
+        };
 
         try
         {

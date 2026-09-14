@@ -16,6 +16,7 @@ internal static class EntityMapper
         CredentialId = entity.CredentialId,
         PrivateKeyPath = entity.PrivateKeyPath,
         KeyPassphraseCredentialId = entity.KeyPassphraseCredentialId,
+        PasswordExpiresAt = entity.PasswordExpiresAt,
         CreatedDate = entity.CreatedDate,
         ModifiedDate = entity.ModifiedDate
     };
@@ -31,6 +32,7 @@ internal static class EntityMapper
         CredentialId = jumpHost.CredentialId,
         PrivateKeyPath = jumpHost.PrivateKeyPath,
         KeyPassphraseCredentialId = jumpHost.KeyPassphraseCredentialId,
+        PasswordExpiresAt = jumpHost.PasswordExpiresAt,
         CreatedDate = jumpHost.CreatedDate,
         ModifiedDate = jumpHost.ModifiedDate
     };
@@ -45,6 +47,7 @@ internal static class EntityMapper
         entity.CredentialId = jumpHost.CredentialId;
         entity.PrivateKeyPath = jumpHost.PrivateKeyPath;
         entity.KeyPassphraseCredentialId = jumpHost.KeyPassphraseCredentialId;
+        entity.PasswordExpiresAt = jumpHost.PasswordExpiresAt;
     }
 
     public static Credential ToModel(CredentialEntity entity) => new()

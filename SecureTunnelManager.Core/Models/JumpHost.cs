@@ -14,6 +14,11 @@ public class JumpHost
     public int? CredentialId { get; set; }
     public string? PrivateKeyPath { get; set; }
     public int? KeyPassphraseCredentialId { get; set; }
+    /// <summary>Windows local account password expiry, probed via <c>net user</c> on first connect.</summary>
+    public DateTime? PasswordExpiresAt { get; set; }
+
+    public bool HasKnownPasswordExpiry =>
+        PasswordExpiresAt.HasValue && PasswordExpiresAt.Value != JumpHostPasswordExpiry.NeverExpires;
     public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
     public DateTime ModifiedDate { get; set; } = DateTime.UtcNow;
 

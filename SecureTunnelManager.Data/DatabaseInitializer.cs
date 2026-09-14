@@ -19,6 +19,7 @@ public static class DatabaseInitializer
         await EnsureColumnAsync(db, "TunnelProfiles", "IconKey", "TEXT NOT NULL DEFAULT 'tunnel'", cancellationToken).ConfigureAwait(false);
         await EnsureColumnAsync(db, "RdpTargets", "IconKey", "TEXT NOT NULL DEFAULT 'rdp'", cancellationToken).ConfigureAwait(false);
         await EnsureJumpHostsTableAsync(db, cancellationToken).ConfigureAwait(false);
+        await EnsureColumnAsync(db, "JumpHosts", "PasswordExpiresAt", "TEXT NULL", cancellationToken).ConfigureAwait(false);
     }
 
     private static async Task EnsureJumpHostsTableAsync(AppDbContext db, CancellationToken cancellationToken)

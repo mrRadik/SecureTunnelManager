@@ -37,6 +37,10 @@
                 <TextBlock Text="{Binding ReferenceCountDisplay}"
                            Style="{DynamicResource StmCardSecondaryText}"
                            TextTrimming="CharacterEllipsis"/>
+                <TextBlock Text="{Binding PasswordExpiryDisplay}"
+                           Style="{DynamicResource StmCardSecondaryText}"
+                           TextTrimming="CharacterEllipsis"
+                           Visibility="{Binding ShowPasswordExpiry, Converter={StaticResource BooleanToVisibilityConverter}}"/>
             </StackPanel>
 
             <Button Grid.Column="2"

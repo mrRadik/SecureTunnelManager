@@ -12,6 +12,7 @@ public enum NotificationActionKind
 {
     EditTunnel,
     EditRdpTarget,
+    EditJumpHost,
     UnlockVault,
     OpenSettings,
     InstallUpdate

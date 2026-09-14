@@ -14,11 +14,16 @@ internal sealed class SshRdpConnection : IDisposable
     private ForwardedPortLocal? _localForwardPort;
     private readonly ILogger _logger;
     private readonly SshResiliencePolicyProvider _resilience;
+    private readonly IJumpHostPasswordExpiryProbe? _passwordExpiryProbe;
 
-    public SshRdpConnection(ILogger logger, SshResiliencePolicyProvider resilience)
+    public SshRdpConnection(
+        ILogger logger,
+        SshResiliencePolicyProvider resilience,
+        IJumpHostPasswordExpiryProbe? passwordExpiryProbe = null)
     {
         _logger = logger;
         _resilience = resilience;
+        _passwordExpiryProbe = passwordExpiryProbe;
     }
 
     public int BoundLocalPort { get; private set; }
@@ -50,7 +55,9 @@ internal sealed class SshRdpConnection : IDisposable
             credentialService,
             jumpHostService,
             _resilience,
-            cancellationToken).ConfigureAwait(false);
+            jumpAuthOverrides: null,
+            cancellationToken,
+            new SshConnectOptions { PasswordExpiryProbe = _passwordExpiryProbe }).ConfigureAwait(false);
 
         BoundLocalAddress = string.IsNullOrWhiteSpace(target.LocalBindAddress) ? "127.0.0.1" : target.LocalBindAddress.Trim();
         BoundLocalPort = target.LocalPort > 0 ? target.LocalPort : SshHopChain.GetFreeTcpPort();

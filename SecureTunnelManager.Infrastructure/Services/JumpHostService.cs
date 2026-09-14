@@ -76,6 +76,26 @@ public class JumpHostService : IJumpHostService
         _logger.LogInformation("Jump host updated: {Name}", jumpHost.Name);
     }
 
+    public async Task<JumpHost?> SetPasswordExpiresAtIfEmptyAsync(
+        int id,
+        DateTime? expiresAt,
+        CancellationToken cancellationToken = default)
+    {
+        await using var db = await _dbFactory.CreateDbContextAsync(cancellationToken).ConfigureAwait(false);
+        var entity = await db.JumpHosts.FirstOrDefaultAsync(j => j.Id == id, cancellationToken).ConfigureAwait(false);
+        if (entity is null)
+            return null;
+
+        if (entity.PasswordExpiresAt is DateTime existing
+            && existing != JumpHostPasswordExpiry.NeverExpires)
+            return null;
+
+        entity.PasswordExpiresAt = expiresAt;
+        entity.ModifiedDate = DateTime.UtcNow;
+        await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        return EntityMapper.ToModel(entity);
+    }
+
     public async Task DeleteAsync(int id, CancellationToken cancellationToken = default)
     {
         await using var db = await _dbFactory.CreateDbContextAsync(cancellationToken).ConfigureAwait(false);

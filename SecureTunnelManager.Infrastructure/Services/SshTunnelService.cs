@@ -10,6 +10,7 @@ public class SshTunnelService : ISshTunnelService
 {
     private readonly ICredentialService _credentialService;
     private readonly IJumpHostService _jumpHostService;
+    private readonly JumpHostPasswordExpiryService? _passwordExpiryProbe;
     private readonly Ssh.SshResiliencePolicyProvider _resilience;
     private readonly ILogger<SshTunnelService> _logger;
     private readonly ConcurrentDictionary<int, TunnelSession> _sessions = new();
@@ -18,12 +19,14 @@ public class SshTunnelService : ISshTunnelService
         ICredentialService credentialService,
         IJumpHostService jumpHostService,
         Ssh.SshResiliencePolicyProvider resilience,
-        ILogger<SshTunnelService> logger)
+        ILogger<SshTunnelService> logger,
+        JumpHostPasswordExpiryService? passwordExpiryProbe = null)
     {
         _credentialService = credentialService;
         _jumpHostService = jumpHostService;
         _resilience = resilience;
         _logger = logger;
+        _passwordExpiryProbe = passwordExpiryProbe;
     }
 
     public async Task StartAsync(TunnelProfile profile, CancellationToken cancellationToken = default)
@@ -37,7 +40,7 @@ public class SshTunnelService : ISshTunnelService
             session.ErrorMessage = null;
 
             session.Connection?.Dispose();
-            session.Connection = new SshTunnelConnection(_logger, _resilience);
+            session.Connection = new SshTunnelConnection(_logger, _resilience, _passwordExpiryProbe);
 
             await session.Connection.ConnectAsync(profile, _credentialService, _jumpHostService, cancellationToken).ConfigureAwait(false);
             session.Status = TunnelStatus.Connected;

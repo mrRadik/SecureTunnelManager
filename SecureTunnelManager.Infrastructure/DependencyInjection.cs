@@ -32,6 +32,9 @@ public static class DependencyInjection
         services.AddSingleton<IVaultService, VaultService>();
         services.AddSingleton<ICredentialService, CredentialService>();
         services.AddSingleton<IJumpHostService, JumpHostService>();
+        services.AddSingleton<JumpHostPasswordExpiryService>();
+        services.AddSingleton<IJumpHostPasswordExpiryService>(sp => sp.GetRequiredService<JumpHostPasswordExpiryService>());
+        services.AddSingleton<Ssh.IJumpHostPasswordExpiryProbe>(sp => sp.GetRequiredService<JumpHostPasswordExpiryService>());
         services.AddSingleton<ITunnelProfileService, TunnelProfileService>();
         services.AddSingleton<IRdpTargetService, RdpTargetService>();
         services.AddSingleton<SshResiliencePolicyProvider>();

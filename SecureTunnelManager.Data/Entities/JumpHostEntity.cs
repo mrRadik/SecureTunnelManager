@@ -11,6 +11,7 @@ public class JumpHostEntity
     public int? CredentialId { get; set; }
     public string? PrivateKeyPath { get; set; }
     public int? KeyPassphraseCredentialId { get; set; }
+    public DateTime? PasswordExpiresAt { get; set; }
     public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
     public DateTime ModifiedDate { get; set; } = DateTime.UtcNow;
 }

@@ -27,7 +27,7 @@ public sealed partial class NotificationItemViewModel : ObservableObject
 
     public bool HasAction => Source.ActionKind switch
     {
-        NotificationActionKind.EditTunnel or NotificationActionKind.EditRdpTarget
+        NotificationActionKind.EditTunnel or NotificationActionKind.EditRdpTarget or NotificationActionKind.EditJumpHost
             => Source.ResourceId.HasValue && !string.IsNullOrWhiteSpace(Source.ActionLabelKey),
         NotificationActionKind.UnlockVault
             or NotificationActionKind.OpenSettings
@@ -233,6 +233,11 @@ public partial class NotificationCenterViewModel : ObservableObject
             case NotificationActionKind.EditRdpTarget when notification.ResourceId.HasValue:
                 main.SelectedSection = NavigationSection.Rdp;
                 await main.Rdp.EditByIdAsync(notification.ResourceId.Value).ConfigureAwait(true);
+                break;
+
+            case NotificationActionKind.EditJumpHost when notification.ResourceId.HasValue:
+                main.SelectedSection = NavigationSection.JumpHosts;
+                await main.JumpHosts.EditByIdAsync(notification.ResourceId.Value).ConfigureAwait(true);
                 break;
 
             case NotificationActionKind.UnlockVault:

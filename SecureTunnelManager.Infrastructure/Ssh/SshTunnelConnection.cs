@@ -15,12 +15,22 @@ internal sealed class SshTunnelConnection : IDisposable
     private ForwardedPortLocal? _localForwardPort;
     private readonly ILogger _logger;
     private readonly SshResiliencePolicyProvider _resilience;
+    private readonly IJumpHostPasswordExpiryProbe? _passwordExpiryProbe;
 
-    public SshTunnelConnection(ILogger logger, SshResiliencePolicyProvider resilience)
+    public SshTunnelConnection(
+        ILogger logger,
+        SshResiliencePolicyProvider resilience,
+        IJumpHostPasswordExpiryProbe? passwordExpiryProbe = null)
     {
         _logger = logger;
         _resilience = resilience;
+        _passwordExpiryProbe = passwordExpiryProbe;
     }
+
+    private SshConnectOptions CreateConnectOptions() => new()
+    {
+        PasswordExpiryProbe = _passwordExpiryProbe
+    };
 
     public bool IsConnected =>
         _forwardingClient?.IsConnected == true &&
@@ -41,7 +51,10 @@ internal sealed class SshTunnelConnection : IDisposable
                 credentialService,
                 jumpHostService,
                 _resilience,
-                cancellationToken).ConfigureAwait(false);
+                jumpAuthOverrides: null,
+                targetAuthOverride: null,
+                cancellationToken,
+                CreateConnectOptions()).ConfigureAwait(false);
             _forwardingClient = _hopChain.TargetClient!;
         }
         else
@@ -52,7 +65,9 @@ internal sealed class SshTunnelConnection : IDisposable
                 credentialService,
                 jumpHostService,
                 _resilience,
-                cancellationToken).ConfigureAwait(false);
+                jumpAuthOverrides: null,
+                cancellationToken,
+                CreateConnectOptions()).ConfigureAwait(false);
             _forwardingClient = _hopChain.LastHopClient;
         }
 

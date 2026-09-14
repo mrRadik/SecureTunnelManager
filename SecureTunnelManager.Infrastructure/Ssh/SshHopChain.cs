@@ -201,6 +201,9 @@ internal sealed class SshHopChain : IDisposable
                     resilience,
                     options,
                     cancellationToken).ConfigureAwait(false);
+
+                if (options?.PasswordExpiryProbe is not null)
+                    await options.PasswordExpiryProbe.ProbeIfNeededAsync(client, hop, cancellationToken).ConfigureAwait(false);
             }
             catch
             {

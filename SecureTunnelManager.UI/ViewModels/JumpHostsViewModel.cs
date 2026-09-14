@@ -1,4 +1,7 @@
 using System.Collections.ObjectModel;
+using System.Globalization;
+using System.Windows;
+using System.Windows.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using SecureTunnelManager.Core.Models;
@@ -13,39 +16,48 @@ public partial class JumpHostListItemViewModel : ObservableObject
         JumpHost jumpHost,
         int referenceCount,
         string endpointDisplay,
-        string referenceCountDisplay)
+        string referenceCountDisplay,
+        string passwordExpiryDisplay)
     {
         JumpHost = jumpHost;
         ReferenceCount = referenceCount;
         EndpointDisplay = endpointDisplay;
         ReferenceCountDisplay = referenceCountDisplay;
+        PasswordExpiryDisplay = passwordExpiryDisplay;
     }
 
     public JumpHost JumpHost { get; }
     public int ReferenceCount { get; }
     public string EndpointDisplay { get; }
     public string ReferenceCountDisplay { get; }
+    public string PasswordExpiryDisplay { get; }
     public string Name => JumpHost.Name;
+    public bool ShowPasswordExpiry => !string.IsNullOrEmpty(PasswordExpiryDisplay);
 }
 
 public partial class JumpHostsViewModel : ObservableObject
 {
     private readonly IJumpHostService _jumpHostService;
+    private readonly IJumpHostPasswordExpiryService _passwordExpiryService;
     private readonly IDialogService _dialogService;
     private readonly ILocalizationService _localization;
     private readonly INotificationService _notifications;
+    private readonly HashSet<int> _notifiedJumpHostIds = new();
 
     public JumpHostsViewModel(
         IJumpHostService jumpHostService,
+        IJumpHostPasswordExpiryService passwordExpiryService,
         IDialogService dialogService,
         ILocalizationService localization,
         INotificationService notifications)
     {
         _jumpHostService = jumpHostService;
+        _passwordExpiryService = passwordExpiryService;
         _dialogService = dialogService;
         _localization = localization;
         _notifications = notifications;
         _localization.LanguageChanged += (_, _) => _ = LoadAsync();
+        _passwordExpiryService.PasswordExpiresAtUpdated += OnPasswordExpiresAtUpdated;
     }
 
     public ObservableCollection<JumpHostListItemViewModel> Items { get; } = new();
@@ -54,6 +66,13 @@ public partial class JumpHostsViewModel : ObservableObject
 
     public bool HasItems => Items.Count > 0;
     public bool ShowEmptyState => !IsLoading && !HasItems;
+
+    public async Task CheckExpiringNotificationsAsync()
+    {
+        var jumpHosts = await _jumpHostService.GetAllAsync().ConfigureAwait(true);
+        foreach (var jumpHost in jumpHosts)
+            NotifyIfExpiring(jumpHost);
+    }
 
     [RelayCommand]
     public async Task LoadAsync()
@@ -74,7 +93,9 @@ public partial class JumpHostsViewModel : ObservableObject
                     jumpHost,
                     refs,
                     FormatEndpoint(jumpHost),
-                    FormatReferenceCount(refs)));
+                    FormatReferenceCount(refs),
+                    FormatPasswordExpiry(jumpHost)));
+                NotifyIfExpiring(jumpHost);
             }
         }
         finally
@@ -83,6 +104,24 @@ public partial class JumpHostsViewModel : ObservableObject
             OnPropertyChanged(nameof(HasItems));
             OnPropertyChanged(nameof(ShowEmptyState));
         }
+    }
+
+    public async Task EditByIdAsync(int jumpHostId)
+    {
+        var item = Items.FirstOrDefault(i => i.JumpHost.Id == jumpHostId);
+        if (item is not null)
+        {
+            await EditAsync(item).ConfigureAwait(true);
+            return;
+        }
+
+        var jumpHost = await _jumpHostService.GetByIdAsync(jumpHostId).ConfigureAwait(true);
+        if (jumpHost is null)
+            return;
+
+        var updated = await _dialogService.ShowJumpHostEditorAsync(jumpHost).ConfigureAwait(true);
+        if (updated is not null)
+            await LoadAsync().ConfigureAwait(true);
     }
 
     [RelayCommand]
@@ -120,12 +159,66 @@ public partial class JumpHostsViewModel : ObservableObject
         try
         {
             await _jumpHostService.DeleteAsync(item.JumpHost.Id).ConfigureAwait(true);
+            _notifiedJumpHostIds.Remove(item.JumpHost.Id);
             await LoadAsync().ConfigureAwait(true);
         }
         catch (Exception ex)
         {
             _dialogService.ShowError(ex.Message);
         }
+    }
+
+    private void OnPasswordExpiresAtUpdated(object? sender, JumpHost jumpHost)
+    {
+        var dispatcher = System.Windows.Application.Current?.Dispatcher;
+        if (dispatcher is null || dispatcher.CheckAccess())
+        {
+            ApplyPasswordExpiresAtUpdate(jumpHost);
+            return;
+        }
+
+        dispatcher.InvokeAsync(() => ApplyPasswordExpiresAtUpdate(jumpHost), DispatcherPriority.Background);
+    }
+
+    private void ApplyPasswordExpiresAtUpdate(JumpHost jumpHost)
+    {
+        NotifyIfExpiring(jumpHost);
+
+        var item = Items.FirstOrDefault(i => i.JumpHost.Id == jumpHost.Id);
+        if (item is null)
+            return;
+
+        var index = Items.IndexOf(item);
+        if (index < 0)
+            return;
+
+        var refs = item.ReferenceCount;
+        Items[index] = new JumpHostListItemViewModel(
+            jumpHost,
+            refs,
+            FormatEndpoint(jumpHost),
+            FormatReferenceCount(refs),
+            FormatPasswordExpiry(jumpHost));
+    }
+
+    private void NotifyIfExpiring(JumpHost jumpHost)
+    {
+        if (!_passwordExpiryService.IsExpiringSoon(jumpHost))
+            return;
+
+        if (!_notifiedJumpHostIds.Add(jumpHost.Id))
+            return;
+
+        var expiresText = FormatExpiryDate(jumpHost.PasswordExpiresAt!.Value);
+        _notifications.Publish(new AppNotification
+        {
+            Severity = NotificationSeverity.Warning,
+            MessageKey = "Notification.JumpHostPasswordExpiring",
+            MessageArgs = [jumpHost.Name, expiresText],
+            ActionKind = NotificationActionKind.EditJumpHost,
+            ResourceId = jumpHost.Id,
+            ActionLabelKey = "Notification.EditJumpHost"
+        });
     }
 
     private string FormatReferenceCount(int count) =>
@@ -140,4 +233,17 @@ public partial class JumpHostsViewModel : ObservableObject
             : $"{jumpHost.Username}@{jumpHost.Host}";
         return jumpHost.Port == 22 ? label : $"{label}:{jumpHost.Port}";
     }
+
+    private string FormatPasswordExpiry(JumpHost jumpHost)
+    {
+        if (!jumpHost.HasKnownPasswordExpiry)
+            return string.Empty;
+
+        var expires = jumpHost.PasswordExpiresAt!.Value;
+
+        return _localization.Format("JumpHosts.PasswordExpires", FormatExpiryDate(expires));
+    }
+
+    private static string FormatExpiryDate(DateTime expires) =>
+        expires.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
 }

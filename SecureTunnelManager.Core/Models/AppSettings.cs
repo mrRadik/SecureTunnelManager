@@ -26,4 +26,7 @@ public class AppSettings
 
     /// <summary>JSON array of collapsed tunnel group keys (empty string = ungrouped).</summary>
     public string? TunnelCollapsedGroupsJson { get; set; }
+
+    /// <summary>Last date (yyyy-MM-dd, MSK) when jump host password expiry notifications were sent.</summary>
+    public string? JumpHostPasswordExpiryLastNotifiedDate { get; set; }
 }

@@ -28,7 +28,7 @@
     <RootNamespace>SecureTunnelManager.UI</RootNamespace>
     <Product>Secure Tunnel Manager</Product>
     <Company>Secure Tunnel Manager</Company>
-    <Version>2.0.1</Version>
+    <Version>2.1.0</Version>
     <ApplicationIcon>Assets\app.ico</ApplicationIcon>
   </PropertyGroup>
 

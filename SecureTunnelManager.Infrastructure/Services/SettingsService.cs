@@ -25,6 +25,7 @@ public class SettingsService : ISettingsService
     private const string UiThemeKey = "UiTheme";
     private const string RdpCollapsedGroupsJsonKey = "RdpCollapsedGroupsJson";
     private const string TunnelCollapsedGroupsJsonKey = "TunnelCollapsedGroupsJson";
+    private const string JumpHostPasswordExpiryLastNotifiedDateKey = "JumpHostPasswordExpiryLastNotifiedDate";
 
     private readonly IDbContextFactory<AppDbContext> _dbFactory;
 
@@ -56,7 +57,8 @@ public class SettingsService : ISettingsService
                 ? AppThemeModes.Normalize(theme)
                 : AppThemeModes.Dark,
             RdpCollapsedGroupsJson = dict.GetValueOrDefault(RdpCollapsedGroupsJsonKey),
-            TunnelCollapsedGroupsJson = dict.GetValueOrDefault(TunnelCollapsedGroupsJsonKey)
+            TunnelCollapsedGroupsJson = dict.GetValueOrDefault(TunnelCollapsedGroupsJsonKey),
+            JumpHostPasswordExpiryLastNotifiedDate = dict.GetValueOrDefault(JumpHostPasswordExpiryLastNotifiedDateKey)
         };
     }
 
@@ -104,6 +106,9 @@ public class SettingsService : ISettingsService
             if (existing is not null)
                 db.Settings.Remove(existing);
         }
+
+        if (!string.IsNullOrWhiteSpace(settings.JumpHostPasswordExpiryLastNotifiedDate))
+            await UpsertAsync(db, JumpHostPasswordExpiryLastNotifiedDateKey, settings.JumpHostPasswordExpiryLastNotifiedDate, cancellationToken).ConfigureAwait(false);
 
         await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
     }

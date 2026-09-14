@@ -58,7 +58,9 @@ public partial class App : System.Windows.Application
                 services.AddSingleton<UpdatePromptService>();
                 services.AddSingleton<WhatsNewService>();
                 services.AddSingleton<TrayIconService>();
+                services.AddSingleton<JumpHostPasswordExpiryNotifier>();
                 services.AddHostedService<Hosting.UpdateCheckHostedService>();
+                services.AddHostedService<Hosting.JumpHostPasswordExpiryNotificationHostedService>();
                 services.AddSingleton<MainViewModel>();
                 services.AddSingleton<SettingsViewModel>();
                 services.AddSingleton<RdpViewModel>();

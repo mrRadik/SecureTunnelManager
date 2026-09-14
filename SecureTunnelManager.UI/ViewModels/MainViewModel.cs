@@ -300,7 +300,6 @@ public partial class MainViewModel : ObservableObject
             RefreshVaultState();
 
             await Rdp.LoadAsync().ConfigureAwait(true);
-            await JumpHosts.CheckExpiringNotificationsAsync().ConfigureAwait(true);
 
             var settings = await _settingsService.GetSettingsAsync().ConfigureAwait(true);
             _collapsedTunnelGroupKeys = ParseCollapsedTunnelGroups(settings.TunnelCollapsedGroupsJson);

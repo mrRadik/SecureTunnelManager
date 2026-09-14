@@ -41,21 +41,16 @@ public partial class JumpHostsViewModel : ObservableObject
     private readonly IJumpHostPasswordExpiryService _passwordExpiryService;
     private readonly IDialogService _dialogService;
     private readonly ILocalizationService _localization;
-    private readonly INotificationService _notifications;
-    private readonly HashSet<int> _notifiedJumpHostIds = new();
-
     public JumpHostsViewModel(
         IJumpHostService jumpHostService,
         IJumpHostPasswordExpiryService passwordExpiryService,
         IDialogService dialogService,
-        ILocalizationService localization,
-        INotificationService notifications)
+        ILocalizationService localization)
     {
         _jumpHostService = jumpHostService;
         _passwordExpiryService = passwordExpiryService;
         _dialogService = dialogService;
         _localization = localization;
-        _notifications = notifications;
         _localization.LanguageChanged += (_, _) => _ = LoadAsync();
         _passwordExpiryService.PasswordExpiresAtUpdated += OnPasswordExpiresAtUpdated;
     }
@@ -66,13 +61,6 @@ public partial class JumpHostsViewModel : ObservableObject
 
     public bool HasItems => Items.Count > 0;
     public bool ShowEmptyState => !IsLoading && !HasItems;
-
-    public async Task CheckExpiringNotificationsAsync()
-    {
-        var jumpHosts = await _jumpHostService.GetAllAsync().ConfigureAwait(true);
-        foreach (var jumpHost in jumpHosts)
-            NotifyIfExpiring(jumpHost);
-    }
 
     [RelayCommand]
     public async Task LoadAsync()
@@ -95,7 +83,6 @@ public partial class JumpHostsViewModel : ObservableObject
                     FormatEndpoint(jumpHost),
                     FormatReferenceCount(refs),
                     FormatPasswordExpiry(jumpHost)));
-                NotifyIfExpiring(jumpHost);
             }
         }
         finally
@@ -159,7 +146,6 @@ public partial class JumpHostsViewModel : ObservableObject
         try
         {
             await _jumpHostService.DeleteAsync(item.JumpHost.Id).ConfigureAwait(true);
-            _notifiedJumpHostIds.Remove(item.JumpHost.Id);
             await LoadAsync().ConfigureAwait(true);
         }
         catch (Exception ex)
@@ -182,8 +168,6 @@ public partial class JumpHostsViewModel : ObservableObject
 
     private void ApplyPasswordExpiresAtUpdate(JumpHost jumpHost)
     {
-        NotifyIfExpiring(jumpHost);
-
         var item = Items.FirstOrDefault(i => i.JumpHost.Id == jumpHost.Id);
         if (item is null)
             return;
@@ -199,26 +183,6 @@ public partial class JumpHostsViewModel : ObservableObject
             FormatEndpoint(jumpHost),
             FormatReferenceCount(refs),
             FormatPasswordExpiry(jumpHost));
-    }
-
-    private void NotifyIfExpiring(JumpHost jumpHost)
-    {
-        if (!_passwordExpiryService.IsExpiringSoon(jumpHost))
-            return;
-
-        if (!_notifiedJumpHostIds.Add(jumpHost.Id))
-            return;
-
-        var expiresText = FormatExpiryDate(jumpHost.PasswordExpiresAt!.Value);
-        _notifications.Publish(new AppNotification
-        {
-            Severity = NotificationSeverity.Warning,
-            MessageKey = "Notification.JumpHostPasswordExpiring",
-            MessageArgs = [jumpHost.Name, expiresText],
-            ActionKind = NotificationActionKind.EditJumpHost,
-            ResourceId = jumpHost.Id,
-            ActionLabelKey = "Notification.EditJumpHost"
-        });
     }
 
     private string FormatReferenceCount(int count) =>

@@ -1,6 +1,6 @@
 {
-    "version":  "2.0.0",
-    "url":  "https://github.com/mrRadik/SecureTunnelManager/releases/download/v2.0.0/SecureTunnelManager-Setup-2.0.0.msi",
-    "sha256":  "22e50e6fd35261d95a2fd7b1f0ba4fab90a51d15717baa42b92f4ce299a03c77",
-    "releaseNotes":  "Secure Tunnel Manager 2.0.0\r\n\r\n═══════════════════════════════════════\r\nНОВОЕ\r\n═══════════════════════════════════════\r\n\r\n• Библиотека Jump Hosts — переиспользуемые промежуточные серверы в разделе System → Jump Hosts\r\n• При настройке туннеля и RDP jump host выбирается из списка; пароль меняется в одном месте для всех профилей\r\n• Автоматическая миграция старых inline jump host в библиотеку при первом запуске\r\n• Обновлённый мастер настройки jump host: компактный выбор из списка, карточка с деталями подключения\r\n"
+    "version":  "2.1.0",
+    "url":  "https://github.com/mrRadik/SecureTunnelManager/releases/download/v2.1.0/SecureTunnelManager-Setup-2.1.0.msi",
+    "sha256":  "f1902494d4957725b5b5c899af893b58185a576a7722099c99dfa5520ca2ee2b",
+    "releaseNotes":  "Secure Tunnel Manager 2.1.0\r\n\r\n═══════════════════════════════════════\r\nНОВОЕ\r\n═══════════════════════════════════════\r\n\r\n• Срок действия пароля jump host — автоматически определяется при первом подключении (Windows, net user)\r\n• Дата истечения отображается в разделе Jump Hosts (формат YYYY-MM-DD)\r\n• Уведомление за 14 дней до истечения пароля jump host"
 }
